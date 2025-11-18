@@ -6,46 +6,73 @@
   <title>Behavioral Financial Allocator</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
-    :root{--card:#ffffff;--muted:#666;--bg:#fbfdff}
-    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:#111;margin:0;padding:24px}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fbfdff;color:#111;margin:0;padding:24px}
     .wrap{max-width:980px;margin:0 auto}
-    header{display:flex;align-items:center;gap:16px}
-    h1{margin:0;font-size:20px}
-    .grid{display:grid;grid-template-columns:1fr 420px;gap:20px;margin-top:16px}
-    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06)}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    h1{margin:0;font-size:26px}
+    h2{margin-top:24px;font-size:20px;color:#1f6feb}
+    p, li{font-size:14px;line-height:1.5}
+    ul{margin-top:4px;margin-bottom:12px}
+    .card{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
+    label{display:block;font-size:13px;color:#666;margin-bottom:6px}
     .slider-row{margin-bottom:12px}
     input[type=range]{width:100%}
-    .small{font-size:13px;color:var(--muted)}
+    .small{font-size:13px;color:#666}
+    button{background:#1f6feb;color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;margin-top:8px;margin-right:6px}
     .results{margin-top:10px;font-size:15px;line-height:1.4}
-    button{background:#1f6feb;color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
-    .footer{font-size:13px;color:var(--muted);margin-top:18px}
-    @media(max-width:880px){.grid{grid-template-columns:1fr;}.card{padding:12px}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>Behavioral Financial Allocator</h1>
-      <div class="small">Experiment with allocations and share the link with friends</div>
     </header>
 
-    <div class="grid">
-      <div class="card">
-        <div id="sliders"></div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button onclick="update()">Run Projection</button>
-          <button onclick="resetDefaults()" style="background:#e6e9ef;color:#111">Reset</button>
-        </div>
+    <!-- Section 1: Intro -->
+    <div class="card">
+      <p>This interactive tool helps you plan how to allocate your discretionary income between <strong>Investing</strong>, <strong>Debt repayment</strong>, and <strong>Savings</strong>. It combines financial calculations with behavioral considerations, aiming to balance long-term net worth optimization with your current needs and priorities.</p>
+    </div>
 
-        <div class="results card" id="results" style="margin-top:12px;background:transparent;padding:0"></div>
-        <div class="footer">Tip: use the priorities to nudge allocation; you can share this page directly once deployed.</div>
-      </div>
+    <!-- Section 2: Monthly income/expenses/debt -->
+    <div class="card">
+      <h2>Step 1: Enter your monthly numbers</h2>
+      <p>Input your monthly income, regular expenses, and any minimum debt payments you are required to make. This calculates your <strong>discretionary income</strong>, which is the portion available to allocate toward investing, debt repayment, or savings.</p>
+    </div>
 
-      <div class="card">
-        <div id="piechart" style="width:100%;height:360px"></div>
-        <div style="margin-top:12px" id="summary"></div>
-      </div>
+    <!-- Section 3: Rates -->
+    <div class="card">
+      <h2>Step 2: Set your expected rates</h2>
+      <p>- <strong>Investing Return:</strong> Estimate around 8% annually for investments.<br>
+         - <strong>Savings Rate:</strong> Use something like 1.5% annually for savings.<br>
+         - <strong>Average Debt Rate:</strong> Enter the interest rate you are paying on your debts.</p>
+      <p>These rates allow the tool to model growth of investments and savings, as well as debt accumulation over time.</p>
+    </div>
+
+    <!-- Section 4: Behavioral Preferences -->
+    <div class="card">
+      <h2>Step 3: Set your behavioral preferences</h2>
+      <p>- <strong>Risk Tolerance:</strong> How comfortable you are with investment risk. Higher values favor more aggressive investing.<br>
+         - <strong>Debt Aversion:</strong> How strongly you prefer paying down debt quickly. Higher values favor faster repayment.<br>
+         - <strong>Priority Weights:</strong> Slide the scale for Investing, Debt, and Savings based on what matters most to you. This reflects your behavioral preferences rather than purely mathematical optimization.</p>
+    </div>
+
+    <!-- Section 5: Timeline and Existing Balances -->
+    <div class="card">
+      <h2>Step 4: Set timeline and existing balances</h2>
+      <p>Choose the number of years to project your net worth. Enter any existing investments, savings, and total debt. The tool will show a personalized projection of how your choices today affect your future net worth.</p>
+    </div>
+
+    <!-- Sliders and controls -->
+    <div class="card">
+      <div id="sliders"></div>
+      <button onclick="update()">Run Projection</button>
+      <button onclick="resetDefaults()" style="background:#e6e9ef;color:#111">Reset</button>
+      <div class="results" id="results"></div>
+    </div>
+
+    <!-- Pie chart and summary -->
+    <div class="card">
+      <div id="piechart" style="width:100%;height:360px"></div>
+      <div id="summary" style="margin-top:12px"></div>
     </div>
   </div>
 
@@ -97,7 +124,7 @@ function monthsToDebtFree(balance, apr, payment){
 
 const defaults = {
   income:4000, expenses:2200, minDebtPayment:300,
-  rInvest:0.07, rDebt:0.06, rSave:0.01,
+  rInvest:0.08, rDebt:0.06, rSave:0.015,
   RT:0.5, DA:0.5,
   pInvest:0.33, pDebt:0.33, pSave:0.33,
   years:10,
@@ -105,21 +132,21 @@ const defaults = {
 };
 
 const sliderDefinitions = [
-  ["income","Income",defaults.income,1000,15000,100],
-  ["expenses","Expenses",defaults.expenses,500,12000,50],
-  ["minDebtPayment","Min Debt Payment",defaults.minDebtPayment,0,2000,10],
+  ["income","Monthly Income",defaults.income,1000,15000,100],
+  ["expenses","Monthly Expenses",defaults.expenses,500,12000,50],
+  ["minDebtPayment","Minimum Debt Payment",defaults.minDebtPayment,0,2000,10],
   ["rInvest","Investment Return",defaults.rInvest,0,0.15,0.005],
   ["rDebt","Debt Interest Rate",defaults.rDebt,0,0.15,0.005],
   ["rSave","Savings Rate",defaults.rSave,0,0.05,0.001],
   ["RT","Risk Tolerance",defaults.RT,0,1,0.01],
   ["DA","Debt Aversion",defaults.DA,0,1,0.01],
-  ["pInvest","Priority Invest",defaults.pInvest,0,1,0.01],
-  ["pDebt","Priority Debt",defaults.pDebt,0,1,0.01],
-  ["pSave","Priority Save",defaults.pSave,0,1,0.01],
+  ["pInvest","Invest Priority",defaults.pInvest,0,1,0.01],
+  ["pDebt","Debt Priority",defaults.pDebt,0,1,0.01],
+  ["pSave","Save Priority",defaults.pSave,0,1,0.01],
   ["years","Projection Years",defaults.years,1,50,1],
-  ["initialInvest","Initial Invest",defaults.initialInvest,0,200000,1000],
-  ["initialSavings","Initial Savings",defaults.initialSavings,0,200000,1000],
-  ["initialDebt","Initial Debt",defaults.initialDebt,0,200000,1000]
+  ["initialInvest","Existing Investments",defaults.initialInvest,0,200000,1000],
+  ["initialSavings","Existing Savings",defaults.initialSavings,0,200000,1000],
+  ["initialDebt","Total Debt",defaults.initialDebt,0,200000,1000]
 ];
 
 function makeSliders(){
@@ -175,7 +202,7 @@ function update(){
   Plotly.newPlot('piechart',[{values:[out.alloc.Invest,out.alloc.Debt,out.alloc.Save],labels:['Invest','Debt','Save'],type:'pie'}],{margin:{t:0}});
 }
 
-// run initial render
+// initial render
 update();
 </script>
 </body>
