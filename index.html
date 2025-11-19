@@ -80,6 +80,9 @@ function projectNetWorth(params){
   let invest = params.initialInvest, save = params.initialSavings, debt = params.initialDebt;
   const months = params.years*12;
   
+  // Save the initial allocation for display purposes
+  const initialAlloc = {...alloc};
+  
   // If no debt initially, reallocate debt portion to invest/save
   if (debt <= 0 && params.minDebtPayment <= 0) {
     const debtPortion = alloc.Debt;
@@ -89,6 +92,9 @@ function projectNetWorth(params){
       Debt: 0,
       Save: alloc.Save + debtPortion * (1 - investRatio)
     };
+    initialAlloc.Invest = alloc.Invest;
+    initialAlloc.Debt = alloc.Debt;
+    initialAlloc.Save = alloc.Save;
   }
   
   for (let m=0;m<months;m++){
@@ -110,7 +116,7 @@ function projectNetWorth(params){
     }
   }
   const netWorth = invest + save - debt;
-  return {alloc, discretionary, invest, save, debt, netWorth};
+  return {alloc: initialAlloc, discretionary, invest, save, debt, netWorth};
 }
 
 function monthsToDebtFree(balance, apr, payment){
