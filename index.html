@@ -19,6 +19,7 @@
     input[type=range]{width:100%}
     .small{font-size:13px;color:#666}
     button{background:#1f6feb;color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;margin-top:8px;margin-right:6px}
+    .slider-row.disabled{opacity:0.4;pointer-events:none}
     .results{margin-top:10px;font-size:15px;line-height:1.4}
     .section-header{font-weight:600;font-size:15px;color:#1f6feb;margin-top:24px;margin-bottom:12px}
   </style>
@@ -203,13 +204,17 @@ function makeSliders(){
     input.max=max; 
     input.step=step; 
     input.value=val;
-    input.oninput = ()=> document.getElementById(id + '_val').innerText = input.value;
+    input.oninput = ()=> {
+      document.getElementById(id + '_val').innerText = input.value;
+      if (id === 'initialDebt') updateDebtRelatedSliders();
+    };
     row.appendChild(input);
     
     container.appendChild(row);
   });
 }
 makeSliders();
+updateDebtRelatedSliders();
 
 function getParams(){
   const p = {};
@@ -220,7 +225,25 @@ function getParams(){
 
 function resetDefaults(){
   sliderDefinitions.forEach(([id,_,val])=>{ document.getElementById(id).value = val; document.getElementById(id + '_val').innerText = val; });
+  updateDebtRelatedSliders();
   update();
+}
+
+function updateDebtRelatedSliders(){
+  const debtValue = Number(document.getElementById('initialDebt').value);
+  const debtRelatedIds = ['minDebtPayment', 'rDebt', 'DA', 'pDebt'];
+  
+  debtRelatedIds.forEach(id => {
+    const slider = document.getElementById(id);
+    if (slider) {
+      const row = slider.closest('.slider-row');
+      if (debtValue <= 0) {
+        row.classList.add('disabled');
+      } else {
+        row.classList.remove('disabled');
+      }
+    }
+  });
 }
 
 function update(){
