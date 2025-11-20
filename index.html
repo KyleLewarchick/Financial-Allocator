@@ -268,20 +268,57 @@ function resetDefaults(){
 
 function updateDebtRelatedSliders(){
   const debtValue = Number(document.getElementById('initialDebt').value);
-  const debtRelatedIds = ['minDebtPayment', 'rDebt', 'DA', 'pDebt'];
+  const debtRelatedIds = ['minDebtPayment', 'rDebt', 'DA'];
   
-  // Gray out debt-related sliders when there's no debt
-  debtRelatedIds.forEach(id => {
-    const slider = document.getElementById(id);
-    if (slider) {
-      const row = slider.closest('.slider-row');
-      if (debtValue <= 0) {
+  if (debtValue <= 0) {
+    // Set all debt-related sliders to 0 and gray them out
+    debtRelatedIds.forEach(id => {
+      const slider = document.getElementById(id);
+      if (slider) {
+        slider.value = 0;
+        document.getElementById(id + '_val').innerText = '0';
+        const row = slider.closest('.slider-row');
         row.classList.add('disabled');
-      } else {
+      }
+    });
+    
+    // Set Debt Priority to 0 and redistribute to other priorities
+    const pDebtSlider = document.getElementById('pDebt');
+    const currentPDebt = Number(pDebtSlider.value);
+    if (currentPDebt > 0) {
+      pDebtSlider.value = 0;
+      document.getElementById('pDebt_val').innerText = '0.00';
+      
+      // Redistribute to Invest and Save equally
+      const pInvest = Number(document.getElementById('pInvest').value);
+      const pSave = Number(document.getElementById('pSave').value);
+      const boost = currentPDebt / 2;
+      
+      document.getElementById('pInvest').value = (pInvest + boost).toFixed(2);
+      document.getElementById('pInvest_val').innerText = (pInvest + boost).toFixed(2);
+      document.getElementById('pSave').value = (pSave + boost).toFixed(2);
+      document.getElementById('pSave_val').innerText = (pSave + boost).toFixed(2);
+    }
+    
+    // Gray out Debt Priority slider
+    const pDebtRow = pDebtSlider.closest('.slider-row');
+    pDebtRow.classList.add('disabled');
+    
+  } else {
+    // Enable all debt-related sliders
+    debtRelatedIds.forEach(id => {
+      const slider = document.getElementById(id);
+      if (slider) {
+        const row = slider.closest('.slider-row');
         row.classList.remove('disabled');
       }
-    }
-  });
+    });
+    
+    // Enable Debt Priority slider
+    const pDebtSlider = document.getElementById('pDebt');
+    const pDebtRow = pDebtSlider.closest('.slider-row');
+    pDebtRow.classList.remove('disabled');
+  }
 }
 
 function updatePriorityConstraint(changedId) {
