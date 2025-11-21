@@ -22,10 +22,20 @@
     .slider-row.disabled{opacity:0.4;pointer-events:none}
     .results{margin-top:10px;font-size:15px;line-height:1.4}
     .section-header{font-weight:600;font-size:15px;color:#1f6feb;margin-top:24px;margin-bottom:12px}
+    nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
+    nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
+    nav a.active{background:#1f6feb;color:white}
+    nav a:not(.active){color:#1f6feb;background:#f6f8fa}
+    nav a:not(.active):hover{background:#e6e9ef}
   </style>
 </head>
 <body>
   <div class="wrap">
+    <nav>
+      <a href="index.html" class="active">Financial Allocator</a>
+      <a href="risk-assessment.html">Risk Assessment</a>
+    </nav>
+    
     <header>
       <h1>Behavioral Financial Allocator</h1>
     </header>
