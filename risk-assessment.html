@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investment Risk Assessment</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fbfdff;color:#111;margin:0;padding:24px}
+    .wrap{max-width:800px;margin:0 auto}
+    h1{margin:0;font-size:26px;margin-bottom:8px}
+    .subtitle{color:#666;font-size:14px;margin-bottom:24px}
+    .card{background:#ffffff;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
+    .question-group{margin-bottom:24px}
+    label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:8px}
+    select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:white}
+    .learn-more{margin-top:16px;padding:12px;background:#f6f8fa;border-radius:8px;font-size:13px}
+    .learn-more-toggle{color:#1f6feb;cursor:pointer;text-decoration:underline;font-size:13px}
+    .learn-more-content{display:none;margin-top:8px;color:#666;line-height:1.5}
+    button{background:#1f6feb;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;width:100%;margin-top:8px}
+    button:hover{background:#1557cf}
+    .results{margin-top:20px;display:none}
+    .risk-score{font-size:18px;font-weight:600;color:#1f6feb;margin-bottom:16px}
+    .portfolio-table{width:100%;border-collapse:collapse;margin-top:12px}
+    .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
+    .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
+    .portfolio-table td:last-child{text-align:right;font-weight:600}
+    .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Investment Risk Assessment</h1>
+      <div class="subtitle">Answer a few questions to get a personalized portfolio recommendation</div>
+    </header>
+
+    <div class="card">
+      <div class="question-group">
+        <label for="loss-comfort">If your investments dropped 20%, how would you feel?</label>
+        <select id="loss-comfort">
+          <option value="">-- Select an option --</option>
+          <option value="Very Uncomfortable">Very Uncomfortable</option>
+          <option value="Uncomfortable">Uncomfortable</option>
+          <option value="Neutral">Neutral</option>
+          <option value="Comfortable">Comfortable</option>
+          <option value="Very Comfortable">Very Comfortable</option>
+        </select>
+      </div>
+
+      <div class="question-group">
+        <label for="growth-pref">What's your investment philosophy?</label>
+        <select id="growth-pref">
+          <option value="">-- Select an option --</option>
+          <option value="Prefer Stability">Prefer Stability</option>
+          <option value="Slightly Prefer Stability">Slightly Prefer Stability</option>
+          <option value="Neutral">Neutral</option>
+          <option value="Slightly Prefer Growth">Slightly Prefer Growth</option>
+          <option value="Prefer Growth">Prefer Growth</option>
+        </select>
+      </div>
+
+      <div class="question-group">
+        <label for="time-horizon">When will you need this money?</label>
+        <select id="time-horizon">
+          <option value="">-- Select an option --</option>
+          <option value="<1 year">Less than 1 year</option>
+          <option value="1-3 years">1-3 years</option>
+          <option value="3-5 years">3-5 years</option>
+          <option value="5-10 years">5-10 years</option>
+          <option value="10+ years">10+ years</option>
+        </select>
+      </div>
+
+      <div class="question-group">
+        <label for="experience">Prior investing experience</label>
+        <select id="experience">
+          <option value="">-- Select an option --</option>
+          <option value="None">None</option>
+          <option value="Some">Some</option>
+          <option value="Significant">Significant</option>
+        </select>
+      </div>
+
+      <div class="learn-more">
+        <div class="learn-more-toggle" onclick="toggleLearnMore()">💡 Why we ask these questions</div>
+        <div class="learn-more-content" id="learn-more-content">
+          We use these questions to understand how comfortable you are with market ups and downs, and your investing preferences. This helps us suggest a portfolio that fits your behavior and time horizon.
+        </div>
+      </div>
+
+      <button onclick="calculateRisk()">See My Portfolio</button>
+    </div>
+
+    <div class="card results" id="results">
+      <div class="risk-score" id="risk-score"></div>
+      <h3 style="margin-top:0;font-size:18px">Suggested Portfolio Allocation</h3>
+      <table class="portfolio-table" id="portfolio-table">
+        <thead>
+          <tr>
+            <th>Asset Class</th>
+            <th>Allocation</th>
+          </tr>
+        </thead>
+        <tbody id="portfolio-body"></tbody>
+      </table>
+      <div id="piechart" style="width:100%;height:350px;margin-top:20px"></div>
+      <div class="tip">
+        💡 <strong>Tip:</strong> Start small and stay consistent; your allocation can grow as your comfort with investing grows!
+      </div>
+    </div>
+  </div>
+
+<script>
+function toggleLearnMore() {
+  const content = document.getElementById('learn-more-content');
+  content.style.display = content.style.display === 'none' ? 'block' : 'none';
+}
+
+function calculateRiskScore(answers) {
+  let score = 0;
+  
+  // Loss comfort mapping (40% weight)
+  const lossMap = {
+    'Very Uncomfortable': 0.1,
+    'Uncomfortable': 0.3,
+    'Neutral': 0.5,
+    'Comfortable': 0.7,
+    'Very Comfortable': 0.9
+  };
+  score += lossMap[answers.lossComfort] * 0.4;
+  
+  // Growth preference mapping (30% weight)
+  const growthMap = {
+    'Prefer Stability': 0.2,
+    'Slightly Prefer Stability': 0.4,
+    'Neutral': 0.5,
+    'Slightly Prefer Growth': 0.7,
+    'Prefer Growth': 0.9
+  };
+  score += growthMap[answers.growthPreference] * 0.3;
+  
+  // Time horizon mapping (20% weight)
+  const horizonMap = {
+    '<1 year': 0.1,
+    '1-3 years': 0.3,
+    '3-5 years': 0.5,
+    '5-10 years': 0.7,
+    '10+ years': 0.9
+  };
+  score += horizonMap[answers.timeHorizon] * 0.2;
+  
+  // Experience mapping (10% weight)
+  const experienceMap = {
+    'None': 0.1,
+    'Some': 0.5,
+    'Significant': 0.9
+  };
+  score += experienceMap[answers.experience] * 0.1;
+  
+  return score;
+}
+
+function mapRiskToPortfolio(score) {
+  if (score < 0.25) {
+    return {
+      'US Stocks': 20,
+      'International Stocks': 10,
+      'Bonds': 60,
+      'Alternatives': 10
+    };
+  } else if (score < 0.45) {
+    return {
+      'US Stocks': 40,
+      'International Stocks': 15,
+      'Bonds': 40,
+      'Alternatives': 5
+    };
+  } else if (score < 0.65) {
+    return {
+      'US Stocks': 55,
+      'International Stocks': 20,
+      'Bonds': 20,
+      'Alternatives': 5
+    };
+  } else if (score < 0.85) {
+    return {
+      'US Stocks': 70,
+      'International Stocks': 20,
+      'Bonds': 10,
+      'Alternatives': 0
+    };
+  } else {
+    return {
+      'US Stocks': 85,
+      'International Stocks': 10,
+      'Bonds': 5,
+      'Alternatives': 0
+    };
+  }
+}
+
+function calculateRisk() {
+  // Get values
+  const lossComfort = document.getElementById('loss-comfort').value;
+  const growthPreference = document.getElementById('growth-pref').value;
+  const timeHorizon = document.getElementById('time-horizon').value;
+  const experience = document.getElementById('experience').value;
+  
+  // Validate all questions answered
+  if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
+    alert('Please answer all questions before continuing.');
+    return;
+  }
+  
+  // Calculate risk score
+  const answers = {
+    lossComfort,
+    growthPreference,
+    timeHorizon,
+    experience
+  };
+  const score = calculateRiskScore(answers);
+  const portfolio = mapRiskToPortfolio(score);
+  
+  // Display results
+  document.getElementById('risk-score').innerHTML = 
+    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span>`;
+  
+  // Build portfolio table
+  const tbody = document.getElementById('portfolio-body');
+  tbody.innerHTML = '';
+  const values = [];
+  const labels = [];
+  
+  for (const [asset, weight] of Object.entries(portfolio)) {
+    if (weight > 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
+      tbody.appendChild(row);
+      values.push(weight);
+      labels.push(asset);
+    }
+  }
+  
+  // Show results section
+  document.getElementById('results').style.display = 'block';
+  
+  // Create pie chart
+  Plotly.newPlot('piechart', [{
+    values: values,
+    labels: labels,
+    type: 'pie',
+    marker: {
+      colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']
+    }
+  }], {
+    margin: {t: 0, b: 0, l: 0, r: 0}
+  });
+  
+  // Scroll to results
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
