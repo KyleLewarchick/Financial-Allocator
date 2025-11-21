@@ -26,10 +26,20 @@
     .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
     .portfolio-table td:last-child{text-align:right;font-weight:600}
     .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
+    nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
+    nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
+    nav a.active{background:#1f6feb;color:white}
+    nav a:not(.active){color:#1f6feb;background:#f6f8fa}
+    nav a:not(.active):hover{background:#e6e9ef}
   </style>
 </head>
 <body>
   <div class="wrap">
+    <nav>
+      <a href="index.html">Financial Allocator</a>
+      <a href="risk-assessment.html" class="active">Risk Assessment</a>
+    </nav>
+    
     <header>
       <h1>Investment Risk Assessment</h1>
       <div class="subtitle">Answer a few questions to get a personalized portfolio recommendation</div>
