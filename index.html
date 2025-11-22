@@ -250,6 +250,8 @@ function makeSliders(){
       if (id === 'pInvest' || id === 'pDebt' || id === 'pSave') updatePriorityConstraint(id);
       // Update Risk Assessment link with current allocation
       updateRiskAssessmentLink();
+      // Save current state to localStorage
+      saveState();
     };
     row.appendChild(input);
     
@@ -260,6 +262,32 @@ function makeSliders(){
 // Generate sliders on page load
 makeSliders();
 updateDebtRelatedSliders();
+
+function saveState(){
+  const state = {};
+  sliderDefinitions.forEach(([id])=> {
+    state[id] = document.getElementById(id).value;
+  });
+  localStorage.setItem('financialAllocatorState', JSON.stringify(state));
+}
+
+function loadState(){
+  const savedState = localStorage.getItem('financialAllocatorState');
+  if (savedState) {
+    try {
+      const state = JSON.parse(savedState);
+      sliderDefinitions.forEach(([id])=> {
+        if (state[id] !== undefined) {
+          document.getElementById(id).value = state[id];
+          document.getElementById(id + '_val').innerText = state[id];
+        }
+      });
+      updateDebtRelatedSliders();
+    } catch (e) {
+      console.error('Error loading saved state:', e);
+    }
+  }
+}
 
 function getParams(){
   const p = {};
@@ -275,6 +303,7 @@ function resetDefaults(){
     document.getElementById(id + '_val').innerText = val; 
   });
   updateDebtRelatedSliders();
+  saveState(); // Save the reset state
   update();
 }
 
@@ -411,6 +440,7 @@ function update(){
 }
 
 // Initial render on page load
+loadState();
 update();
 updateRiskAssessmentLink();
 </script>
