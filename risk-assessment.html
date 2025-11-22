@@ -24,7 +24,7 @@
     .portfolio-table{width:100%;border-collapse:collapse;margin-top:12px}
     .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
     .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
-    .portfolio-table td:last-child{text-align:right;font-weight:600}
+    .portfolio-table td:nth-child(2), .portfolio-table td:nth-child(3){text-align:right;font-weight:600}
     .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
     nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
@@ -90,6 +90,15 @@
           <option value="Some">Some</option>
           <option value="Significant">Significant</option>
         </select>
+      </div>
+
+      <div class="question-group">
+        <label for="monthly-amount">Monthly investment amount ($)</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="monthly-amount" min="0" step="100" placeholder="e.g., 1000" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;" disabled>
+          <button type="button" id="edit-amount-btn" onclick="enableAmountEdit()" style="width:auto;padding:8px 16px;font-size:13px;background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;">Edit</button>
+        </div>
+        <div style="font-size:12px;margin-top:4px;" id="amount-source"></div>
       </div>
 
       <div class="learn-more">
@@ -216,6 +225,7 @@ function calculateRisk() {
   const growthPreference = document.getElementById('growth-pref').value;
   const timeHorizon = document.getElementById('time-horizon').value;
   const experience = document.getElementById('experience').value;
+  const monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
   
   // Validate all questions answered
   if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
@@ -243,10 +253,23 @@ function calculateRisk() {
   const values = [];
   const labels = [];
   
+  // Update table header based on whether monthly amount is provided
+  const tableHeader = document.querySelector('#portfolio-table thead tr');
+  if (monthlyAmount > 0) {
+    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>';
+  } else {
+    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th>';
+  }
+  
   for (const [asset, weight] of Object.entries(portfolio)) {
     if (weight > 0) {
       const row = document.createElement('tr');
-      row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
+      if (monthlyAmount > 0) {
+        const dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
+        row.innerHTML = `<td>${asset}</td><td>${weight}%</td><td>$${dollarAmount}</td>`;
+      } else {
+        row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
+      }
       tbody.appendChild(row);
       values.push(weight);
       labels.push(asset);
@@ -271,6 +294,54 @@ function calculateRisk() {
   // Scroll to results
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 }
+
+function enableAmountEdit() {
+  const input = document.getElementById('monthly-amount');
+  const btn = document.getElementById('edit-amount-btn');
+  const source = document.getElementById('amount-source');
+  
+  if (input.disabled) {
+    // Enable editing
+    input.disabled = false;
+    input.focus();
+    btn.innerText = 'Lock';
+    btn.style.background = '#1f6feb';
+    btn.style.color = 'white';
+    source.innerHTML = '💡 You can now edit the amount. Click "Lock" when done.';
+    source.style.color = '#666';
+  } else {
+    // Lock editing
+    input.disabled = true;
+    btn.innerText = 'Edit';
+    btn.style.background = '#f6f8fa';
+    btn.style.color = '#1f6feb';
+    source.innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
+    source.style.color = '#1f6feb';
+  }
+}
+
+// Check for invest amount from URL parameter on page load
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const investAmount = urlParams.get('invest');
+  
+  if (investAmount && investAmount > 0) {
+    document.getElementById('monthly-amount').value = investAmount;
+    document.getElementById('amount-source').innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
+    document.getElementById('amount-source').style.color = '#1f6feb';
+    document.getElementById('amount-source').style.fontWeight = '500';
+  } else {
+    // No amount from page 1 - enable manual entry
+    const input = document.getElementById('monthly-amount');
+    const btn = document.getElementById('edit-amount-btn');
+    const source = document.getElementById('amount-source');
+    
+    input.disabled = false;
+    btn.style.display = 'none';
+    source.innerHTML = '⚠️ No amount from Financial Allocator. Please enter your monthly investment amount or <a href="index.html" style="color:#1f6feb">go back to calculate it</a>.';
+    source.style.color = '#d73a49';
+  }
+});
 </script>
 </body>
 </html>
