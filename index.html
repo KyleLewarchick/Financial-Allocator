@@ -32,8 +32,8 @@
 <body>
   <div class="wrap">
     <nav>
-      <a href="index.html" class="active">Financial Allocator</a>
-      <a href="risk-assessment.html">Risk Assessment</a>
+      <a href="./index.html" class="active">Financial Allocator</a>
+      <a href="./risk-assessment.html" id="risk-link">Risk Assessment</a>
     </nav>
     
     <header>
@@ -248,6 +248,8 @@ function makeSliders(){
       if (id === 'initialDebt') updateDebtRelatedSliders();
       // Enforce priority sum = 1.0 constraint
       if (id === 'pInvest' || id === 'pDebt' || id === 'pSave') updatePriorityConstraint(id);
+      // Update Risk Assessment link with current allocation
+      updateRiskAssessmentLink();
     };
     row.appendChild(input);
     
@@ -274,6 +276,19 @@ function resetDefaults(){
   });
   updateDebtRelatedSliders();
   update();
+}
+
+function updateRiskAssessmentLink(){
+  // Calculate current allocation without showing results
+  const params = getParams();
+  const res = behavioralAllocation(params);
+  const investAlloc = Math.round(res.allocations.Invest);
+  
+  // Update the Risk Assessment link
+  const riskAssessmentLink = document.getElementById('risk-link');
+  if (riskAssessmentLink) {
+    riskAssessmentLink.href = `./risk-assessment.html?invest=${investAlloc}`;
+  }
 }
 
 function updateDebtRelatedSliders(){
@@ -371,12 +386,6 @@ function update(){
   
   // Calculate priority sum for display
   const prioritySum = params.pInvest + params.pDebt + params.pSave;
-  
-  // Update navigation link with invest amount
-  const riskAssessmentLink = document.querySelector('nav a[href="risk-assessment.html"]');
-  if (riskAssessmentLink) {
-    riskAssessmentLink.href = `risk-assessment.html?invest=${Math.round(out.alloc.Invest)}`;
-  }
 
   document.getElementById('results').innerHTML = `
     <strong>Discretionary:</strong> $${out.discretionary.toFixed(0)}<br>
@@ -403,6 +412,7 @@ function update(){
 
 // Initial render on page load
 update();
+updateRiskAssessmentLink();
 </script>
 </body>
 </html>
