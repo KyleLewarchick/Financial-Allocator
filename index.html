@@ -3,29 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Investment Risk Assessment</title>
+  <title>Behavioral Financial Allocator</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fbfdff;color:#111;margin:0;padding:24px}
-    .wrap{max-width:800px;margin:0 auto}
-    h1{margin:0;font-size:26px;margin-bottom:8px}
-    .subtitle{color:#666;font-size:14px;margin-bottom:24px}
-    .card{background:#ffffff;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
-    .question-group{margin-bottom:24px}
-    label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:8px}
-    select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:white}
-    .learn-more{margin-top:16px;padding:12px;background:#f6f8fa;border-radius:8px;font-size:13px}
-    .learn-more-toggle{color:#1f6feb;cursor:pointer;text-decoration:underline;font-size:13px}
-    .learn-more-content{display:none;margin-top:8px;color:#666;line-height:1.5}
-    button{background:#1f6feb;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;width:100%;margin-top:8px}
-    button:hover{background:#1557cf}
-    .results{margin-top:20px;display:none}
-    .risk-score{font-size:18px;font-weight:600;color:#1f6feb;margin-bottom:16px}
-    .portfolio-table{width:100%;border-collapse:collapse;margin-top:12px}
-    .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
-    .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
-    .portfolio-table td:nth-child(2), .portfolio-table td:nth-child(3){text-align:right;font-weight:600}
-    .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
+    .wrap{max-width:980px;margin:0 auto}
+    h1{margin:0;font-size:26px}
+    h2{margin-top:24px;font-size:20px;color:#1f6feb}
+    p, li{font-size:14px;line-height:1.5}
+    ul{margin-top:4px;margin-bottom:12px}
+    .card{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
+    label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+    .slider-row{margin-bottom:20px}
+    .slider-explanation{font-size:13px;color:#555;margin-bottom:8px;line-height:1.4}
+    input[type=range]{width:100%}
+    .small{font-size:13px;color:#666}
+    button{background:#1f6feb;color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;margin-top:8px;margin-right:6px}
+    .slider-row.disabled{opacity:0.4;pointer-events:none}
+    .results{margin-top:10px;font-size:15px;line-height:1.4}
+    .section-header{font-weight:600;font-size:15px;color:#1f6feb;margin-top:24px;margin-bottom:12px}
     nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
     nav a.active{background:#1f6feb;color:white}
@@ -36,312 +32,377 @@
 <body>
   <div class="wrap">
     <nav>
-      <a href="index.html">Financial Allocator</a>
-      <a href="risk-assessment.html" class="active">Risk Assessment</a>
+      <a href="index.html" class="active">Financial Allocator</a>
+      <a href="risk-assessment.html">Risk Assessment</a>
     </nav>
     
     <header>
-      <h1>Investment Risk Assessment</h1>
-      <div class="subtitle">Answer a few questions to get a personalized portfolio recommendation</div>
+      <h1>Behavioral Financial Allocator</h1>
     </header>
 
+    <!-- Intro -->
     <div class="card">
-      <div class="question-group">
-        <label for="loss-comfort">If your investments dropped 20%, how would you feel?</label>
-        <select id="loss-comfort">
-          <option value="">-- Select an option --</option>
-          <option value="Very Uncomfortable">Very Uncomfortable</option>
-          <option value="Uncomfortable">Uncomfortable</option>
-          <option value="Neutral">Neutral</option>
-          <option value="Comfortable">Comfortable</option>
-          <option value="Very Comfortable">Very Comfortable</option>
-        </select>
-      </div>
-
-      <div class="question-group">
-        <label for="growth-pref">What's your investment philosophy?</label>
-        <select id="growth-pref">
-          <option value="">-- Select an option --</option>
-          <option value="Prefer Stability">Prefer Stability</option>
-          <option value="Slightly Prefer Stability">Slightly Prefer Stability</option>
-          <option value="Neutral">Neutral</option>
-          <option value="Slightly Prefer Growth">Slightly Prefer Growth</option>
-          <option value="Prefer Growth">Prefer Growth</option>
-        </select>
-      </div>
-
-      <div class="question-group">
-        <label for="time-horizon">When will you need this money?</label>
-        <select id="time-horizon">
-          <option value="">-- Select an option --</option>
-          <option value="<1 year">Less than 1 year</option>
-          <option value="1-3 years">1-3 years</option>
-          <option value="3-5 years">3-5 years</option>
-          <option value="5-10 years">5-10 years</option>
-          <option value="10+ years">10+ years</option>
-        </select>
-      </div>
-
-      <div class="question-group">
-        <label for="experience">Prior investing experience</label>
-        <select id="experience">
-          <option value="">-- Select an option --</option>
-          <option value="None">None</option>
-          <option value="Some">Some</option>
-          <option value="Significant">Significant</option>
-        </select>
-      </div>
-
-      <div class="question-group">
-        <label for="monthly-amount">Monthly investment amount ($)</label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input type="number" id="monthly-amount" min="0" step="100" placeholder="e.g., 1000" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;" disabled>
-          <button type="button" id="edit-amount-btn" onclick="enableAmountEdit()" style="width:auto;padding:8px 16px;font-size:13px;background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;">Edit</button>
-        </div>
-        <div style="font-size:12px;margin-top:4px;" id="amount-source"></div>
-      </div>
-
-      <div class="learn-more">
-        <div class="learn-more-toggle" onclick="toggleLearnMore()">💡 Why we ask these questions</div>
-        <div class="learn-more-content" id="learn-more-content">
-          We use these questions to understand how comfortable you are with market ups and downs, and your investing preferences. This helps us suggest a portfolio that fits your behavior and time horizon.
-        </div>
-      </div>
-
-      <button onclick="calculateRisk()">See My Portfolio</button>
+      <p>This interactive tool helps you plan how to allocate your discretionary income between <strong>Investing</strong>, <strong>Debt repayment</strong>, and <strong>Savings</strong>. It combines financial calculations with behavioral considerations, aiming to balance long-term net worth optimization with your current needs and priorities.</p>
     </div>
 
-    <div class="card results" id="results">
-      <div class="risk-score" id="risk-score"></div>
-      <h3 style="margin-top:0;font-size:18px">Suggested Portfolio Allocation</h3>
-      <table class="portfolio-table" id="portfolio-table">
-        <thead>
-          <tr>
-            <th>Asset Class</th>
-            <th>Allocation</th>
-          </tr>
-        </thead>
-        <tbody id="portfolio-body"></tbody>
-      </table>
-      <div id="piechart" style="width:100%;height:350px;margin-top:20px"></div>
-      <div class="tip">
-        💡 <strong>Tip:</strong> Start small and stay consistent; your allocation can grow as your comfort with investing grows!
-      </div>
+    <!-- Sliders with inline explanations -->
+    <div class="card">
+      <div id="sliders"></div>
+      <button onclick="update()">Run Projection</button>
+      <button onclick="resetDefaults()" style="background:#e6e9ef;color:#111">Reset</button>
+      <div class="results" id="results"></div>
+    </div>
+
+    <!-- Pie chart and summary -->
+    <div class="card">
+      <div id="piechart" style="width:100%;height:360px"></div>
+      <div id="summary" style="margin-top:12px"></div>
     </div>
   </div>
 
 <script>
-function toggleLearnMore() {
-  const content = document.getElementById('learn-more-content');
-  content.style.display = content.style.display === 'none' ? 'block' : 'none';
+/* -------------------------------
+   Behavioral allocation (JS)
+   ------------------------------- */
+
+function behavioralAllocation(params){
+  const {income, expenses, minDebtPayment, rInvest, rDebt, rSave, RT, DA, pInvest, pDebt, pSave, alpha, beta, delta, gammaDebt, gammaSave, k, goalStrength} = params;
+  
+  // Calculate discretionary income after expenses and minimum debt payment
+  const discretionary = income - expenses - minDebtPayment;
+  if (discretionary <= 0) return {allocations:{Invest:0,Debt:0,Save:0},discretionary};
+  
+  // Adjust rates based on behavioral preferences
+  const rPercInvest = rInvest * (1 + alpha * (2*RT - 1));
+  const rPercDebt = rDebt * (1 + beta * (2*DA - 1)) + gammaDebt*DA;
+  const rPercSave = rSave * (1 + delta * (1 - RT)) + gammaSave*(1 - RT);
+  
+  // Use softmax to calculate base allocation weights
+  const rates = [rPercInvest, rPercDebt, rPercSave];
+  const expVals = rates.map(r => Math.exp(k*r));
+  const sumExp = expVals.reduce((a,b)=>a+b,0);
+  const base = expVals.map(v=>v/sumExp);
+  
+  // Blend base allocation with user priorities (which must sum to 1.0)
+  // goalStrength controls the mix: 0 = pure financial optimization, 1 = pure user priorities
+  // With goalStrength=0.25: 75% based on rates, 25% based on personal priorities
+  // Setting a priority to 0.33 is neutral (no boost), >0.33 boosts, <0.33 reduces
+  const P = [pInvest, pDebt, pSave];
+  const blended = base.map((b,i)=> b * (1 - goalStrength) + P[i] * goalStrength);
+  const sumBlend = blended.reduce((a,b)=>a+b,0);
+  const finalW = blended.map(x=>x/sumBlend);
+  
+  return {allocations:{Invest: finalW[0]*discretionary, Debt: finalW[1]*discretionary, Save: finalW[2]*discretionary}, discretionary};
 }
 
-function calculateRiskScore(answers) {
-  let score = 0;
+function projectNetWorth(params){
+  const res = behavioralAllocation(params);
+  let alloc = res.allocations; 
+  const discretionary = res.discretionary;
+  let invest = params.initialInvest, save = params.initialSavings, debt = params.initialDebt;
+  const months = params.years*12;
   
-  // Loss comfort mapping (40% weight)
-  const lossMap = {
-    'Very Uncomfortable': 0.1,
-    'Uncomfortable': 0.3,
-    'Neutral': 0.5,
-    'Comfortable': 0.7,
-    'Very Comfortable': 0.9
-  };
-  score += lossMap[answers.lossComfort] * 0.4;
+  // Save the initial allocation for display purposes (before any reallocation during projection)
+  const initialAlloc = {...alloc};
   
-  // Growth preference mapping (30% weight)
-  const growthMap = {
-    'Prefer Stability': 0.2,
-    'Slightly Prefer Stability': 0.4,
-    'Neutral': 0.5,
-    'Slightly Prefer Growth': 0.7,
-    'Prefer Growth': 0.9
-  };
-  score += growthMap[answers.growthPreference] * 0.3;
-  
-  // Time horizon mapping (20% weight)
-  const horizonMap = {
-    '<1 year': 0.1,
-    '1-3 years': 0.3,
-    '3-5 years': 0.5,
-    '5-10 years': 0.7,
-    '10+ years': 0.9
-  };
-  score += horizonMap[answers.timeHorizon] * 0.2;
-  
-  // Experience mapping (10% weight)
-  const experienceMap = {
-    'None': 0.1,
-    'Some': 0.5,
-    'Significant': 0.9
-  };
-  score += experienceMap[answers.experience] * 0.1;
-  
-  return score;
-}
-
-function mapRiskToPortfolio(score) {
-  if (score < 0.25) {
-    return {
-      'US Stocks': 20,
-      'International Stocks': 10,
-      'Bonds': 60,
-      'Alternatives': 10
+  // If no debt initially, reallocate debt portion to invest/save proportionally
+  if (debt <= 0 && params.minDebtPayment <= 0) {
+    const debtPortion = alloc.Debt;
+    const investRatio = alloc.Invest / (alloc.Invest + alloc.Save);
+    alloc = {
+      Invest: alloc.Invest + debtPortion * investRatio,
+      Debt: 0,
+      Save: alloc.Save + debtPortion * (1 - investRatio)
     };
-  } else if (score < 0.45) {
-    return {
-      'US Stocks': 40,
-      'International Stocks': 15,
-      'Bonds': 40,
-      'Alternatives': 5
-    };
-  } else if (score < 0.65) {
-    return {
-      'US Stocks': 55,
-      'International Stocks': 20,
-      'Bonds': 20,
-      'Alternatives': 5
-    };
-  } else if (score < 0.85) {
-    return {
-      'US Stocks': 70,
-      'International Stocks': 20,
-      'Bonds': 10,
-      'Alternatives': 0
-    };
-  } else {
-    return {
-      'US Stocks': 85,
-      'International Stocks': 10,
-      'Bonds': 5,
-      'Alternatives': 0
-    };
-  }
-}
-
-function calculateRisk() {
-  // Get values
-  const lossComfort = document.getElementById('loss-comfort').value;
-  const growthPreference = document.getElementById('growth-pref').value;
-  const timeHorizon = document.getElementById('time-horizon').value;
-  const experience = document.getElementById('experience').value;
-  const monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
-  
-  // Validate all questions answered
-  if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
-    alert('Please answer all questions before continuing.');
-    return;
+    // Update initial allocation to reflect this reallocation
+    initialAlloc.Invest = alloc.Invest;
+    initialAlloc.Debt = alloc.Debt;
+    initialAlloc.Save = alloc.Save;
   }
   
-  // Calculate risk score
-  const answers = {
-    lossComfort,
-    growthPreference,
-    timeHorizon,
-    experience
-  };
-  const score = calculateRiskScore(answers);
-  const portfolio = mapRiskToPortfolio(score);
-  
-  // Display results
-  document.getElementById('risk-score').innerHTML = 
-    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span>`;
-  
-  // Build portfolio table
-  const tbody = document.getElementById('portfolio-body');
-  tbody.innerHTML = '';
-  const values = [];
-  const labels = [];
-  
-  // Update table header based on whether monthly amount is provided
-  const tableHeader = document.querySelector('#portfolio-table thead tr');
-  if (monthlyAmount > 0) {
-    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>';
-  } else {
-    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th>';
-  }
-  
-  for (const [asset, weight] of Object.entries(portfolio)) {
-    if (weight > 0) {
-      const row = document.createElement('tr');
-      if (monthlyAmount > 0) {
-        const dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
-        row.innerHTML = `<td>${asset}</td><td>${weight}%</td><td>$${dollarAmount}</td>`;
-      } else {
-        row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
-      }
-      tbody.appendChild(row);
-      values.push(weight);
-      labels.push(asset);
-    }
-  }
-  
-  // Show results section
-  document.getElementById('results').style.display = 'block';
-  
-  // Create pie chart
-  Plotly.newPlot('piechart', [{
-    values: values,
-    labels: labels,
-    type: 'pie',
-    marker: {
-      colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']
-    }
-  }], {
-    margin: {t: 0, b: 0, l: 0, r: 0}
-  });
-  
-  // Scroll to results
-  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-}
-
-function enableAmountEdit() {
-  const input = document.getElementById('monthly-amount');
-  const btn = document.getElementById('edit-amount-btn');
-  const source = document.getElementById('amount-source');
-  
-  if (input.disabled) {
-    // Enable editing
-    input.disabled = false;
-    input.focus();
-    btn.innerText = 'Lock';
-    btn.style.background = '#1f6feb';
-    btn.style.color = 'white';
-    source.innerHTML = '💡 You can now edit the amount. Click "Lock" when done.';
-    source.style.color = '#666';
-  } else {
-    // Lock editing
-    input.disabled = true;
-    btn.innerText = 'Edit';
-    btn.style.background = '#f6f8fa';
-    btn.style.color = '#1f6feb';
-    source.innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
-    source.style.color = '#1f6feb';
-  }
-}
-
-// Check for invest amount from URL parameter on page load
-window.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const investAmount = urlParams.get('invest');
-  
-  if (investAmount && investAmount > 0) {
-    document.getElementById('monthly-amount').value = investAmount;
-    document.getElementById('amount-source').innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
-    document.getElementById('amount-source').style.color = '#1f6feb';
-    document.getElementById('amount-source').style.fontWeight = '500';
-  } else {
-    // No amount from page 1 - enable manual entry
-    const input = document.getElementById('monthly-amount');
-    const btn = document.getElementById('edit-amount-btn');
-    const source = document.getElementById('amount-source');
+  // Run month-by-month projection
+  for (let m=0;m<months;m++){
+    // Compound investments and savings
+    invest = invest*(1 + params.rInvest/12) + alloc.Invest;
+    save = save*(1 + params.rSave/12) + alloc.Save;
     
-    input.disabled = false;
-    btn.style.display = 'none';
-    source.innerHTML = '⚠️ No amount from Financial Allocator. Please enter your monthly investment amount or <a href="index.html" style="color:#1f6feb">go back to calculate it</a>.';
-    source.style.color = '#d73a49';
+    // Apply both minimum payment and discretionary allocation to debt
+    debt = Math.max(0, debt*(1 + params.rDebt/12) - params.minDebtPayment - alloc.Debt);
+    
+    // Once debt is paid off, reallocate that portion to invest/save for remaining months
+    if (debt <= 0 && alloc.Debt > 0) {
+      const debtPortion = alloc.Debt;
+      const investRatio = alloc.Invest / (alloc.Invest + alloc.Save);
+      alloc = {
+        Invest: alloc.Invest + debtPortion * investRatio,
+        Debt: 0,
+        Save: alloc.Save + debtPortion * (1 - investRatio)
+      };
+    }
   }
-});
+  
+  const netWorth = invest + save - debt;
+  return {alloc: initialAlloc, discretionary, invest, save, debt, netWorth};
+}
+
+function monthsToDebtFree(balance, apr, payment){
+  let months = 0; 
+  while (balance>0 && payment>0 && months<1000){ 
+    balance = balance*(1+apr/12) - payment; 
+    months++; 
+  } 
+  return months;
+}
+
+/* -------------------------------
+   UI: sliders generation
+   ------------------------------- */
+
+const defaults = {
+  income:4000, expenses:2200, minDebtPayment:300,
+  rInvest:0.08, rDebt:0.06, rSave:0.015,
+  RT:0.5, DA:0.5,
+  pInvest:0.33, pDebt:0.33, pSave:0.33,
+  years:10,
+  initialInvest:0, initialSavings:0, initialDebt:50000
+};
+
+const sliderDefinitions = [
+  ["income","Monthly Income",defaults.income,1000,15000,100,"Your total monthly income before expenses."],
+  ["expenses","Monthly Expenses",defaults.expenses,500,12000,50,"Your regular monthly expenses (rent, utilities, groceries, etc.)."],
+  ["minDebtPayment","Minimum Debt Payment",defaults.minDebtPayment,0,2000,10,"The minimum you must pay on debts each month."],
+  
+  ["rInvest","Investment Return",defaults.rInvest,0,0.15,0.005,"Expected annual return on investments (e.g., 8% for stock market average)."],
+  ["rDebt","Debt Interest Rate",defaults.rDebt,0,0.15,0.005,"Average annual interest rate on your debts."],
+  ["rSave","Savings Rate",defaults.rSave,0,0.05,0.001,"Expected annual return on savings (e.g., 1.5% for high-yield savings)."],
+  
+  ["RT","Risk Tolerance",defaults.RT,0,1,0.01,"How comfortable you are with investment risk. Higher values favor more aggressive investing."],
+  ["DA","Debt Aversion",defaults.DA,0,1,0.01,"How strongly you prefer paying down debt quickly. Higher values favor faster repayment."],
+  
+  ["pInvest","Invest Priority",defaults.pInvest,0,1,0.01,"Your personal priority weight for investing. Three priorities must sum to 1.0. (0.33 = neutral)"],
+  ["pDebt","Debt Priority",defaults.pDebt,0,1,0.01,"Your personal priority weight for debt repayment. Three priorities must sum to 1.0. (0.33 = neutral)"],
+  ["pSave","Save Priority",defaults.pSave,0,1,0.01,"Your personal priority weight for saving. Three priorities must sum to 1.0. (0.33 = neutral)"],
+  
+  ["years","Projection Years",defaults.years,1,50,1,"Number of years to project your net worth into the future."],
+  
+  ["initialInvest","Existing Investments",defaults.initialInvest,0,200000,1000,"Current value of your investment accounts."],
+  ["initialSavings","Existing Savings",defaults.initialSavings,0,200000,1000,"Current value of your savings accounts."],
+  ["initialDebt","Total Debt",defaults.initialDebt,0,200000,1000,"Total amount of debt you currently have."]
+];
+
+const sections = [
+  {title: "Monthly Income & Expenses", start: 0, end: 3},
+  {title: "Expected Rates", start: 3, end: 6},
+  {title: "Behavioral Preferences", start: 6, end: 8},
+  {title: "Personal Priorities (must sum to 1.0)", start: 8, end: 11},
+  {title: "Timeline", start: 11, end: 12},
+  {title: "Existing Balances", start: 12, end: 15}
+];
+
+function makeSliders(){
+  const container = document.getElementById('sliders');
+  let currentSection = -1;
+  
+  sliderDefinitions.forEach(([id,label,val,min,max,step,explanation], idx)=>{
+    // Check if we need a section header
+    for (let i = 0; i < sections.length; i++) {
+      if (idx === sections[i].start) {
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.innerText = sections[i].title;
+        container.appendChild(sectionHeader);
+        break;
+      }
+    }
+    
+    const row = document.createElement('div'); 
+    row.className='slider-row';
+    
+    const labelEl = document.createElement('label'); 
+    labelEl.innerText = label; 
+    row.appendChild(labelEl);
+    
+    if (explanation) {
+      const explainEl = document.createElement('div');
+      explainEl.className = 'slider-explanation';
+      explainEl.innerText = explanation;
+      row.appendChild(explainEl);
+    }
+    
+    const valueSpan = document.createElement('div'); 
+    valueSpan.className='small'; 
+    valueSpan.id = id + '_val'; 
+    valueSpan.innerText = val; 
+    row.appendChild(valueSpan);
+    
+    const input = document.createElement('input'); 
+    input.type='range'; 
+    input.id=id; 
+    input.min=min; 
+    input.max=max; 
+    input.step=step; 
+    input.value=val;
+    input.oninput = ()=> {
+      document.getElementById(id + '_val').innerText = input.value;
+      // Update debt-related slider states when debt slider changes
+      if (id === 'initialDebt') updateDebtRelatedSliders();
+      // Enforce priority sum = 1.0 constraint
+      if (id === 'pInvest' || id === 'pDebt' || id === 'pSave') updatePriorityConstraint(id);
+    };
+    row.appendChild(input);
+    
+    container.appendChild(row);
+  });
+}
+
+// Generate sliders on page load
+makeSliders();
+updateDebtRelatedSliders();
+
+function getParams(){
+  const p = {};
+  sliderDefinitions.forEach(([id])=> p[id] = Number(document.getElementById(id).value));
+  // Fixed behavioral parameters
+  p.alpha = 0.5; p.beta = 0.5; p.delta = 0.5; p.gammaDebt = 0.02; p.gammaSave = 0.01; p.k = 20; p.goalStrength = 0.25;
+  return p;
+}
+
+function resetDefaults(){
+  sliderDefinitions.forEach(([id,_,val])=>{ 
+    document.getElementById(id).value = val; 
+    document.getElementById(id + '_val').innerText = val; 
+  });
+  updateDebtRelatedSliders();
+  update();
+}
+
+function updateDebtRelatedSliders(){
+  const debtValue = Number(document.getElementById('initialDebt').value);
+  const debtRelatedIds = ['minDebtPayment', 'rDebt', 'DA'];
+  
+  if (debtValue <= 0) {
+    // Set all debt-related sliders to 0 and gray them out
+    debtRelatedIds.forEach(id => {
+      const slider = document.getElementById(id);
+      if (slider) {
+        slider.value = 0;
+        document.getElementById(id + '_val').innerText = '0';
+        const row = slider.closest('.slider-row');
+        row.classList.add('disabled');
+      }
+    });
+    
+    // Set Debt Priority to 0 and redistribute to other priorities
+    const pDebtSlider = document.getElementById('pDebt');
+    const currentPDebt = Number(pDebtSlider.value);
+    if (currentPDebt > 0) {
+      pDebtSlider.value = 0;
+      document.getElementById('pDebt_val').innerText = '0.00';
+      
+      // Redistribute to Invest and Save equally
+      const pInvest = Number(document.getElementById('pInvest').value);
+      const pSave = Number(document.getElementById('pSave').value);
+      const boost = currentPDebt / 2;
+      
+      document.getElementById('pInvest').value = (pInvest + boost).toFixed(2);
+      document.getElementById('pInvest_val').innerText = (pInvest + boost).toFixed(2);
+      document.getElementById('pSave').value = (pSave + boost).toFixed(2);
+      document.getElementById('pSave_val').innerText = (pSave + boost).toFixed(2);
+    }
+    
+    // Gray out Debt Priority slider
+    const pDebtRow = pDebtSlider.closest('.slider-row');
+    pDebtRow.classList.add('disabled');
+    
+  } else {
+    // Enable all debt-related sliders
+    debtRelatedIds.forEach(id => {
+      const slider = document.getElementById(id);
+      if (slider) {
+        const row = slider.closest('.slider-row');
+        row.classList.remove('disabled');
+      }
+    });
+    
+    // Enable Debt Priority slider
+    const pDebtSlider = document.getElementById('pDebt');
+    const pDebtRow = pDebtSlider.closest('.slider-row');
+    pDebtRow.classList.remove('disabled');
+  }
+}
+
+function updatePriorityConstraint(changedId) {
+  const ids = ['pInvest', 'pDebt', 'pSave'];
+  const changedValue = Number(document.getElementById(changedId).value);
+  
+  // Calculate how much is left for the other two
+  const remaining = 1.0 - changedValue;
+  
+  // Get the other two IDs
+  const otherIds = ids.filter(id => id !== changedId);
+  
+  // Get current values of the other two
+  const other1 = Number(document.getElementById(otherIds[0]).value);
+  const other2 = Number(document.getElementById(otherIds[1]).value);
+  const otherSum = other1 + other2;
+  
+  // Distribute remaining proportionally (or equally if sum is 0)
+  if (otherSum > 0) {
+    const new1 = (other1 / otherSum) * remaining;
+    const new2 = (other2 / otherSum) * remaining;
+    document.getElementById(otherIds[0]).value = new1.toFixed(2);
+    document.getElementById(otherIds[1]).value = new2.toFixed(2);
+    document.getElementById(otherIds[0] + '_val').innerText = new1.toFixed(2);
+    document.getElementById(otherIds[1] + '_val').innerText = new2.toFixed(2);
+  } else {
+    const equalSplit = remaining / 2;
+    document.getElementById(otherIds[0]).value = equalSplit.toFixed(2);
+    document.getElementById(otherIds[1]).value = equalSplit.toFixed(2);
+    document.getElementById(otherIds[0] + '_val').innerText = equalSplit.toFixed(2);
+    document.getElementById(otherIds[1] + '_val').innerText = equalSplit.toFixed(2);
+  }
+}
+
+function update(){
+  const params = getParams();
+  const out = projectNetWorth(params);
+  const monthsMin = monthsToDebtFree(params.initialDebt, params.rDebt, params.minDebtPayment);
+  const monthsExtra = monthsToDebtFree(params.initialDebt, params.rDebt, params.minDebtPayment + out.alloc.Debt);
+  
+  // Calculate priority sum for display
+  const prioritySum = params.pInvest + params.pDebt + params.pSave;
+  
+  // Update navigation link with invest amount
+  const riskAssessmentLink = document.querySelector('nav a[href="risk-assessment.html"]');
+  if (riskAssessmentLink) {
+    riskAssessmentLink.href = `risk-assessment.html?invest=${Math.round(out.alloc.Invest)}`;
+  }
+
+  document.getElementById('results').innerHTML = `
+    <strong>Discretionary:</strong> $${out.discretionary.toFixed(0)}<br>
+    <div class="small" style="margin-top:4px;">Priority Sum: ${prioritySum.toFixed(2)} ${Math.abs(prioritySum - 1.0) < 0.01 ? '✓' : '⚠️ (should be 1.0)'}</div>
+    <br>
+    <strong>Monthly allocations</strong><br>
+    Invest: $${out.alloc.Invest.toFixed(0)}<br>
+    Debt: $${out.alloc.Debt.toFixed(0)}<br>
+    Save: $${out.alloc.Save.toFixed(0)}<br><br>
+    <strong>Projection after ${params.years} years</strong><br>
+    Investment: $${out.invest.toFixed(0)}<br>
+    Savings: $${out.save.toFixed(0)}<br>
+    Debt remaining: $${out.debt.toFixed(0)}<br>
+    Net worth: <strong>$${out.netWorth.toFixed(0)}</strong>
+  `;
+
+  document.getElementById('summary').innerHTML = `
+    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin/12).toFixed(1)} yrs)</div>
+    <div class="small">📉 Debt payoff (with extra): ${monthsExtra} months (${(monthsExtra/12).toFixed(1)} yrs)</div>
+  `;
+
+  Plotly.newPlot('piechart',[{values:[out.alloc.Invest,out.alloc.Debt,out.alloc.Save],labels:['Invest','Debt','Save'],type:'pie'}],{margin:{t:0}});
+}
+
+// Initial render on page load
+update();
 </script>
 </body>
 </html>
