@@ -409,7 +409,20 @@ function updateRiskAssessmentLink(){
   // Calculate current allocation without showing results
   const params = getParams();
   const res = behavioralAllocation(params);
-  const investAlloc = Math.round(res.allocations.Invest);
+  let alloc = res.allocations;
+  
+  // Apply the same reallocation logic as projectNetWorth when there's no debt
+  if (params.initialDebt <= 0 && params.minDebtPayment <= 0) {
+    const debtPortion = alloc.Debt;
+    const investRatio = alloc.Invest / (alloc.Invest + alloc.Save);
+    alloc = {
+      Invest: alloc.Invest + debtPortion * investRatio,
+      Debt: 0,
+      Save: alloc.Save + debtPortion * (1 - investRatio)
+    };
+  }
+  
+  const investAlloc = Math.round(alloc.Invest);
   
   // Update the Risk Assessment link
   const riskAssessmentLink = document.getElementById('risk-link');
