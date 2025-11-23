@@ -141,6 +141,101 @@ function toggleLearnMore() {
   content.style.display = content.style.display === 'none' ? 'block' : 'none';
 }
 
+function saveAnswers() {
+  const answers = {
+    lossComfort: document.getElementById('loss-comfort').value,
+    growthPreference: document.getElementById('growth-pref').value,
+    timeHorizon: document.getElementById('time-horizon').value,
+    experience: document.getElementById('experience').value,
+    monthlyAmount: document.getElementById('monthly-amount').value,
+    riskScore: currentRiskScore
+  };
+  localStorage.setItem('riskAssessmentAnswers', JSON.stringify(answers));
+}
+
+function loadAnswers() {
+  const saved = localStorage.getItem('riskAssessmentAnswers');
+  if (saved) {
+    try {
+      const answers = JSON.parse(saved);
+      if (answers.lossComfort) document.getElementById('loss-comfort').value = answers.lossComfort;
+      if (answers.growthPreference) document.getElementById('growth-pref').value = answers.growthPreference;
+      if (answers.timeHorizon) document.getElementById('time-horizon').value = answers.timeHorizon;
+      if (answers.experience) document.getElementById('experience').value = answers.experience;
+      
+      // Only restore monthly amount if no URL parameter was provided
+      const urlParams = new URLSearchParams(window.location.search);
+      const investAmount = urlParams.get('invest');
+      if (!investAmount && answers.monthlyAmount) {
+        document.getElementById('monthly-amount').value = answers.monthlyAmount;
+      }
+      
+      // If all questions were answered and there's a saved risk score, recalculate to show results
+      if (answers.lossComfort && answers.growthPreference && answers.timeHorizon && answers.experience && answers.riskScore > 0) {
+        currentRiskScore = answers.riskScore;
+        updateHomeLink();
+        
+        // Recalculate and display results
+        const monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
+        const portfolio = mapRiskToPortfolio(currentRiskScore);
+        displayResults(currentRiskScore, portfolio, monthlyAmount);
+      }
+    } catch (e) {
+      console.error('Error loading saved answers:', e);
+    }
+  }
+}
+
+function displayResults(score, portfolio, monthlyAmount) {
+  // Display results
+  document.getElementById('risk-score').innerHTML = 
+    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span>`;
+  
+  // Build portfolio table
+  const tbody = document.getElementById('portfolio-body');
+  tbody.innerHTML = '';
+  const values = [];
+  const labels = [];
+  
+  // Update table header based on whether monthly amount is provided
+  const tableHeader = document.querySelector('#portfolio-table thead tr');
+  if (monthlyAmount > 0) {
+    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>';
+  } else {
+    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th>';
+  }
+  
+  for (const [asset, weight] of Object.entries(portfolio)) {
+    if (weight > 0) {
+      const row = document.createElement('tr');
+      if (monthlyAmount > 0) {
+        const dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
+        row.innerHTML = `<td>${asset}</td><td>${weight}%</td><td>${dollarAmount}</td>`;
+      } else {
+        row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
+      }
+      tbody.appendChild(row);
+      values.push(weight);
+      labels.push(asset);
+    }
+  }
+  
+  // Show results section
+  document.getElementById('results').style.display = 'block';
+  
+  // Create pie chart
+  Plotly.newPlot('piechart', [{
+    values: values,
+    labels: labels,
+    type: 'pie',
+    marker: {
+      colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']
+    }
+  }], {
+    margin: {t: 0, b: 0, l: 0, r: 0}
+  });
+}
+
 function calculateRiskScore(answers) {
   let score = 0;
   
@@ -251,55 +346,13 @@ function calculateRisk() {
   // Update navigation link to pass risk score back
   updateHomeLink();
   
+  // Save answers and results
+  saveAnswers();
+  
   const portfolio = mapRiskToPortfolio(score);
   
   // Display results
-  document.getElementById('risk-score').innerHTML = 
-    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span>`;
-  
-  // Build portfolio table
-  const tbody = document.getElementById('portfolio-body');
-  tbody.innerHTML = '';
-  const values = [];
-  const labels = [];
-  
-  // Update table header based on whether monthly amount is provided
-  const tableHeader = document.querySelector('#portfolio-table thead tr');
-  if (monthlyAmount > 0) {
-    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>';
-  } else {
-    tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th>';
-  }
-  
-  for (const [asset, weight] of Object.entries(portfolio)) {
-    if (weight > 0) {
-      const row = document.createElement('tr');
-      if (monthlyAmount > 0) {
-        const dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
-        row.innerHTML = `<td>${asset}</td><td>${weight}%</td><td>$${dollarAmount}</td>`;
-      } else {
-        row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
-      }
-      tbody.appendChild(row);
-      values.push(weight);
-      labels.push(asset);
-    }
-  }
-  
-  // Show results section
-  document.getElementById('results').style.display = 'block';
-  
-  // Create pie chart
-  Plotly.newPlot('piechart', [{
-    values: values,
-    labels: labels,
-    type: 'pie',
-    marker: {
-      colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']
-    }
-  }], {
-    margin: {t: 0, b: 0, l: 0, r: 0}
-  });
+  displayResults(score, portfolio, monthlyAmount);
   
   // Scroll to results
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
@@ -334,6 +387,7 @@ function enableAmountEdit() {
     btn.style.color = '#1f6feb';
     source.innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
     source.style.color = '#1f6feb';
+    saveAnswers();
   }
 }
 
@@ -358,6 +412,16 @@ window.addEventListener('DOMContentLoaded', function() {
     source.innerHTML = '⚠️ No amount from Financial Allocator. Please enter your monthly investment amount or <a href="./index.html" style="color:#1f6feb">go back to calculate it</a>.';
     source.style.color = '#d73a49';
   }
+  
+  // Load previously saved answers
+  loadAnswers();
+  
+  // Add event listeners to save answers when they change
+  document.getElementById('loss-comfort').addEventListener('change', saveAnswers);
+  document.getElementById('growth-pref').addEventListener('change', saveAnswers);
+  document.getElementById('time-horizon').addEventListener('change', saveAnswers);
+  document.getElementById('experience').addEventListener('change', saveAnswers);
+  document.getElementById('monthly-amount').addEventListener('input', saveAnswers);
 });
 </script>
 </body>
