@@ -131,6 +131,8 @@
   </div>
 
 <script>
+let currentRiskScore = 0;
+
 function toggleLearnMore() {
   const content = document.getElementById('learn-more-content');
   content.style.display = content.style.display === 'none' ? 'block' : 'none';
@@ -241,6 +243,11 @@ function calculateRisk() {
     experience
   };
   const score = calculateRiskScore(answers);
+  currentRiskScore = score;
+  
+  // Update navigation link to pass risk score back
+  updateHomeLink();
+  
   const portfolio = mapRiskToPortfolio(score);
   
   // Display results
@@ -293,6 +300,13 @@ function calculateRisk() {
   
   // Scroll to results
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateHomeLink() {
+  const homeLink = document.getElementById('home-link');
+  if (homeLink && currentRiskScore > 0) {
+    homeLink.href = `./index.html?risk=${currentRiskScore.toFixed(2)}`;
+  }
 }
 
 function enableAmountEdit() {
