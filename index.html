@@ -20,6 +20,8 @@
     .small{font-size:13px;color:#666}
     button{background:#1f6feb;color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;margin-top:8px;margin-right:6px}
     .slider-row.disabled{opacity:0.4;pointer-events:none}
+    .slider-row.locked{opacity:0.7}
+    .slider-row.locked input[type=range]{pointer-events:none}
     .results{margin-top:10px;font-size:15px;line-height:1.4}
     .section-header{font-weight:600;font-size:15px;color:#1f6feb;margin-top:24px;margin-bottom:12px}
     nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
@@ -27,6 +29,8 @@
     nav a.active{background:#1f6feb;color:white}
     nav a:not(.active){color:#1f6feb;background:#f6f8fa}
     nav a:not(.active):hover{background:#e6e9ef}
+    .unlock-btn{background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;padding:4px 12px;font-size:12px;margin-left:8px;cursor:pointer}
+    .rt-controls{display:flex;align-items:center;gap:8px}
   </style>
 </head>
 <body>
@@ -199,6 +203,8 @@ const sections = [
   {title: "Existing Balances", start: 12, end: 15}
 ];
 
+let rtLocked = false;
+
 function makeSliders(){
   const container = document.getElementById('sliders');
   let currentSection = -1;
@@ -217,6 +223,7 @@ function makeSliders(){
     
     const row = document.createElement('div'); 
     row.className='slider-row';
+    row.id = id + '_row';
     
     const labelEl = document.createElement('label'); 
     labelEl.innerText = label; 
@@ -229,11 +236,39 @@ function makeSliders(){
       row.appendChild(explainEl);
     }
     
-    const valueSpan = document.createElement('div'); 
-    valueSpan.className='small'; 
-    valueSpan.id = id + '_val'; 
-    valueSpan.innerText = val; 
-    row.appendChild(valueSpan);
+    // Special handling for RT slider with lock/unlock
+    if (id === 'RT') {
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'rt-controls';
+      
+      const valueSpan = document.createElement('div'); 
+      valueSpan.className='small'; 
+      valueSpan.id = id + '_val'; 
+      valueSpan.innerText = val;
+      controlsDiv.appendChild(valueSpan);
+      
+      const unlockBtn = document.createElement('button');
+      unlockBtn.className = 'unlock-btn';
+      unlockBtn.id = 'rt-unlock-btn';
+      unlockBtn.innerText = 'Unlock';
+      unlockBtn.style.display = 'none';
+      unlockBtn.onclick = unlockRiskTolerance;
+      controlsDiv.appendChild(unlockBtn);
+      
+      row.appendChild(controlsDiv);
+      
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'small';
+      statusDiv.id = 'rt-status';
+      statusDiv.style.marginTop = '4px';
+      row.appendChild(statusDiv);
+    } else {
+      const valueSpan = document.createElement('div'); 
+      valueSpan.className='small'; 
+      valueSpan.id = id + '_val'; 
+      valueSpan.innerText = val; 
+      row.appendChild(valueSpan);
+    }
     
     const input = document.createElement('input'); 
     input.type='range'; 
@@ -263,11 +298,45 @@ function makeSliders(){
 makeSliders();
 updateDebtRelatedSliders();
 
+function lockRiskTolerance(score) {
+  const rtRow = document.getElementById('RT_row');
+  const rtSlider = document.getElementById('RT');
+  const rtStatus = document.getElementById('rt-status');
+  const unlockBtn = document.getElementById('rt-unlock-btn');
+  
+  rtRow.classList.add('locked');
+  rtSlider.value = score.toFixed(2);
+  document.getElementById('RT_val').innerText = score.toFixed(2);
+  rtStatus.innerHTML = '✓ Set from Risk Assessment (Click "Unlock" to adjust manually)';
+  rtStatus.style.color = '#1f6feb';
+  rtStatus.style.fontWeight = '500';
+  unlockBtn.style.display = 'inline-block';
+  
+  rtLocked = true;
+  saveState();
+}
+
+function unlockRiskTolerance() {
+  const rtRow = document.getElementById('RT_row');
+  const rtStatus = document.getElementById('rt-status');
+  const unlockBtn = document.getElementById('rt-unlock-btn');
+  
+  rtRow.classList.remove('locked');
+  rtStatus.innerHTML = '';
+  unlockBtn.style.display = 'none';
+  
+  rtLocked = false;
+  localStorage.removeItem('rtLocked');
+  updateRiskAssessmentLink();
+  update();
+}
+
 function saveState(){
   const state = {};
   sliderDefinitions.forEach(([id])=> {
     state[id] = document.getElementById(id).value;
   });
+  state.rtLocked = rtLocked;
   localStorage.setItem('financialAllocatorState', JSON.stringify(state));
 }
 
@@ -282,6 +351,21 @@ function loadState(){
           document.getElementById(id + '_val').innerText = state[id];
         }
       });
+      
+      // Restore RT lock state
+      if (state.rtLocked) {
+        const rtRow = document.getElementById('RT_row');
+        const rtStatus = document.getElementById('rt-status');
+        const unlockBtn = document.getElementById('rt-unlock-btn');
+        
+        rtRow.classList.add('locked');
+        rtStatus.innerHTML = '✓ Set from Risk Assessment (Click "Unlock" to adjust manually)';
+        rtStatus.style.color = '#1f6feb';
+        rtStatus.style.fontWeight = '500';
+        unlockBtn.style.display = 'inline-block';
+        rtLocked = true;
+      }
+      
       updateDebtRelatedSliders();
     } catch (e) {
       console.error('Error loading saved state:', e);
@@ -302,8 +386,9 @@ function resetDefaults(){
     document.getElementById(id).value = val; 
     document.getElementById(id + '_val').innerText = val; 
   });
+  unlockRiskTolerance(); // Unlock RT when resetting
   updateDebtRelatedSliders();
-  saveState(); // Save the reset state
+  saveState();
   update();
 }
 
@@ -438,6 +523,21 @@ function update(){
 
   Plotly.newPlot('piechart',[{values:[out.alloc.Invest,out.alloc.Debt,out.alloc.Save],labels:['Invest','Debt','Save'],type:'pie'}],{margin:{t:0}});
 }
+
+// Check for risk score from URL parameter
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const riskScore = urlParams.get('risk');
+  
+  if (riskScore) {
+    const score = parseFloat(riskScore);
+    if (score >= 0 && score <= 1) {
+      lockRiskTolerance(score);
+      update();
+      updateRiskAssessmentLink();
+    }
+  }
+});
 
 // Initial render on page load
 loadState();
