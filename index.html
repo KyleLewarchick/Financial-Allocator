@@ -216,6 +216,7 @@ const sections = [
 ];
 
 let rtLocked = false;
+let rInvestLocked = false;
 
 function makeSliders(){
   const container = document.getElementById('sliders');
@@ -274,7 +275,35 @@ function makeSliders(){
       statusDiv.id = 'rt-status';
       statusDiv.style.marginTop = '4px';
       row.appendChild(statusDiv);
-    } else {
+    } 
+    // Special handling for rInvest slider with lock/unlock
+    else if (id === 'rInvest') {
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'rt-controls';
+      
+      const valueSpan = document.createElement('div'); 
+      valueSpan.className='small'; 
+      valueSpan.id = id + '_val'; 
+      valueSpan.innerText = val;
+      controlsDiv.appendChild(valueSpan);
+      
+      const unlockBtn = document.createElement('button');
+      unlockBtn.className = 'unlock-btn';
+      unlockBtn.id = 'rinvest-unlock-btn';
+      unlockBtn.innerText = 'Unlock';
+      unlockBtn.style.display = 'none';
+      unlockBtn.onclick = unlockInvestmentReturn;
+      controlsDiv.appendChild(unlockBtn);
+      
+      row.appendChild(controlsDiv);
+      
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'small';
+      statusDiv.id = 'rinvest-status';
+      statusDiv.style.marginTop = '4px';
+      row.appendChild(statusDiv);
+    }
+    else {
       const valueSpan = document.createElement('div'); 
       valueSpan.className='small'; 
       valueSpan.id = id + '_val'; 
@@ -334,6 +363,8 @@ function unlockRiskTolerance() {
   const rtStatus = document.getElementById('rt-status');
   const unlockBtn = document.getElementById('rt-unlock-btn');
   
+  if (!rtRow || !rtStatus || !unlockBtn) return; // Safety check
+  
   rtRow.classList.remove('locked');
   rtStatus.innerHTML = '';
   unlockBtn.style.display = 'none';
@@ -344,12 +375,49 @@ function unlockRiskTolerance() {
   update();
 }
 
+function lockInvestmentReturn(expectedReturn) {
+  const rInvestRow = document.getElementById('rInvest_row');
+  const rInvestSlider = document.getElementById('rInvest');
+  const rInvestStatus = document.getElementById('rinvest-status');
+  const unlockBtn = document.getElementById('rinvest-unlock-btn');
+  
+  rInvestRow.classList.add('locked');
+  rInvestSlider.value = expectedReturn.toFixed(4);
+  document.getElementById('rInvest_val').innerText = expectedReturn.toFixed(4);
+  rInvestStatus.innerHTML = '✓ Calculated from Risk Assessment portfolio (Click "Unlock" to adjust manually)';
+  rInvestStatus.style.color = '#1f6feb';
+  rInvestStatus.style.fontWeight = '500';
+  unlockBtn.style.display = 'inline-block';
+  
+  rInvestLocked = true;
+  saveState();
+  updateRiskAssessmentLink();
+}
+
+function unlockInvestmentReturn() {
+  const rInvestRow = document.getElementById('rInvest_row');
+  const rInvestStatus = document.getElementById('rinvest-status');
+  const unlockBtn = document.getElementById('rinvest-unlock-btn');
+  
+  if (!rInvestRow || !rInvestStatus || !unlockBtn) return; // Safety check
+  
+  rInvestRow.classList.remove('locked');
+  rInvestStatus.innerHTML = '';
+  unlockBtn.style.display = 'none';
+  
+  rInvestLocked = false;
+  localStorage.removeItem('rInvestLocked');
+  updateRiskAssessmentLink();
+  update();
+}
+
 function saveState(){
   const state = {};
   sliderDefinitions.forEach(([id])=> {
     state[id] = document.getElementById(id).value;
   });
   state.rtLocked = rtLocked;
+  state.rInvestLocked = rInvestLocked;
   localStorage.setItem('financialAllocatorState', JSON.stringify(state));
 }
 
@@ -379,6 +447,20 @@ function loadState(){
         rtLocked = true;
       }
       
+      // Restore rInvest lock state
+      if (state.rInvestLocked) {
+        const rInvestRow = document.getElementById('rInvest_row');
+        const rInvestStatus = document.getElementById('rinvest-status');
+        const unlockBtn = document.getElementById('rinvest-unlock-btn');
+        
+        rInvestRow.classList.add('locked');
+        rInvestStatus.innerHTML = '✓ Calculated from Risk Assessment portfolio (Click "Unlock" to adjust manually)';
+        rInvestStatus.style.color = '#1f6feb';
+        rInvestStatus.style.fontWeight = '500';
+        unlockBtn.style.display = 'inline-block';
+        rInvestLocked = true;
+      }
+      
       updateDebtRelatedSliders();
     } catch (e) {
       console.error('Error loading saved state:', e);
@@ -400,6 +482,7 @@ function resetDefaults(){
     document.getElementById(id + '_val').innerText = val; 
   });
   unlockRiskTolerance(); // Unlock RT when resetting
+  unlockInvestmentReturn(); // Unlock rInvest when resetting
   updateDebtRelatedSliders();
   saveState();
   update();
@@ -550,15 +633,25 @@ function update(){
   Plotly.newPlot('piechart',[{values:[out.alloc.Invest,out.alloc.Debt,out.alloc.Save],labels:['Invest','Debt','Save'],type:'pie'}],{margin:{t:0}});
 }
 
-// Check for risk score from URL parameter
+// Check for risk score and expected return from URL parameters
 window.addEventListener('DOMContentLoaded', function() {
   const urlParams = new URLSearchParams(window.location.search);
   const riskScore = urlParams.get('risk');
+  const expectedReturn = urlParams.get('return');
   
   if (riskScore) {
     const score = parseFloat(riskScore);
     if (score >= 0 && score <= 1) {
       lockRiskTolerance(score);
+      update();
+      updateRiskAssessmentLink();
+    }
+  }
+  
+  if (expectedReturn) {
+    const returnVal = parseFloat(expectedReturn);
+    if (returnVal >= 0 && returnVal <= 0.2) { // Reasonable range for returns (0-20%)
+      lockInvestmentReturn(returnVal);
       update();
       updateRiskAssessmentLink();
     }
