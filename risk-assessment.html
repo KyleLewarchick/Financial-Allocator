@@ -189,9 +189,13 @@ function loadAnswers() {
 }
 
 function displayResults(score, portfolio, monthlyAmount) {
+  // Calculate expected return for display
+  const expectedReturn = calculateExpectedReturn(portfolio);
+  
   // Display results
   document.getElementById('risk-score').innerHTML = 
-    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span>`;
+    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span><br>
+    <span style="font-size:16px;margin-top:8px;display:inline-block;">Expected annual return: <span style="color:#1f6feb">${(expectedReturn * 100).toFixed(2)}%</span></span>`;
   
   // Build portfolio table
   const tbody = document.getElementById('portfolio-body');
