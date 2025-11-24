@@ -112,6 +112,7 @@
       </div>
 
       <button onclick="calculateRisk()">See My Portfolio</button>
+      <button onclick="resetAssessment()" style="background:#e6e9ef;color:#111;margin-top:8px">Reset Assessment</button>
     </div>
 
     <div class="card results" id="results">
@@ -420,6 +421,42 @@ function enableAmountEdit() {
     source.innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
     source.style.color = '#1f6feb';
     saveAnswers();
+  }
+}
+
+function resetAssessment() {
+  // Clear all form fields
+  document.getElementById('loss-comfort').value = '';
+  document.getElementById('growth-pref').value = '';
+  document.getElementById('time-horizon').value = '';
+  document.getElementById('experience').value = '';
+  
+  // Check if monthly amount came from URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const investAmount = urlParams.get('invest');
+  
+  if (!investAmount) {
+    // Only clear if not from URL
+    document.getElementById('monthly-amount').value = '';
+  }
+  
+  // Hide results section
+  document.getElementById('results').style.display = 'none';
+  
+  // Reset risk score
+  currentRiskScore = 0;
+  
+  // Clear saved answers from localStorage
+  localStorage.removeItem('riskAssessmentAnswers');
+  
+  // Update home link to remove risk score
+  const homeLink = document.getElementById('home-link');
+  if (homeLink) {
+    if (investAmount) {
+      homeLink.href = `./index.html`;
+    } else {
+      homeLink.href = `./index.html`;
+    }
   }
 }
 
