@@ -36,6 +36,10 @@
 </head>
 <body>
   <div class="wrap">
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#664d03;">
+      <strong>⚠️ Disclaimer:</strong> This tool is for educational purposes only and does not constitute financial advice. Expected returns are estimates based on historical averages and are not guaranteed. Use at your own discretion.
+    </div>
+    
     <nav>
       <a href="./index.html" id="home-link">Financial Allocator</a>
       <a href="./risk-assessment.html" class="active">Risk Assessment</a>
@@ -269,24 +273,139 @@ function displayResults(score, portfolio, monthlyAmount) {
     var weight = portfolio[asset];
     if (weight > 0) {
       var suggestion = etfSuggestions[asset] || '';
-      var colspan = monthlyAmount > 0 ? 3 : 2;
       
-      // Asset row
       var assetRow = document.createElement('tr');
       if (monthlyAmount > 0) {
         var dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
-        assetRow.innerHTML = '<td><strong>' + asset + '</strong></td><td>' + weight + '%</td><td>$' + dollarAmount + '</td>';
+        assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td><td>
+  
+  document.getElementById('results').style.display = 'block';
+  
+  Plotly.newPlot('piechart', [{
+    values: values,
+    labels: labels,
+    type: 'pie',
+    marker: {colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']}
+  }], {margin: {t: 0, b: 0, l: 0, r: 0}});
+}
+
+function calculateRisk() {
+  var lossComfort = document.getElementById('loss-comfort').value;
+  var growthPreference = document.getElementById('growth-pref').value;
+  var timeHorizon = document.getElementById('time-horizon').value;
+  var experience = document.getElementById('experience').value;
+  var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
+  
+  if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
+    alert('Please answer all questions before continuing.');
+    return;
+  }
+  
+  var answers = {lossComfort: lossComfort, growthPreference: growthPreference, timeHorizon: timeHorizon, experience: experience};
+  var score = calculateRiskScore(answers);
+  currentRiskScore = score;
+  
+  var portfolio = mapRiskToPortfolio(score);
+  var expectedReturn = calculateExpectedReturn(portfolio);
+  
+  updateHomeLink(expectedReturn);
+  saveAnswers();
+  displayResults(score, portfolio, monthlyAmount);
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateHomeLink(expectedReturn) {
+  var homeLink = document.getElementById('home-link');
+  if (homeLink && currentRiskScore > 0) {
+    if (expectedReturn !== undefined) {
+      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expectedReturn.toFixed(4);
+    } else {
+      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2);
+    }
+  }
+}
+
+function enableAmountEdit() {
+  var input = document.getElementById('monthly-amount');
+  var btn = document.getElementById('edit-amount-btn');
+  var source = document.getElementById('amount-source');
+  
+  if (input.disabled) {
+    input.disabled = false;
+    input.focus();
+    btn.innerText = 'Lock';
+    btn.style.background = '#1f6feb';
+    btn.style.color = 'white';
+    source.innerHTML = '💡 You can now edit the amount. Click "Lock" when done.';
+    source.style.color = '#666';
+  } else {
+    input.disabled = true;
+    btn.innerText = 'Edit';
+    btn.style.background = '#f6f8fa';
+    btn.style.color = '#1f6feb';
+    source.innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
+    source.style.color = '#1f6feb';
+    saveAnswers();
+  }
+}
+
+function resetAssessment() {
+  document.getElementById('loss-comfort').value = '';
+  document.getElementById('growth-pref').value = '';
+  document.getElementById('time-horizon').value = '';
+  document.getElementById('experience').value = '';
+  
+  var urlParams = new URLSearchParams(window.location.search);
+  var investAmount = urlParams.get('invest');
+  if (!investAmount) {
+    document.getElementById('monthly-amount').value = '';
+  }
+  
+  document.getElementById('results').style.display = 'none';
+  currentRiskScore = 0;
+  localStorage.removeItem('riskAssessmentAnswers');
+  
+  var homeLink = document.getElementById('home-link');
+  if (homeLink) {
+    homeLink.href = './index.html';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var investAmount = urlParams.get('invest');
+  
+  if (investAmount && investAmount > 0) {
+    document.getElementById('monthly-amount').value = investAmount;
+    document.getElementById('amount-source').innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
+    document.getElementById('amount-source').style.color = '#1f6feb';
+    document.getElementById('amount-source').style.fontWeight = '500';
+  } else {
+    var input = document.getElementById('monthly-amount');
+    var btn = document.getElementById('edit-amount-btn');
+    var source = document.getElementById('amount-source');
+    input.disabled = false;
+    btn.style.display = 'none';
+    source.innerHTML = '⚠️ No amount from Financial Allocator. Please enter your monthly investment amount or <a href="./index.html" style="color:#1f6feb">go back to calculate it</a>.';
+    source.style.color = '#d73a49';
+  }
+  
+  loadAnswers();
+  
+  document.getElementById('loss-comfort').addEventListener('change', saveAnswers);
+  document.getElementById('growth-pref').addEventListener('change', saveAnswers);
+  document.getElementById('time-horizon').addEventListener('change', saveAnswers);
+  document.getElementById('experience').addEventListener('change', saveAnswers);
+  document.getElementById('monthly-amount').addEventListener('input', saveAnswers);
+});
+</script>
+</body>
+</html>
+ + dollarAmount + '</td>';
       } else {
-        assetRow.innerHTML = '<td><strong>' + asset + '</strong></td><td>' + weight + '%</td>';
+        assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td>';
       }
       tbody.appendChild(assetRow);
-      
-      // ETF suggestion row
-      if (suggestion) {
-        var suggestionRow = document.createElement('tr');
-        suggestionRow.innerHTML = '<td colspan="' + colspan + '" class="etf-suggestion">' + suggestion + '</td>';
-        tbody.appendChild(suggestionRow);
-      }
       
       values.push(weight);
       labels.push(asset);
