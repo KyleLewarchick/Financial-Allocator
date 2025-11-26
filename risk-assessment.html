@@ -25,6 +25,7 @@
     .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
     .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
     .portfolio-table td:nth-child(2), .portfolio-table td:nth-child(3){text-align:right;font-weight:600}
+    .etf-suggestion{font-size:12px;color:#666;padding:4px 10px 12px 20px;border-bottom:1px solid #eee;font-style:italic}
     .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
     nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
@@ -150,15 +151,22 @@
   </div>
 
 <script>
-let currentRiskScore = 0;
+var currentRiskScore = 0;
+
+var etfSuggestions = {
+  'US Stocks': 'e.g., VTI, VOO, SPY, SCHB',
+  'International Stocks': 'e.g., VXUS, VEU, IXUS, VWO',
+  'Bonds': 'e.g., BND, AGG, SCHZ, VGIT',
+  'Alternatives': 'e.g., VNQ (REITs), GLD (Gold), PDBC (Commodities)'
+};
 
 function toggleLearnMore() {
-  const content = document.getElementById('learn-more-content');
+  var content = document.getElementById('learn-more-content');
   content.style.display = content.style.display === 'none' ? 'block' : 'none';
 }
 
 function saveAnswers() {
-  const answers = {
+  var answers = {
     lossComfort: document.getElementById('loss-comfort').value,
     growthPreference: document.getElementById('growth-pref').value,
     timeHorizon: document.getElementById('time-horizon').value,
@@ -170,32 +178,27 @@ function saveAnswers() {
 }
 
 function loadAnswers() {
-  const saved = localStorage.getItem('riskAssessmentAnswers');
+  var saved = localStorage.getItem('riskAssessmentAnswers');
   if (saved) {
     try {
-      const answers = JSON.parse(saved);
+      var answers = JSON.parse(saved);
       if (answers.lossComfort) document.getElementById('loss-comfort').value = answers.lossComfort;
       if (answers.growthPreference) document.getElementById('growth-pref').value = answers.growthPreference;
       if (answers.timeHorizon) document.getElementById('time-horizon').value = answers.timeHorizon;
       if (answers.experience) document.getElementById('experience').value = answers.experience;
       
-      // Only restore monthly amount if no URL parameter was provided
-      const urlParams = new URLSearchParams(window.location.search);
-      const investAmount = urlParams.get('invest');
+      var urlParams = new URLSearchParams(window.location.search);
+      var investAmount = urlParams.get('invest');
       if (!investAmount && answers.monthlyAmount) {
         document.getElementById('monthly-amount').value = answers.monthlyAmount;
       }
       
-      // If all questions were answered and there's a saved risk score, recalculate to show results
       if (answers.lossComfort && answers.growthPreference && answers.timeHorizon && answers.experience && answers.riskScore > 0) {
         currentRiskScore = answers.riskScore;
-        
-        const portfolio = mapRiskToPortfolio(currentRiskScore);
-        const expectedReturn = calculateExpectedReturn(portfolio);
+        var portfolio = mapRiskToPortfolio(currentRiskScore);
+        var expectedReturn = calculateExpectedReturn(portfolio);
         updateHomeLink(expectedReturn);
-        
-        // Recalculate and display results
-        const monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
+        var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
         displayResults(currentRiskScore, portfolio, monthlyAmount);
       }
     } catch (e) {
@@ -204,230 +207,144 @@ function loadAnswers() {
   }
 }
 
+function calculateRiskScore(answers) {
+  var score = 0;
+  var lossMap = {'Very Uncomfortable': 0.1, 'Uncomfortable': 0.3, 'Neutral': 0.5, 'Comfortable': 0.7, 'Very Comfortable': 0.9};
+  score += lossMap[answers.lossComfort] * 0.4;
+  var growthMap = {'Prefer Stability': 0.2, 'Slightly Prefer Stability': 0.4, 'Neutral': 0.5, 'Slightly Prefer Growth': 0.7, 'Prefer Growth': 0.9};
+  score += growthMap[answers.growthPreference] * 0.3;
+  var horizonMap = {'<1 year': 0.1, '1-3 years': 0.3, '3-5 years': 0.5, '5-10 years': 0.7, '10+ years': 0.9};
+  score += horizonMap[answers.timeHorizon] * 0.2;
+  var experienceMap = {'None': 0.1, 'Some': 0.5, 'Significant': 0.9};
+  score += experienceMap[answers.experience] * 0.1;
+  return score;
+}
+
+function mapRiskToPortfolio(score) {
+  if (score < 0.25) {
+    return {'US Stocks': 20, 'International Stocks': 10, 'Bonds': 60, 'Alternatives': 10};
+  } else if (score < 0.45) {
+    return {'US Stocks': 40, 'International Stocks': 15, 'Bonds': 40, 'Alternatives': 5};
+  } else if (score < 0.65) {
+    return {'US Stocks': 55, 'International Stocks': 20, 'Bonds': 20, 'Alternatives': 5};
+  } else if (score < 0.85) {
+    return {'US Stocks': 70, 'International Stocks': 20, 'Bonds': 10, 'Alternatives': 0};
+  } else {
+    return {'US Stocks': 85, 'International Stocks': 10, 'Bonds': 5, 'Alternatives': 0};
+  }
+}
+
+function calculateExpectedReturn(portfolio) {
+  var expectedReturns = {'US Stocks': 0.10, 'International Stocks': 0.09, 'Bonds': 0.035, 'Alternatives': 0.05};
+  var weightedReturn = 0;
+  for (var asset in portfolio) {
+    var weight = portfolio[asset];
+    if (weight > 0 && expectedReturns[asset]) {
+      weightedReturn += (weight / 100) * expectedReturns[asset];
+    }
+  }
+  return weightedReturn;
+}
+
 function displayResults(score, portfolio, monthlyAmount) {
-  // Calculate expected return for display
-  const expectedReturn = calculateExpectedReturn(portfolio);
+  var expectedReturn = calculateExpectedReturn(portfolio);
   
-  // ETF suggestions for each asset class
-  const etfSuggestions = {
-    'US Stocks': 'e.g., VTI, VOO, SPY, SCHB',
-    'International Stocks': 'e.g., VXUS, VEU, IXUS, VWO',
-    'Bonds': 'e.g., BND, AGG, SCHZ, VGIT',
-    'Alternatives': 'e.g., VNQ (REITs), GLD (Gold), PDBC (Commodities)'
-  };
-  
-  // Display results
   document.getElementById('risk-score').innerHTML = 
-    `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span><br>
-    <span style="font-size:16px;margin-top:8px;display:inline-block;">Expected annual return: <span style="color:#1f6feb">${(expectedReturn * 100).toFixed(2)}%</span></span>`;
+    'Your risk score: <span style="color:#1f6feb">' + score.toFixed(2) + '</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span><br>' +
+    '<span style="font-size:16px;margin-top:8px;display:inline-block;">Expected annual return: <span style="color:#1f6feb">' + (expectedReturn * 100).toFixed(2) + '%</span></span>';
   
-  // Build portfolio table
-  const tbody = document.getElementById('portfolio-body');
+  var tbody = document.getElementById('portfolio-body');
   tbody.innerHTML = '';
-  const values = [];
-  const labels = [];
+  var values = [];
+  var labels = [];
   
-  // Update table header based on whether monthly amount is provided
-  const tableHeader = document.querySelector('#portfolio-table thead tr');
+  var tableHeader = document.querySelector('#portfolio-table thead tr');
   if (monthlyAmount > 0) {
     tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>';
   } else {
     tableHeader.innerHTML = '<th>Asset Class</th><th>Allocation</th>';
   }
   
-  for (const [asset, weight] of Object.entries(portfolio)) {
+  for (var asset in portfolio) {
+    var weight = portfolio[asset];
     if (weight > 0) {
-      const row = document.createElement('tr');
+      var suggestion = etfSuggestions[asset] || '';
+      var colspan = monthlyAmount > 0 ? 3 : 2;
+      
+      // Asset row
+      var assetRow = document.createElement('tr');
       if (monthlyAmount > 0) {
-        const dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
-        row.innerHTML = `<td>${asset}</td><td>${weight}%</td><td>${dollarAmount}</td>`;
+        var dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
+        assetRow.innerHTML = '<td><strong>' + asset + '</strong></td><td>' + weight + '%</td><td>$' + dollarAmount + '</td>';
       } else {
-        row.innerHTML = `<td>${asset}</td><td>${weight}%</td>`;
+        assetRow.innerHTML = '<td><strong>' + asset + '</strong></td><td>' + weight + '%</td>';
       }
-      tbody.appendChild(row);
+      tbody.appendChild(assetRow);
+      
+      // ETF suggestion row
+      if (suggestion) {
+        var suggestionRow = document.createElement('tr');
+        suggestionRow.innerHTML = '<td colspan="' + colspan + '" class="etf-suggestion">' + suggestion + '</td>';
+        tbody.appendChild(suggestionRow);
+      }
+      
       values.push(weight);
       labels.push(asset);
     }
   }
   
-  // Show results section
   document.getElementById('results').style.display = 'block';
   
-  // Create pie chart
   Plotly.newPlot('piechart', [{
     values: values,
     labels: labels,
     type: 'pie',
-    marker: {
-      colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']
-    }
-  }], {
-    margin: {t: 0, b: 0, l: 0, r: 0}
-  });
-}
-
-function calculateRiskScore(answers) {
-  let score = 0;
-  
-  // Loss comfort mapping (40% weight)
-  const lossMap = {
-    'Very Uncomfortable': 0.1,
-    'Uncomfortable': 0.3,
-    'Neutral': 0.5,
-    'Comfortable': 0.7,
-    'Very Comfortable': 0.9
-  };
-  score += lossMap[answers.lossComfort] * 0.4;
-  
-  // Growth preference mapping (30% weight)
-  const growthMap = {
-    'Prefer Stability': 0.2,
-    'Slightly Prefer Stability': 0.4,
-    'Neutral': 0.5,
-    'Slightly Prefer Growth': 0.7,
-    'Prefer Growth': 0.9
-  };
-  score += growthMap[answers.growthPreference] * 0.3;
-  
-  // Time horizon mapping (20% weight)
-  const horizonMap = {
-    '<1 year': 0.1,
-    '1-3 years': 0.3,
-    '3-5 years': 0.5,
-    '5-10 years': 0.7,
-    '10+ years': 0.9
-  };
-  score += horizonMap[answers.timeHorizon] * 0.2;
-  
-  // Experience mapping (10% weight)
-  const experienceMap = {
-    'None': 0.1,
-    'Some': 0.5,
-    'Significant': 0.9
-  };
-  score += experienceMap[answers.experience] * 0.1;
-  
-  return score;
-}
-
-function mapRiskToPortfolio(score) {
-  if (score < 0.25) {
-    return {
-      'US Stocks': 20,
-      'International Stocks': 10,
-      'Bonds': 60,
-      'Alternatives': 10
-    };
-  } else if (score < 0.45) {
-    return {
-      'US Stocks': 40,
-      'International Stocks': 15,
-      'Bonds': 40,
-      'Alternatives': 5
-    };
-  } else if (score < 0.65) {
-    return {
-      'US Stocks': 55,
-      'International Stocks': 20,
-      'Bonds': 20,
-      'Alternatives': 5
-    };
-  } else if (score < 0.85) {
-    return {
-      'US Stocks': 70,
-      'International Stocks': 20,
-      'Bonds': 10,
-      'Alternatives': 0
-    };
-  } else {
-    return {
-      'US Stocks': 85,
-      'International Stocks': 10,
-      'Bonds': 5,
-      'Alternatives': 0
-    };
-  }
-}
-
-function calculateExpectedReturn(portfolio) {
-  // Expected annual returns by asset class (as decimals)
-  const expectedReturns = {
-    'US Stocks': 0.10,
-    'International Stocks': 0.09,
-    'Bonds': 0.035,
-    'Alternatives': 0.05
-  };
-  
-  let weightedReturn = 0;
-  for (const [asset, weight] of Object.entries(portfolio)) {
-    if (weight > 0 && expectedReturns[asset]) {
-      weightedReturn += (weight / 100) * expectedReturns[asset];
-    }
-  }
-  
-  return weightedReturn;
+    marker: {colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']}
+  }], {margin: {t: 0, b: 0, l: 0, r: 0}});
 }
 
 function calculateRisk() {
-  // Get values
-  const lossComfort = document.getElementById('loss-comfort').value;
-  const growthPreference = document.getElementById('growth-pref').value;
-  const timeHorizon = document.getElementById('time-horizon').value;
-  const experience = document.getElementById('experience').value;
-  const monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
+  var lossComfort = document.getElementById('loss-comfort').value;
+  var growthPreference = document.getElementById('growth-pref').value;
+  var timeHorizon = document.getElementById('time-horizon').value;
+  var experience = document.getElementById('experience').value;
+  var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
   
-  // Validate all questions answered
   if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
     alert('Please answer all questions before continuing.');
     return;
   }
   
-  // Calculate risk score
-  const answers = {
-    lossComfort,
-    growthPreference,
-    timeHorizon,
-    experience
-  };
-  const score = calculateRiskScore(answers);
+  var answers = {lossComfort: lossComfort, growthPreference: growthPreference, timeHorizon: timeHorizon, experience: experience};
+  var score = calculateRiskScore(answers);
   currentRiskScore = score;
   
-  const portfolio = mapRiskToPortfolio(score);
+  var portfolio = mapRiskToPortfolio(score);
+  var expectedReturn = calculateExpectedReturn(portfolio);
   
-  // Calculate expected return for this portfolio
-  const expectedReturn = calculateExpectedReturn(portfolio);
-  
-  // Update navigation link to pass risk score AND expected return back
   updateHomeLink(expectedReturn);
-  
-  // Save answers and results
   saveAnswers();
-  
-  // Display results
   displayResults(score, portfolio, monthlyAmount);
-  
-  // Scroll to results
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 }
 
 function updateHomeLink(expectedReturn) {
-  const homeLink = document.getElementById('home-link');
+  var homeLink = document.getElementById('home-link');
   if (homeLink && currentRiskScore > 0) {
     if (expectedReturn !== undefined) {
-      homeLink.href = `./index.html?risk=${currentRiskScore.toFixed(2)}&return=${expectedReturn.toFixed(4)}`;
+      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expectedReturn.toFixed(4);
     } else {
-      homeLink.href = `./index.html?risk=${currentRiskScore.toFixed(2)}`;
+      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2);
     }
   }
 }
 
 function enableAmountEdit() {
-  const input = document.getElementById('monthly-amount');
-  const btn = document.getElementById('edit-amount-btn');
-  const source = document.getElementById('amount-source');
+  var input = document.getElementById('monthly-amount');
+  var btn = document.getElementById('edit-amount-btn');
+  var source = document.getElementById('amount-source');
   
   if (input.disabled) {
-    // Enable editing
     input.disabled = false;
     input.focus();
     btn.innerText = 'Lock';
@@ -436,7 +353,6 @@ function enableAmountEdit() {
     source.innerHTML = '💡 You can now edit the amount. Click "Lock" when done.';
     source.style.color = '#666';
   } else {
-    // Lock editing
     input.disabled = true;
     btn.innerText = 'Edit';
     btn.style.background = '#f6f8fa';
@@ -448,45 +364,30 @@ function enableAmountEdit() {
 }
 
 function resetAssessment() {
-  // Clear all form fields
   document.getElementById('loss-comfort').value = '';
   document.getElementById('growth-pref').value = '';
   document.getElementById('time-horizon').value = '';
   document.getElementById('experience').value = '';
   
-  // Check if monthly amount came from URL parameter
-  const urlParams = new URLSearchParams(window.location.search);
-  const investAmount = urlParams.get('invest');
-  
+  var urlParams = new URLSearchParams(window.location.search);
+  var investAmount = urlParams.get('invest');
   if (!investAmount) {
-    // Only clear if not from URL
     document.getElementById('monthly-amount').value = '';
   }
   
-  // Hide results section
   document.getElementById('results').style.display = 'none';
-  
-  // Reset risk score
   currentRiskScore = 0;
-  
-  // Clear saved answers from localStorage
   localStorage.removeItem('riskAssessmentAnswers');
   
-  // Update home link to remove risk score
-  const homeLink = document.getElementById('home-link');
+  var homeLink = document.getElementById('home-link');
   if (homeLink) {
-    if (investAmount) {
-      homeLink.href = `./index.html`;
-    } else {
-      homeLink.href = `./index.html`;
-    }
+    homeLink.href = './index.html';
   }
 }
 
-// Check for invest amount from URL parameter on page load
 window.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const investAmount = urlParams.get('invest');
+  var urlParams = new URLSearchParams(window.location.search);
+  var investAmount = urlParams.get('invest');
   
   if (investAmount && investAmount > 0) {
     document.getElementById('monthly-amount').value = investAmount;
@@ -494,21 +395,17 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('amount-source').style.color = '#1f6feb';
     document.getElementById('amount-source').style.fontWeight = '500';
   } else {
-    // No amount from page 1 - enable manual entry
-    const input = document.getElementById('monthly-amount');
-    const btn = document.getElementById('edit-amount-btn');
-    const source = document.getElementById('amount-source');
-    
+    var input = document.getElementById('monthly-amount');
+    var btn = document.getElementById('edit-amount-btn');
+    var source = document.getElementById('amount-source');
     input.disabled = false;
     btn.style.display = 'none';
     source.innerHTML = '⚠️ No amount from Financial Allocator. Please enter your monthly investment amount or <a href="./index.html" style="color:#1f6feb">go back to calculate it</a>.';
     source.style.color = '#d73a49';
   }
   
-  // Load previously saved answers
   loadAnswers();
   
-  // Add event listeners to save answers when they change
   document.getElementById('loss-comfort').addEventListener('change', saveAnswers);
   document.getElementById('growth-pref').addEventListener('change', saveAnswers);
   document.getElementById('time-horizon').addEventListener('change', saveAnswers);
