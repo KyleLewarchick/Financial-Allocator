@@ -611,18 +611,18 @@ function update(){
   const prioritySum = params.pInvest + params.pDebt + params.pSave;
 
   document.getElementById('results').innerHTML = `
-    <strong>Discretionary:</strong> $${out.discretionary.toFixed(0)}<br>
+    <strong>Discretionary:</strong> ${out.discretionary.toFixed(0)}<br>
     <div class="small" style="margin-top:4px;">Priority Sum: ${prioritySum.toFixed(2)} ${Math.abs(prioritySum - 1.0) < 0.01 ? '✓' : '⚠️ (should be 1.0)'}</div>
     <br>
     <strong>Monthly allocations</strong><br>
-    Invest: $${out.alloc.Invest.toFixed(0)}<br>
-    Debt: $${out.alloc.Debt.toFixed(0)}<br>
-    Save: $${out.alloc.Save.toFixed(0)}<br><br>
+    Invest: ${out.alloc.Invest.toFixed(0)}<br>
+    Debt: ${out.alloc.Debt.toFixed(0)} <span class="small">(in addition to your ${params.minDebtPayment.toFixed(0)} minimum payment)</span><br>
+    Save: ${out.alloc.Save.toFixed(0)}<br><br>
     <strong>Projection after ${params.years} years</strong><br>
-    Investment: $${out.invest.toFixed(0)}<br>
-    Savings: $${out.save.toFixed(0)}<br>
-    Debt remaining: $${out.debt.toFixed(0)}<br>
-    Net worth: <strong>$${out.netWorth.toFixed(0)}</strong>
+    Investment: ${out.invest.toFixed(0)}<br>
+    Savings: ${out.save.toFixed(0)}<br>
+    Debt remaining: ${out.debt.toFixed(0)}<br>
+    Net worth: <strong>${out.netWorth.toFixed(0)}</strong>
   `;
 
   document.getElementById('summary').innerHTML = `
