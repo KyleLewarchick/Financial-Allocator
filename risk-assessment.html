@@ -32,6 +32,17 @@
     nav a.active{background:#1f6feb;color:white}
     nav a:not(.active){color:#1f6feb;background:#f6f8fa}
     nav a:not(.active):hover{background:#e6e9ef}
+    .info-icon{display:inline-block;width:18px;height:18px;background:#1f6feb;color:white;border-radius:50%;text-align:center;font-size:12px;line-height:18px;cursor:pointer;margin-left:6px;font-weight:bold}
+    .info-icon:hover{background:#1557cf}
+    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
+    .modal-content{background:white;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .modal-header h3{margin:0;font-size:18px;color:#333}
+    .modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#666;padding:0;width:auto}
+    .modal-close:hover{color:#333}
+    .source-table{width:100%;border-collapse:collapse;margin:12px 0}
+    .source-table th,.source-table td{padding:8px;text-align:left;border-bottom:1px solid #eee;font-size:13px}
+    .source-table th{background:#f6f8fa;font-weight:600}
   </style>
 </head>
 <body>
@@ -122,7 +133,7 @@
 
     <div class="card results" id="results">
       <div class="risk-score" id="risk-score"></div>
-      <h3 style="margin-top:0;font-size:18px">Suggested Portfolio Allocation</h3>
+      <h3 style="margin-top:0;font-size:18px">Suggested Portfolio Allocation <span class="info-icon" onclick="openMethodologyModal()" title="View methodology">?</span></h3>
       <table class="portfolio-table" id="portfolio-table">
         <thead>
           <tr>
@@ -154,6 +165,62 @@
     </div>
   </div>
 
+  <!-- Methodology Modal -->
+  <div class="modal-overlay" id="methodology-modal" onclick="closeMethodologyModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📊 Expected Return Methodology</h3>
+        <button class="modal-close" onclick="closeMethodologyModal()">&times;</button>
+      </div>
+      <p style="font-size:14px;color:#555;line-height:1.6;margin-top:0;">
+        Expected returns are based on long-term historical averages. These figures represent nominal annual returns (before inflation adjustment) and assume dividend reinvestment.
+      </p>
+      <table class="source-table">
+        <thead>
+          <tr>
+            <th>Asset Class</th>
+            <th>Expected Return</th>
+            <th>Basis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>US Stocks</td>
+            <td>10%</td>
+            <td>S&P 500 (1928-2024)</td>
+          </tr>
+          <tr>
+            <td>International Stocks</td>
+            <td>7%</td>
+            <td>MSCI EAFE (1970-2024)</td>
+          </tr>
+          <tr>
+            <td>Bonds</td>
+            <td>5%</td>
+            <td>US Aggregate Bond Index</td>
+          </tr>
+          <tr>
+            <td>Alternatives</td>
+            <td>5%</td>
+            <td>REITs/Commodities blend</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;color:#666;margin-bottom:8px;">
+        <strong>Primary Data Source:</strong>
+      </p>
+      <p style="font-size:13px;color:#555;margin-top:0;">
+        NYU Stern School of Business - Aswath Damodaran's Historical Returns Database
+      </p>
+      <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#1f6feb;color:white;padding:10px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;margin-top:8px;">
+        View Source Data →
+      </a>
+      <p style="font-size:12px;color:#888;margin-top:16px;margin-bottom:0;">
+        <strong>Note:</strong> Past performance does not guarantee future results. Actual returns will vary based on market conditions, timing, and specific investments chosen.
+      </p>
+    </div>
+  </div>
+
 <script>
 var currentRiskScore = 0;
 
@@ -163,6 +230,16 @@ var etfSuggestions = {
   'Bonds': 'e.g., BND, AGG, SCHZ, VGIT',
   'Alternatives': 'e.g., VNQ (REITs), GLD (Gold), PDBC (Commodities)'
 };
+
+function openMethodologyModal() {
+  document.getElementById('methodology-modal').style.display = 'flex';
+}
+
+function closeMethodologyModal(event) {
+  if (!event || event.target === document.getElementById('methodology-modal')) {
+    document.getElementById('methodology-modal').style.display = 'none';
+  }
+}
 
 function toggleLearnMore() {
   var content = document.getElementById('learn-more-content');
@@ -239,7 +316,7 @@ function mapRiskToPortfolio(score) {
 }
 
 function calculateExpectedReturn(portfolio) {
-  var expectedReturns = {'US Stocks': 0.10, 'International Stocks': 0.09, 'Bonds': 0.035, 'Alternatives': 0.05};
+  var expectedReturns = {'US Stocks': 0.10, 'International Stocks': 0.07, 'Bonds': 0.05, 'Alternatives': 0.05};
   var weightedReturn = 0;
   for (var asset in portfolio) {
     var weight = portfolio[asset];
