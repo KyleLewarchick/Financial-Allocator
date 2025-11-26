@@ -24,15 +24,14 @@
     .portfolio-table{width:100%;border-collapse:collapse;margin-top:12px}
     .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
     .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
-    .portfolio-table td:nth-child(2), .portfolio-table td:nth-child(3){text-align:right;font-weight:600}
-    .etf-suggestion{font-size:12px;color:#666;padding:4px 10px 12px 20px;border-bottom:1px solid #eee;font-style:italic}
+    .portfolio-table td:nth-child(2),.portfolio-table td:nth-child(3){text-align:right;font-weight:600}
     .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
     nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
     nav a.active{background:#1f6feb;color:white}
     nav a:not(.active){color:#1f6feb;background:#f6f8fa}
     nav a:not(.active):hover{background:#e6e9ef}
-    .info-icon{display:inline-block;width:18px;height:18px;background:#1f6feb;color:white;border-radius:50%;text-align:center;font-size:12px;line-height:18px;cursor:pointer;margin-left:6px;font-weight:bold}
+    .info-icon{display:inline-block;width:18px;height:18px;background:#1f6feb;color:white;border-radius:50%;text-align:center;font-size:12px;line-height:18px;cursor:pointer;margin-left:6px;font-weight:bold;vertical-align:middle}
     .info-icon:hover{background:#1557cf}
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
     .modal-content{background:white;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
@@ -133,7 +132,10 @@
 
     <div class="card results" id="results">
       <div class="risk-score" id="risk-score"></div>
-      <h3 style="margin-top:0;font-size:18px">Suggested Portfolio Allocation <span class="info-icon" onclick="openMethodologyModal()" title="View methodology">?</span></h3>
+      <h3 style="margin-top:0;font-size:18px">
+        Suggested Portfolio Allocation 
+        <span class="info-icon" onclick="openMethodologyModal()" title="View methodology">?</span>
+      </h3>
       <table class="portfolio-table" id="portfolio-table">
         <thead>
           <tr>
@@ -231,6 +233,13 @@ var etfSuggestions = {
   'Alternatives': 'e.g., VNQ (REITs), GLD (Gold), PDBC (Commodities)'
 };
 
+var expectedReturns = {
+  'US Stocks': 0.10,
+  'International Stocks': 0.07,
+  'Bonds': 0.05,
+  'Alternatives': 0.05
+};
+
 function openMethodologyModal() {
   document.getElementById('methodology-modal').style.display = 'flex';
 }
@@ -277,8 +286,8 @@ function loadAnswers() {
       if (answers.lossComfort && answers.growthPreference && answers.timeHorizon && answers.experience && answers.riskScore > 0) {
         currentRiskScore = answers.riskScore;
         var portfolio = mapRiskToPortfolio(currentRiskScore);
-        var expectedReturn = calculateExpectedReturn(portfolio);
-        updateHomeLink(expectedReturn);
+        var expReturn = calculateExpectedReturn(portfolio);
+        updateHomeLink(expReturn);
         var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
         displayResults(currentRiskScore, portfolio, monthlyAmount);
       }
@@ -316,7 +325,6 @@ function mapRiskToPortfolio(score) {
 }
 
 function calculateExpectedReturn(portfolio) {
-  var expectedReturns = {'US Stocks': 0.10, 'International Stocks': 0.07, 'Bonds': 0.05, 'Alternatives': 0.05};
   var weightedReturn = 0;
   for (var asset in portfolio) {
     var weight = portfolio[asset];
@@ -328,11 +336,11 @@ function calculateExpectedReturn(portfolio) {
 }
 
 function displayResults(score, portfolio, monthlyAmount) {
-  var expectedReturn = calculateExpectedReturn(portfolio);
+  var expReturn = calculateExpectedReturn(portfolio);
   
   document.getElementById('risk-score').innerHTML = 
     'Your risk score: <span style="color:#1f6feb">' + score.toFixed(2) + '</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span><br>' +
-    '<span style="font-size:16px;margin-top:8px;display:inline-block;">Expected annual return: <span style="color:#1f6feb">' + (expectedReturn * 100).toFixed(2) + '%</span></span>';
+    '<span style="font-size:16px;margin-top:8px;display:inline-block;">Expected annual return: <span style="color:#1f6feb">' + (expReturn * 100).toFixed(1) + '%</span></span>';
   
   var tbody = document.getElementById('portfolio-body');
   tbody.innerHTML = '';
@@ -354,131 +362,7 @@ function displayResults(score, portfolio, monthlyAmount) {
       var assetRow = document.createElement('tr');
       if (monthlyAmount > 0) {
         var dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
-        assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td><td>
-  
-  document.getElementById('results').style.display = 'block';
-  
-  Plotly.newPlot('piechart', [{
-    values: values,
-    labels: labels,
-    type: 'pie',
-    marker: {colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']}
-  }], {margin: {t: 0, b: 0, l: 0, r: 0}});
-}
-
-function calculateRisk() {
-  var lossComfort = document.getElementById('loss-comfort').value;
-  var growthPreference = document.getElementById('growth-pref').value;
-  var timeHorizon = document.getElementById('time-horizon').value;
-  var experience = document.getElementById('experience').value;
-  var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
-  
-  if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
-    alert('Please answer all questions before continuing.');
-    return;
-  }
-  
-  var answers = {lossComfort: lossComfort, growthPreference: growthPreference, timeHorizon: timeHorizon, experience: experience};
-  var score = calculateRiskScore(answers);
-  currentRiskScore = score;
-  
-  var portfolio = mapRiskToPortfolio(score);
-  var expectedReturn = calculateExpectedReturn(portfolio);
-  
-  updateHomeLink(expectedReturn);
-  saveAnswers();
-  displayResults(score, portfolio, monthlyAmount);
-  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-}
-
-function updateHomeLink(expectedReturn) {
-  var homeLink = document.getElementById('home-link');
-  if (homeLink && currentRiskScore > 0) {
-    if (expectedReturn !== undefined) {
-      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expectedReturn.toFixed(4);
-    } else {
-      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2);
-    }
-  }
-}
-
-function enableAmountEdit() {
-  var input = document.getElementById('monthly-amount');
-  var btn = document.getElementById('edit-amount-btn');
-  var source = document.getElementById('amount-source');
-  
-  if (input.disabled) {
-    input.disabled = false;
-    input.focus();
-    btn.innerText = 'Lock';
-    btn.style.background = '#1f6feb';
-    btn.style.color = 'white';
-    source.innerHTML = '💡 You can now edit the amount. Click "Lock" when done.';
-    source.style.color = '#666';
-  } else {
-    input.disabled = true;
-    btn.innerText = 'Edit';
-    btn.style.background = '#f6f8fa';
-    btn.style.color = '#1f6feb';
-    source.innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
-    source.style.color = '#1f6feb';
-    saveAnswers();
-  }
-}
-
-function resetAssessment() {
-  document.getElementById('loss-comfort').value = '';
-  document.getElementById('growth-pref').value = '';
-  document.getElementById('time-horizon').value = '';
-  document.getElementById('experience').value = '';
-  
-  var urlParams = new URLSearchParams(window.location.search);
-  var investAmount = urlParams.get('invest');
-  if (!investAmount) {
-    document.getElementById('monthly-amount').value = '';
-  }
-  
-  document.getElementById('results').style.display = 'none';
-  currentRiskScore = 0;
-  localStorage.removeItem('riskAssessmentAnswers');
-  
-  var homeLink = document.getElementById('home-link');
-  if (homeLink) {
-    homeLink.href = './index.html';
-  }
-}
-
-window.addEventListener('DOMContentLoaded', function() {
-  var urlParams = new URLSearchParams(window.location.search);
-  var investAmount = urlParams.get('invest');
-  
-  if (investAmount && investAmount > 0) {
-    document.getElementById('monthly-amount').value = investAmount;
-    document.getElementById('amount-source').innerHTML = '✓ Investment amount from Financial Allocator (Click "Edit" to change)';
-    document.getElementById('amount-source').style.color = '#1f6feb';
-    document.getElementById('amount-source').style.fontWeight = '500';
-  } else {
-    var input = document.getElementById('monthly-amount');
-    var btn = document.getElementById('edit-amount-btn');
-    var source = document.getElementById('amount-source');
-    input.disabled = false;
-    btn.style.display = 'none';
-    source.innerHTML = '⚠️ No amount from Financial Allocator. Please enter your monthly investment amount or <a href="./index.html" style="color:#1f6feb">go back to calculate it</a>.';
-    source.style.color = '#d73a49';
-  }
-  
-  loadAnswers();
-  
-  document.getElementById('loss-comfort').addEventListener('change', saveAnswers);
-  document.getElementById('growth-pref').addEventListener('change', saveAnswers);
-  document.getElementById('time-horizon').addEventListener('change', saveAnswers);
-  document.getElementById('experience').addEventListener('change', saveAnswers);
-  document.getElementById('monthly-amount').addEventListener('input', saveAnswers);
-});
-</script>
-</body>
-</html>
- + dollarAmount + '</td>';
+        assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td><td>$' + dollarAmount + '</td>';
       } else {
         assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td>';
       }
@@ -516,19 +400,19 @@ function calculateRisk() {
   currentRiskScore = score;
   
   var portfolio = mapRiskToPortfolio(score);
-  var expectedReturn = calculateExpectedReturn(portfolio);
+  var expReturn = calculateExpectedReturn(portfolio);
   
-  updateHomeLink(expectedReturn);
+  updateHomeLink(expReturn);
   saveAnswers();
   displayResults(score, portfolio, monthlyAmount);
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 }
 
-function updateHomeLink(expectedReturn) {
+function updateHomeLink(expReturn) {
   var homeLink = document.getElementById('home-link');
   if (homeLink && currentRiskScore > 0) {
-    if (expectedReturn !== undefined) {
-      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expectedReturn.toFixed(4);
+    if (expReturn !== undefined) {
+      homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expReturn.toFixed(4);
     } else {
       homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2);
     }
