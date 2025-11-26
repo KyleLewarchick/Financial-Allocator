@@ -208,6 +208,14 @@ function displayResults(score, portfolio, monthlyAmount) {
   // Calculate expected return for display
   const expectedReturn = calculateExpectedReturn(portfolio);
   
+  // ETF suggestions for each asset class
+  const etfSuggestions = {
+    'US Stocks': 'e.g., VTI, VOO, SPY, SCHB',
+    'International Stocks': 'e.g., VXUS, VEU, IXUS, VWO',
+    'Bonds': 'e.g., BND, AGG, SCHZ, VGIT',
+    'Alternatives': 'e.g., VNQ (REITs), GLD (Gold), PDBC (Commodities)'
+  };
+  
   // Display results
   document.getElementById('risk-score').innerHTML = 
     `Your risk score: <span style="color:#1f6feb">${score.toFixed(2)}</span> <span style="font-size:14px;font-weight:normal;color:#666">(0 = conservative, 1 = aggressive)</span><br>
