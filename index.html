@@ -4,13 +4,51 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Behavioral Financial Allocator</title>
+  <!-- 
+    =====================================================
+    INDEX.HTML - UPDATED WITH 401(k) MATCH LOGIC
+    Last Updated: November 2024
+    =====================================================
+    
+    CHANGES FROM ORIGINAL:
+    1. Added 401(k) Employer Match section (checkbox + 4 sliders)
+       - Annual Salary
+       - Employer Match Rate (%)
+       - Match Cap (% of salary)
+       - Current 401(k) Contribution (%)
+    
+    2. New function: calculate401kMatch()
+       - Calculates how much more to contribute to capture full match
+       - Returns needed amount, match gained, and status
+    
+    3. Modified behavioralAllocation()
+       - Now subtracts 401k contribution BEFORE running behavioral split
+       - Priority order: MinDebt → 401k Match → Invest/Debt/Save split
+    
+    4. Modified projectNetWorth()
+       - Includes 401k contributions + employer match in investment growth
+    
+    5. Updated UI display
+       - Shows 401k pre-allocation in results
+       - Pie chart shows "Invest (incl. 401k)" when enabled
+       - Risk Assessment link includes 401k in investment amount
+    
+    6. State persistence for all 401k fields in localStorage
+    
+    UNCHANGED:
+    - All original sliders and behavioral model
+    - Risk Assessment integration (URL params)
+    - Debt-related slider logic
+    - Priority constraint enforcement
+    =====================================================
+  -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fbfdff;color:#111;margin:0;padding:24px}
     .wrap{max-width:980px;margin:0 auto}
     h1{margin:0;font-size:26px}
     h2{margin-top:24px;font-size:20px;color:#1f6feb}
-    p, li{font-size:14px;line-height:1.5}
+    p,li{font-size:14px;line-height:1.5}
     ul{margin-top:4px;margin-bottom:12px}
     .card{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
     label{display:block;font-size:13px;color:#666;margin-bottom:6px}
@@ -31,6 +69,14 @@
     nav a:not(.active):hover{background:#e6e9ef}
     .unlock-btn{background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;padding:4px 12px;font-size:12px;margin-left:8px;cursor:pointer}
     .rt-controls{display:flex;align-items:center;gap:8px}
+    .match-toggle{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .match-toggle input[type=checkbox]{width:18px;height:18px;cursor:pointer}
+    .match-toggle label{margin:0;font-size:14px;font-weight:500;color:#333;cursor:pointer}
+    .match-section{padding:16px;background:#f0fff4;border:1px solid #56d364;border-radius:8px;margin-bottom:8px}
+    .match-section.collapsed{display:none}
+    .match-callout{padding:12px;background:#fff;border-left:4px solid #56d364;border-radius:4px;font-size:13px}
+    .match-result{padding:12px;background:#d4edda;border-radius:6px;margin-top:12px;font-size:14px}
+    .match-warning{padding:12px;background:#fff3cd;border-left:4px solid #ffc107;border-radius:4px;margin-top:12px;font-size:13px}
   </style>
 </head>
 <body>
@@ -48,7 +94,6 @@
       <h1>Behavioral Financial Allocator</h1>
     </header>
 
-    <!-- Intro -->
     <div class="card">
       <p>This interactive tool helps you plan how to allocate your discretionary income between <strong>Investing</strong>, <strong>Debt repayment</strong>, and <strong>Savings</strong>. It combines financial calculations with behavioral considerations, aiming to balance long-term net worth optimization with your current needs and priorities.</p>
       <div style="margin-top:16px;padding:12px;background:#f0f6ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;">
@@ -65,7 +110,6 @@
       </div>
     </div>
 
-    <!-- Sliders with inline explanations -->
     <div class="card">
       <div id="sliders"></div>
       <button onclick="update()">Run Projection</button>
@@ -73,7 +117,6 @@
       <div class="results" id="results"></div>
     </div>
 
-    <!-- Pie chart and summary -->
     <div class="card">
       <div id="piechart" style="width:100%;height:360px"></div>
       <div id="summary" style="margin-top:12px"></div>
@@ -81,49 +124,87 @@
   </div>
 
 <script>
-/* -------------------------------
-   Behavioral allocation (JS)
-   ------------------------------- */
-
-function behavioralAllocation(params){
-  const {income, expenses, minDebtPayment, rInvest, rDebt, rSave, RT, DA, pInvest, pDebt, pSave, alpha, beta, delta, gammaDebt, gammaSave, k, goalStrength} = params;
+/* 401k Match Calculator */
+function calculate401kMatch(params) {
+  const { has401k, annualSalary, employerMatchPercent, matchCapPercent, current401kPercent } = params;
+  if (!has401k || annualSalary <= 0) return { needed: 0, matchGained: 0, isCapturingFull: true, effectiveReturn: 0, currentMatchCapture: 0 };
   
-  // Calculate discretionary income after expenses and minimum debt payment
-  const discretionary = income - expenses - minDebtPayment;
-  if (discretionary <= 0) return {allocations:{Invest:0,Debt:0,Save:0},discretionary};
+  const monthlyMaxMatchable = (annualSalary * matchCapPercent / 100) / 12;
+  const currentMonthlyContrib = (annualSalary * current401kPercent / 100) / 12;
+  const additionalNeeded = Math.max(0, monthlyMaxMatchable - currentMonthlyContrib);
+  const monthlyMatchValue = monthlyMaxMatchable * employerMatchPercent / 100;
+  const currentMatchCapture = Math.min(currentMonthlyContrib, monthlyMaxMatchable) * employerMatchPercent / 100;
+  
+  return {
+    needed: additionalNeeded,
+    fullContribution: monthlyMaxMatchable,
+    matchGained: monthlyMatchValue,
+    currentMatchCapture: currentMatchCapture,
+    isCapturingFull: additionalNeeded === 0,
+    effectiveReturn: employerMatchPercent
+  };
+}
+
+/* Behavioral allocation */
+function behavioralAllocation(params) {
+  const { income, expenses, minDebtPayment, rInvest, rDebt, rSave, RT, DA, pInvest, pDebt, pSave, alpha, beta, delta, gammaDebt, gammaSave, k, goalStrength } = params;
+  
+  // Calculate 401k match pre-allocation
+  const matchResult = calculate401kMatch(params);
+  const match401kAllocation = matchResult.needed;
+  
+  // Calculate discretionary income after expenses, minimum debt payment, AND 401k match contribution
+  const baseDiscretionary = income - expenses - minDebtPayment;
+  const discretionaryAfterMatch = baseDiscretionary - match401kAllocation;
+  
+  if (discretionaryAfterMatch <= 0) {
+    return {
+      allocations: { Invest: 0, Debt: 0, Save: 0 },
+      discretionary: baseDiscretionary,
+      match401k: Math.min(match401kAllocation, Math.max(0, baseDiscretionary)),
+      matchResult: matchResult
+    };
+  }
   
   // Adjust rates based on behavioral preferences
-  const rPercInvest = rInvest * (1 + alpha * (2*RT - 1));
-  const rPercDebt = rDebt * (1 + beta * (2*DA - 1)) + gammaDebt*DA;
-  const rPercSave = rSave * (1 + delta * (1 - RT)) + gammaSave*(1 - RT);
+  const rPercInvest = rInvest * (1 + alpha * (2 * RT - 1));
+  const rPercDebt = rDebt * (1 + beta * (2 * DA - 1)) + gammaDebt * DA;
+  const rPercSave = rSave * (1 + delta * (1 - RT)) + gammaSave * (1 - RT);
   
   // Use softmax to calculate base allocation weights
   const rates = [rPercInvest, rPercDebt, rPercSave];
-  const expVals = rates.map(r => Math.exp(k*r));
-  const sumExp = expVals.reduce((a,b)=>a+b,0);
-  const base = expVals.map(v=>v/sumExp);
+  const expVals = rates.map(r => Math.exp(k * r));
+  const sumExp = expVals.reduce((a, b) => a + b, 0);
+  const base = expVals.map(v => v / sumExp);
   
-  // Blend base allocation with user priorities (which must sum to 1.0)
-  // goalStrength controls the mix: 0 = pure financial optimization, 1 = pure user priorities
-  // With goalStrength=0.25: 75% based on rates, 25% based on personal priorities
-  // Setting a priority to 0.33 is neutral (no boost), >0.33 boosts, <0.33 reduces
+  // Blend base allocation with user priorities
   const P = [pInvest, pDebt, pSave];
-  const blended = base.map((b,i)=> b * (1 - goalStrength) + P[i] * goalStrength);
-  const sumBlend = blended.reduce((a,b)=>a+b,0);
-  const finalW = blended.map(x=>x/sumBlend);
+  const blended = base.map((b, i) => b * (1 - goalStrength) + P[i] * goalStrength);
+  const sumBlend = blended.reduce((a, b) => a + b, 0);
+  const finalW = blended.map(x => x / sumBlend);
   
-  return {allocations:{Invest: finalW[0]*discretionary, Debt: finalW[1]*discretionary, Save: finalW[2]*discretionary}, discretionary};
+  return {
+    allocations: {
+      Invest: finalW[0] * discretionaryAfterMatch,
+      Debt: finalW[1] * discretionaryAfterMatch,
+      Save: finalW[2] * discretionaryAfterMatch
+    },
+    discretionary: baseDiscretionary,
+    match401k: match401kAllocation,
+    matchResult: matchResult
+  };
 }
 
-function projectNetWorth(params){
+function projectNetWorth(params) {
   const res = behavioralAllocation(params);
-  let alloc = res.allocations; 
+  let alloc = { ...res.allocations };
   const discretionary = res.discretionary;
+  const match401k = res.match401k;
+  const matchResult = res.matchResult;
   let invest = params.initialInvest, save = params.initialSavings, debt = params.initialDebt;
-  const months = params.years*12;
+  const months = params.years * 12;
   
-  // Save the initial allocation for display purposes (before any reallocation during projection)
-  const initialAlloc = {...alloc};
+  const initialAlloc = { ...alloc };
   
   // If no debt initially, reallocate debt portion to invest/save proportionally
   if (debt <= 0 && params.minDebtPayment <= 0) {
@@ -134,22 +215,20 @@ function projectNetWorth(params){
       Debt: 0,
       Save: alloc.Save + debtPortion * (1 - investRatio)
     };
-    // Update initial allocation to reflect this reallocation
     initialAlloc.Invest = alloc.Invest;
     initialAlloc.Debt = alloc.Debt;
     initialAlloc.Save = alloc.Save;
   }
   
   // Run month-by-month projection
-  for (let m=0;m<months;m++){
-    // Compound investments and savings
-    invest = invest*(1 + params.rInvest/12) + alloc.Invest;
-    save = save*(1 + params.rSave/12) + alloc.Save;
+  for (let m = 0; m < months; m++) {
+    // 401k contributions + match grow at investment rate
+    const total401kMonthly = match401k + (matchResult.needed > 0 ? matchResult.matchGained : matchResult.currentMatchCapture);
     
-    // Apply both minimum payment and discretionary allocation to debt
-    debt = Math.max(0, debt*(1 + params.rDebt/12) - params.minDebtPayment - alloc.Debt);
+    invest = invest * (1 + params.rInvest / 12) + alloc.Invest + total401kMonthly;
+    save = save * (1 + params.rSave / 12) + alloc.Save;
+    debt = Math.max(0, debt * (1 + params.rDebt / 12) - params.minDebtPayment - alloc.Debt);
     
-    // Once debt is paid off, reallocate that portion to invest/save for remaining months
     if (debt <= 0 && alloc.Debt > 0) {
       const debtPortion = alloc.Debt;
       const investRatio = alloc.Invest / (alloc.Invest + alloc.Save);
@@ -162,88 +241,187 @@ function projectNetWorth(params){
   }
   
   const netWorth = invest + save - debt;
-  return {alloc: initialAlloc, discretionary, invest, save, debt, netWorth};
+  return { alloc: initialAlloc, discretionary, invest, save, debt, netWorth, match401k, matchResult };
 }
 
-function monthsToDebtFree(balance, apr, payment){
-  let months = 0; 
-  while (balance>0 && payment>0 && months<1000){ 
-    balance = balance*(1+apr/12) - payment; 
-    months++; 
-  } 
+function monthsToDebtFree(balance, apr, payment) {
+  let months = 0;
+  while (balance > 0 && payment > 0 && months < 1000) {
+    balance = balance * (1 + apr / 12) - payment;
+    months++;
+  }
   return months;
 }
 
-/* -------------------------------
-   UI: sliders generation
-   ------------------------------- */
-
+/* UI Setup */
 const defaults = {
-  income:4000, expenses:2200, minDebtPayment:300,
-  rInvest:0.08, rDebt:0.06, rSave:0.015,
-  RT:0.5, DA:0.5,
-  pInvest:0.33, pDebt:0.33, pSave:0.33,
-  years:10,
-  initialInvest:0, initialSavings:0, initialDebt:50000
+  income: 4000, expenses: 2200, minDebtPayment: 300,
+  has401k: false, annualSalary: 50000, employerMatchPercent: 50, matchCapPercent: 6, current401kPercent: 0,
+  rInvest: 0.08, rDebt: 0.06, rSave: 0.015,
+  RT: 0.5, DA: 0.5,
+  pInvest: 0.33, pDebt: 0.33, pSave: 0.33,
+  years: 10,
+  initialInvest: 0, initialSavings: 0, initialDebt: 50000
 };
 
 const sliderDefinitions = [
-  ["income","Monthly Income",defaults.income,1000,15000,100,"Your total monthly income before expenses."],
-  ["expenses","Monthly Expenses",defaults.expenses,500,12000,50,"Your regular monthly expenses (rent, utilities, groceries, etc.)."],
-  ["minDebtPayment","Minimum Debt Payment",defaults.minDebtPayment,0,2000,10,"The minimum you must pay on debts each month."],
-  
-  ["rInvest","Investment Return",defaults.rInvest,0,0.15,0.005,"Expected annual return on investments (e.g., 8% for stock market average)."],
-  ["rDebt","Debt Interest Rate",defaults.rDebt,0,0.15,0.005,"Average annual interest rate on your debts."],
-  ["rSave","Savings Rate",defaults.rSave,0,0.05,0.001,"Expected annual return on savings (e.g., 1.5% for high-yield savings)."],
-  
-  ["RT","Risk Tolerance",defaults.RT,0,1,0.01,"How comfortable you are with investment risk. This affects BOTH how much you invest (vs save or pay off debt) AND how you invest it (aggressive vs conservative portfolio). Higher values = more money to investing, more aggressive portfolio. Estimate now, then take Risk Assessment for accuracy."],
-  ["DA","Debt Aversion",defaults.DA,0,1,0.01,"How strongly you prefer paying down debt quickly. Higher values favor faster repayment."],
-  
-  ["pInvest","Invest Priority",defaults.pInvest,0,1,0.01,"Your personal priority weight for investing. Three priorities must sum to 1.0. (0.33 = neutral)"],
-  ["pDebt","Debt Priority",defaults.pDebt,0,1,0.01,"Your personal priority weight for debt repayment. Three priorities must sum to 1.0. (0.33 = neutral)"],
-  ["pSave","Save Priority",defaults.pSave,0,1,0.01,"Your personal priority weight for saving. Three priorities must sum to 1.0. (0.33 = neutral)"],
-  
-  ["years","Projection Years",defaults.years,1,50,1,"Number of years to project your net worth into the future."],
-  
-  ["initialInvest","Existing Investments",defaults.initialInvest,0,200000,1000,"Current value of your investment accounts."],
-  ["initialSavings","Existing Savings",defaults.initialSavings,0,200000,1000,"Current value of your savings accounts."],
-  ["initialDebt","Total Debt",defaults.initialDebt,0,200000,1000,"Total amount of debt you currently have."]
+  ["income", "Monthly Income", defaults.income, 1000, 15000, 100, "Your total monthly income before expenses."],
+  ["expenses", "Monthly Expenses", defaults.expenses, 500, 12000, 50, "Your regular monthly expenses (rent, utilities, groceries, etc.)."],
+  ["minDebtPayment", "Minimum Debt Payment", defaults.minDebtPayment, 0, 2000, 10, "The minimum you must pay on debts each month."],
+  ["rInvest", "Investment Return", defaults.rInvest, 0, 0.15, 0.005, "Expected annual return on investments (e.g., 8% for stock market average)."],
+  ["rDebt", "Debt Interest Rate", defaults.rDebt, 0, 0.15, 0.005, "Average annual interest rate on your debts."],
+  ["rSave", "Savings Rate", defaults.rSave, 0, 0.05, 0.001, "Expected annual return on savings (e.g., 1.5% for high-yield savings)."],
+  ["RT", "Risk Tolerance", defaults.RT, 0, 1, 0.01, "How comfortable you are with investment risk. This affects BOTH how much you invest (vs save or pay off debt) AND how you invest it (aggressive vs conservative portfolio). Higher values = more money to investing, more aggressive portfolio. Estimate now, then take Risk Assessment for accuracy."],
+  ["DA", "Debt Aversion", defaults.DA, 0, 1, 0.01, "How strongly you prefer paying down debt quickly. Higher values favor faster repayment."],
+  ["pInvest", "Invest Priority", defaults.pInvest, 0, 1, 0.01, "Your personal priority weight for investing. Three priorities must sum to 1.0. (0.33 = neutral)"],
+  ["pDebt", "Debt Priority", defaults.pDebt, 0, 1, 0.01, "Your personal priority weight for debt repayment. Three priorities must sum to 1.0. (0.33 = neutral)"],
+  ["pSave", "Save Priority", defaults.pSave, 0, 1, 0.01, "Your personal priority weight for saving. Three priorities must sum to 1.0. (0.33 = neutral)"],
+  ["years", "Projection Years", defaults.years, 1, 50, 1, "Number of years to project your net worth into the future."],
+  ["initialInvest", "Existing Investments", defaults.initialInvest, 0, 200000, 1000, "Current value of your investment accounts."],
+  ["initialSavings", "Existing Savings", defaults.initialSavings, 0, 200000, 1000, "Current value of your savings accounts."],
+  ["initialDebt", "Total Debt", defaults.initialDebt, 0, 200000, 1000, "Total amount of debt you currently have."]
 ];
 
 const sections = [
-  {title: "Monthly Income & Expenses", start: 0, end: 3},
-  {title: "Expected Rates", start: 3, end: 6},
-  {title: "Behavioral Preferences", start: 6, end: 8},
-  {title: "Personal Priorities (must sum to 1.0)", start: 8, end: 11},
-  {title: "Timeline", start: 11, end: 12},
-  {title: "Existing Balances", start: 12, end: 15}
+  { title: "Monthly Income & Expenses", start: 0, end: 3 },
+  { title: "401(k) Employer Match", start: 3, end: 3, custom: true },
+  { title: "Expected Rates", start: 3, end: 6 },
+  { title: "Behavioral Preferences", start: 6, end: 8 },
+  { title: "Personal Priorities (must sum to 1.0)", start: 8, end: 11 },
+  { title: "Timeline", start: 11, end: 12 },
+  { title: "Existing Balances", start: 12, end: 15 }
 ];
 
 let rtLocked = false;
 let rInvestLocked = false;
 
-function makeSliders(){
-  const container = document.getElementById('sliders');
-  let currentSection = -1;
+function create401kSection() {
+  const container = document.createElement('div');
+  container.id = 'match-401k-container';
+  container.innerHTML = `
+    <div class="section-header">401(k) Employer Match</div>
+    <div class="match-toggle">
+      <input type="checkbox" id="has401k" onchange="toggle401kSection()">
+      <label for="has401k">I have access to a 401(k) with employer match</label>
+    </div>
+    <div id="match-section" class="match-section collapsed">
+      <div class="match-callout">
+        <strong>🎁 Free money alert!</strong> Employer match is an instant 50-100% return on your contribution. This should ALWAYS be your first priority before other investing.
+      </div>
+      <div class="slider-row" style="margin-top:16px">
+        <label>Annual Salary ($)</label>
+        <div class="slider-explanation">Your gross annual salary (used to calculate match limits)</div>
+        <div class="small" id="annualSalary_val">${defaults.annualSalary}</div>
+        <input type="range" id="annualSalary" min="20000" max="300000" step="1000" value="${defaults.annualSalary}" oninput="update401kDisplay()">
+      </div>
+      <div class="slider-row">
+        <label>Employer Match Rate (%)</label>
+        <div class="slider-explanation">What percentage your employer matches (e.g., 50% = they add $0.50 for every $1 you contribute)</div>
+        <div class="small" id="employerMatchPercent_val">${defaults.employerMatchPercent}</div>
+        <input type="range" id="employerMatchPercent" min="0" max="100" step="5" value="${defaults.employerMatchPercent}" oninput="update401kDisplay()">
+      </div>
+      <div class="slider-row">
+        <label>Match Cap (% of salary)</label>
+        <div class="slider-explanation">Employer matches up to this % of your salary (e.g., 6% means they match contributions up to 6% of your salary)</div>
+        <div class="small" id="matchCapPercent_val">${defaults.matchCapPercent}</div>
+        <input type="range" id="matchCapPercent" min="1" max="10" step="0.5" value="${defaults.matchCapPercent}" oninput="update401kDisplay()">
+      </div>
+      <div class="slider-row">
+        <label>Your Current 401(k) Contribution (% of salary)</label>
+        <div class="slider-explanation">What % of your salary you currently contribute to your 401(k)</div>
+        <div class="small" id="current401kPercent_val">${defaults.current401kPercent}</div>
+        <input type="range" id="current401kPercent" min="0" max="23" step="0.5" value="${defaults.current401kPercent}" oninput="update401kDisplay()">
+      </div>
+      <div id="match-result"></div>
+    </div>
+  `;
+  return container;
+}
+
+function toggle401kSection() {
+  const checkbox = document.getElementById('has401k');
+  const section = document.getElementById('match-section');
+  if (checkbox.checked) {
+    section.classList.remove('collapsed');
+  } else {
+    section.classList.add('collapsed');
+  }
+  saveState();
+  update401kDisplay();
+}
+
+function update401kDisplay() {
+  const has401k = document.getElementById('has401k').checked;
+  ['annualSalary', 'employerMatchPercent', 'matchCapPercent', 'current401kPercent'].forEach(id => {
+    const el = document.getElementById(id);
+    const valEl = document.getElementById(id + '_val');
+    if (el && valEl) valEl.innerText = el.value;
+  });
   
-  sliderDefinitions.forEach(([id,label,val,min,max,step,explanation], idx)=>{
-    // Check if we need a section header
+  if (!has401k) {
+    document.getElementById('match-result').innerHTML = '';
+    saveState();
+    return;
+  }
+  
+  const params = get401kParams();
+  const result = calculate401kMatch(params);
+  let html = '';
+  
+  if (result.isCapturingFull) {
+    html = `<div class="match-result" style="background:#d4edda;"><strong>✅ You're capturing the full match!</strong><br><span style="font-size:13px;">Your employer adds <strong>$${result.matchGained.toFixed(0)}/mo</strong> to your 401(k). Keep it up!</span></div>`;
+  } else {
+    html = `
+      <div class="match-warning">
+        <strong>⚠️ You're leaving money on the table!</strong><br>
+        <span style="font-size:13px;">Contribute <strong>$${result.needed.toFixed(0)}/mo more</strong> to get <strong>$${result.matchGained.toFixed(0)}/mo</strong> in free employer match.<br>That's a <strong>${result.effectiveReturn}% instant return</strong> — better than any investment!</span>
+      </div>
+      <div class="match-result" style="margin-top:8px;">
+        <strong>📊 We'll allocate $${result.needed.toFixed(0)}/mo to your 401(k) first</strong><br>
+        <span style="font-size:13px;">This comes out of your discretionary income before the Invest/Debt/Save split.</span>
+      </div>
+    `;
+  }
+  document.getElementById('match-result').innerHTML = html;
+  saveState();
+}
+
+function get401kParams() {
+  return {
+    has401k: document.getElementById('has401k') ? document.getElementById('has401k').checked : false,
+    annualSalary: Number(document.getElementById('annualSalary') ? document.getElementById('annualSalary').value : defaults.annualSalary),
+    employerMatchPercent: Number(document.getElementById('employerMatchPercent') ? document.getElementById('employerMatchPercent').value : defaults.employerMatchPercent),
+    matchCapPercent: Number(document.getElementById('matchCapPercent') ? document.getElementById('matchCapPercent').value : defaults.matchCapPercent),
+    current401kPercent: Number(document.getElementById('current401kPercent') ? document.getElementById('current401kPercent').value : defaults.current401kPercent)
+  };
+}
+
+function makeSliders() {
+  const container = document.getElementById('sliders');
+  let added401kSection = false;
+  
+  sliderDefinitions.forEach(([id, label, val, min, max, step, explanation], idx) => {
     for (let i = 0; i < sections.length; i++) {
       if (idx === sections[i].start) {
-        const sectionHeader = document.createElement('div');
-        sectionHeader.className = 'section-header';
-        sectionHeader.innerText = sections[i].title;
-        container.appendChild(sectionHeader);
+        if (sections[i].custom && !added401kSection) {
+          container.appendChild(create401kSection());
+          added401kSection = true;
+        } else if (!sections[i].custom) {
+          const sectionHeader = document.createElement('div');
+          sectionHeader.className = 'section-header';
+          sectionHeader.innerText = sections[i].title;
+          container.appendChild(sectionHeader);
+        }
         break;
       }
     }
     
-    const row = document.createElement('div'); 
-    row.className='slider-row';
+    const row = document.createElement('div');
+    row.className = 'slider-row';
     row.id = id + '_row';
     
-    const labelEl = document.createElement('label'); 
-    labelEl.innerText = label; 
+    const labelEl = document.createElement('label');
+    labelEl.innerText = label;
     row.appendChild(labelEl);
     
     if (explanation) {
@@ -253,17 +431,14 @@ function makeSliders(){
       row.appendChild(explainEl);
     }
     
-    // Special handling for RT slider with lock/unlock
     if (id === 'RT') {
       const controlsDiv = document.createElement('div');
       controlsDiv.className = 'rt-controls';
-      
-      const valueSpan = document.createElement('div'); 
-      valueSpan.className='small'; 
-      valueSpan.id = id + '_val'; 
+      const valueSpan = document.createElement('div');
+      valueSpan.className = 'small';
+      valueSpan.id = id + '_val';
       valueSpan.innerText = val;
       controlsDiv.appendChild(valueSpan);
-      
       const unlockBtn = document.createElement('button');
       unlockBtn.className = 'unlock-btn';
       unlockBtn.id = 'rt-unlock-btn';
@@ -271,26 +446,20 @@ function makeSliders(){
       unlockBtn.style.display = 'none';
       unlockBtn.onclick = unlockRiskTolerance;
       controlsDiv.appendChild(unlockBtn);
-      
       row.appendChild(controlsDiv);
-      
       const statusDiv = document.createElement('div');
       statusDiv.className = 'small';
       statusDiv.id = 'rt-status';
       statusDiv.style.marginTop = '4px';
       row.appendChild(statusDiv);
-    } 
-    // Special handling for rInvest slider with lock/unlock
-    else if (id === 'rInvest') {
+    } else if (id === 'rInvest') {
       const controlsDiv = document.createElement('div');
       controlsDiv.className = 'rt-controls';
-      
-      const valueSpan = document.createElement('div'); 
-      valueSpan.className='small'; 
-      valueSpan.id = id + '_val'; 
+      const valueSpan = document.createElement('div');
+      valueSpan.className = 'small';
+      valueSpan.id = id + '_val';
       valueSpan.innerText = val;
       controlsDiv.appendChild(valueSpan);
-      
       const unlockBtn = document.createElement('button');
       unlockBtn.className = 'unlock-btn';
       unlockBtn.id = 'rinvest-unlock-btn';
@@ -298,48 +467,39 @@ function makeSliders(){
       unlockBtn.style.display = 'none';
       unlockBtn.onclick = unlockInvestmentReturn;
       controlsDiv.appendChild(unlockBtn);
-      
       row.appendChild(controlsDiv);
-      
       const statusDiv = document.createElement('div');
       statusDiv.className = 'small';
       statusDiv.id = 'rinvest-status';
       statusDiv.style.marginTop = '4px';
       row.appendChild(statusDiv);
-    }
-    else {
-      const valueSpan = document.createElement('div'); 
-      valueSpan.className='small'; 
-      valueSpan.id = id + '_val'; 
-      valueSpan.innerText = val; 
+    } else {
+      const valueSpan = document.createElement('div');
+      valueSpan.className = 'small';
+      valueSpan.id = id + '_val';
+      valueSpan.innerText = val;
       row.appendChild(valueSpan);
     }
     
-    const input = document.createElement('input'); 
-    input.type='range'; 
-    input.id=id; 
-    input.min=min; 
-    input.max=max; 
-    input.step=step; 
-    input.value=val;
-    input.oninput = ()=> {
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.id = id;
+    input.min = min;
+    input.max = max;
+    input.step = step;
+    input.value = val;
+    input.oninput = () => {
       document.getElementById(id + '_val').innerText = input.value;
-      // Update debt-related slider states when debt slider changes
       if (id === 'initialDebt') updateDebtRelatedSliders();
-      // Enforce priority sum = 1.0 constraint
       if (id === 'pInvest' || id === 'pDebt' || id === 'pSave') updatePriorityConstraint(id);
-      // Update Risk Assessment link with current allocation
       updateRiskAssessmentLink();
-      // Save current state to localStorage
       saveState();
     };
     row.appendChild(input);
-    
     container.appendChild(row);
   });
 }
 
-// Generate sliders on page load
 makeSliders();
 updateDebtRelatedSliders();
 
@@ -348,7 +508,6 @@ function lockRiskTolerance(score) {
   const rtSlider = document.getElementById('RT');
   const rtStatus = document.getElementById('rt-status');
   const unlockBtn = document.getElementById('rt-unlock-btn');
-  
   rtRow.classList.add('locked');
   rtSlider.value = score.toFixed(2);
   document.getElementById('RT_val').innerText = score.toFixed(2);
@@ -356,23 +515,19 @@ function lockRiskTolerance(score) {
   rtStatus.style.color = '#1f6feb';
   rtStatus.style.fontWeight = '500';
   unlockBtn.style.display = 'inline-block';
-  
   rtLocked = true;
   saveState();
-  updateRiskAssessmentLink(); // Update link with new allocation based on updated RT
+  updateRiskAssessmentLink();
 }
 
 function unlockRiskTolerance() {
   const rtRow = document.getElementById('RT_row');
   const rtStatus = document.getElementById('rt-status');
   const unlockBtn = document.getElementById('rt-unlock-btn');
-  
-  if (!rtRow || !rtStatus || !unlockBtn) return; // Safety check
-  
+  if (!rtRow || !rtStatus || !unlockBtn) return;
   rtRow.classList.remove('locked');
   rtStatus.innerHTML = '';
   unlockBtn.style.display = 'none';
-  
   rtLocked = false;
   localStorage.removeItem('rtLocked');
   updateRiskAssessmentLink();
@@ -384,7 +539,6 @@ function lockInvestmentReturn(expectedReturn) {
   const rInvestSlider = document.getElementById('rInvest');
   const rInvestStatus = document.getElementById('rinvest-status');
   const unlockBtn = document.getElementById('rinvest-unlock-btn');
-  
   rInvestRow.classList.add('locked');
   rInvestSlider.value = expectedReturn.toFixed(4);
   document.getElementById('rInvest_val').innerText = expectedReturn.toFixed(4);
@@ -392,7 +546,6 @@ function lockInvestmentReturn(expectedReturn) {
   rInvestStatus.style.color = '#1f6feb';
   rInvestStatus.style.fontWeight = '500';
   unlockBtn.style.display = 'inline-block';
-  
   rInvestLocked = true;
   saveState();
   updateRiskAssessmentLink();
@@ -402,47 +555,52 @@ function unlockInvestmentReturn() {
   const rInvestRow = document.getElementById('rInvest_row');
   const rInvestStatus = document.getElementById('rinvest-status');
   const unlockBtn = document.getElementById('rinvest-unlock-btn');
-  
-  if (!rInvestRow || !rInvestStatus || !unlockBtn) return; // Safety check
-  
+  if (!rInvestRow || !rInvestStatus || !unlockBtn) return;
   rInvestRow.classList.remove('locked');
   rInvestStatus.innerHTML = '';
   unlockBtn.style.display = 'none';
-  
   rInvestLocked = false;
   localStorage.removeItem('rInvestLocked');
   updateRiskAssessmentLink();
   update();
 }
 
-function saveState(){
+function saveState() {
   const state = {};
-  sliderDefinitions.forEach(([id])=> {
-    state[id] = document.getElementById(id).value;
-  });
+  sliderDefinitions.forEach(([id]) => { state[id] = document.getElementById(id).value; });
+  state.has401k = document.getElementById('has401k') ? document.getElementById('has401k').checked : false;
+  state.annualSalary = document.getElementById('annualSalary') ? document.getElementById('annualSalary').value : defaults.annualSalary;
+  state.employerMatchPercent = document.getElementById('employerMatchPercent') ? document.getElementById('employerMatchPercent').value : defaults.employerMatchPercent;
+  state.matchCapPercent = document.getElementById('matchCapPercent') ? document.getElementById('matchCapPercent').value : defaults.matchCapPercent;
+  state.current401kPercent = document.getElementById('current401kPercent') ? document.getElementById('current401kPercent').value : defaults.current401kPercent;
   state.rtLocked = rtLocked;
   state.rInvestLocked = rInvestLocked;
   localStorage.setItem('financialAllocatorState', JSON.stringify(state));
 }
 
-function loadState(){
+function loadState() {
   const savedState = localStorage.getItem('financialAllocatorState');
   if (savedState) {
     try {
       const state = JSON.parse(savedState);
-      sliderDefinitions.forEach(([id])=> {
+      sliderDefinitions.forEach(([id]) => {
         if (state[id] !== undefined) {
           document.getElementById(id).value = state[id];
           document.getElementById(id + '_val').innerText = state[id];
         }
       });
-      
-      // Restore RT lock state
+      if (state.has401k !== undefined) {
+        document.getElementById('has401k').checked = state.has401k;
+        if (state.has401k) document.getElementById('match-section').classList.remove('collapsed');
+      }
+      if (state.annualSalary) { document.getElementById('annualSalary').value = state.annualSalary; document.getElementById('annualSalary_val').innerText = state.annualSalary; }
+      if (state.employerMatchPercent) { document.getElementById('employerMatchPercent').value = state.employerMatchPercent; document.getElementById('employerMatchPercent_val').innerText = state.employerMatchPercent; }
+      if (state.matchCapPercent) { document.getElementById('matchCapPercent').value = state.matchCapPercent; document.getElementById('matchCapPercent_val').innerText = state.matchCapPercent; }
+      if (state.current401kPercent !== undefined) { document.getElementById('current401kPercent').value = state.current401kPercent; document.getElementById('current401kPercent_val').innerText = state.current401kPercent; }
       if (state.rtLocked) {
         const rtRow = document.getElementById('RT_row');
         const rtStatus = document.getElementById('rt-status');
         const unlockBtn = document.getElementById('rt-unlock-btn');
-        
         rtRow.classList.add('locked');
         rtStatus.innerHTML = '✓ Set from Risk Assessment (Click "Unlock" to adjust manually)';
         rtStatus.style.color = '#1f6feb';
@@ -450,13 +608,10 @@ function loadState(){
         unlockBtn.style.display = 'inline-block';
         rtLocked = true;
       }
-      
-      // Restore rInvest lock state
       if (state.rInvestLocked) {
         const rInvestRow = document.getElementById('rInvest_row');
         const rInvestStatus = document.getElementById('rinvest-status');
         const unlockBtn = document.getElementById('rinvest-unlock-btn');
-        
         rInvestRow.classList.add('locked');
         rInvestStatus.innerHTML = '✓ Calculated from Risk Assessment portfolio (Click "Unlock" to adjust manually)';
         rInvestStatus.style.color = '#1f6feb';
@@ -464,66 +619,63 @@ function loadState(){
         unlockBtn.style.display = 'inline-block';
         rInvestLocked = true;
       }
-      
       updateDebtRelatedSliders();
-    } catch (e) {
-      console.error('Error loading saved state:', e);
-    }
+      update401kDisplay();
+    } catch (e) { console.error('Error loading saved state:', e); }
   }
 }
 
-function getParams(){
+function getParams() {
   const p = {};
-  sliderDefinitions.forEach(([id])=> p[id] = Number(document.getElementById(id).value));
-  // Fixed behavioral parameters
+  sliderDefinitions.forEach(([id]) => p[id] = Number(document.getElementById(id).value));
+  const matchParams = get401kParams();
+  Object.assign(p, matchParams);
   p.alpha = 0.5; p.beta = 0.5; p.delta = 0.5; p.gammaDebt = 0.02; p.gammaSave = 0.01; p.k = 15; p.goalStrength = 0.25;
   return p;
 }
 
-function resetDefaults(){
-  sliderDefinitions.forEach(([id,_,val])=>{ 
-    document.getElementById(id).value = val; 
-    document.getElementById(id + '_val').innerText = val; 
+function resetDefaults() {
+  sliderDefinitions.forEach(([id, _, val]) => {
+    document.getElementById(id).value = val;
+    document.getElementById(id + '_val').innerText = val;
   });
-  unlockRiskTolerance(); // Unlock RT when resetting
-  unlockInvestmentReturn(); // Unlock rInvest when resetting
+  document.getElementById('has401k').checked = false;
+  document.getElementById('match-section').classList.add('collapsed');
+  document.getElementById('annualSalary').value = defaults.annualSalary;
+  document.getElementById('annualSalary_val').innerText = defaults.annualSalary;
+  document.getElementById('employerMatchPercent').value = defaults.employerMatchPercent;
+  document.getElementById('employerMatchPercent_val').innerText = defaults.employerMatchPercent;
+  document.getElementById('matchCapPercent').value = defaults.matchCapPercent;
+  document.getElementById('matchCapPercent_val').innerText = defaults.matchCapPercent;
+  document.getElementById('current401kPercent').value = defaults.current401kPercent;
+  document.getElementById('current401kPercent_val').innerText = defaults.current401kPercent;
+  document.getElementById('match-result').innerHTML = '';
+  unlockRiskTolerance();
+  unlockInvestmentReturn();
   updateDebtRelatedSliders();
   saveState();
   update();
 }
 
-function updateRiskAssessmentLink(){
-  // Calculate current allocation without showing results
+function updateRiskAssessmentLink() {
   const params = getParams();
   const res = behavioralAllocation(params);
   let alloc = res.allocations;
-  
-  // Apply the same reallocation logic as projectNetWorth when there's no debt
   if (params.initialDebt <= 0 && params.minDebtPayment <= 0) {
     const debtPortion = alloc.Debt;
     const investRatio = alloc.Invest / (alloc.Invest + alloc.Save);
-    alloc = {
-      Invest: alloc.Invest + debtPortion * investRatio,
-      Debt: 0,
-      Save: alloc.Save + debtPortion * (1 - investRatio)
-    };
+    alloc = { Invest: alloc.Invest + debtPortion * investRatio, Debt: 0, Save: alloc.Save + debtPortion * (1 - investRatio) };
   }
-  
-  const investAlloc = Math.round(alloc.Invest);
-  
-  // Update the Risk Assessment link
+  // Include 401k match in investment amount for risk assessment
+  const investAlloc = Math.round(alloc.Invest + (res.match401k || 0));
   const riskAssessmentLink = document.getElementById('risk-link');
-  if (riskAssessmentLink) {
-    riskAssessmentLink.href = `./risk-assessment.html?invest=${investAlloc}`;
-  }
+  if (riskAssessmentLink) riskAssessmentLink.href = `./risk-assessment.html?invest=${investAlloc}`;
 }
 
-function updateDebtRelatedSliders(){
+function updateDebtRelatedSliders() {
   const debtValue = Number(document.getElementById('initialDebt').value);
   const debtRelatedIds = ['minDebtPayment', 'rDebt', 'DA'];
-  
   if (debtValue <= 0) {
-    // Set all debt-related sliders to 0 and gray them out
     debtRelatedIds.forEach(id => {
       const slider = document.getElementById(id);
       if (slider) {
@@ -533,62 +685,39 @@ function updateDebtRelatedSliders(){
         row.classList.add('disabled');
       }
     });
-    
-    // Set Debt Priority to 0 and redistribute to other priorities
     const pDebtSlider = document.getElementById('pDebt');
     const currentPDebt = Number(pDebtSlider.value);
     if (currentPDebt > 0) {
       pDebtSlider.value = 0;
       document.getElementById('pDebt_val').innerText = '0.00';
-      
-      // Redistribute to Invest and Save equally
       const pInvest = Number(document.getElementById('pInvest').value);
       const pSave = Number(document.getElementById('pSave').value);
       const boost = currentPDebt / 2;
-      
       document.getElementById('pInvest').value = (pInvest + boost).toFixed(2);
       document.getElementById('pInvest_val').innerText = (pInvest + boost).toFixed(2);
       document.getElementById('pSave').value = (pSave + boost).toFixed(2);
       document.getElementById('pSave_val').innerText = (pSave + boost).toFixed(2);
     }
-    
-    // Gray out Debt Priority slider
     const pDebtRow = pDebtSlider.closest('.slider-row');
     pDebtRow.classList.add('disabled');
-    
   } else {
-    // Enable all debt-related sliders
     debtRelatedIds.forEach(id => {
       const slider = document.getElementById(id);
-      if (slider) {
-        const row = slider.closest('.slider-row');
-        row.classList.remove('disabled');
-      }
+      if (slider) slider.closest('.slider-row').classList.remove('disabled');
     });
-    
-    // Enable Debt Priority slider
     const pDebtSlider = document.getElementById('pDebt');
-    const pDebtRow = pDebtSlider.closest('.slider-row');
-    pDebtRow.classList.remove('disabled');
+    pDebtSlider.closest('.slider-row').classList.remove('disabled');
   }
 }
 
 function updatePriorityConstraint(changedId) {
   const ids = ['pInvest', 'pDebt', 'pSave'];
   const changedValue = Number(document.getElementById(changedId).value);
-  
-  // Calculate how much is left for the other two
   const remaining = 1.0 - changedValue;
-  
-  // Get the other two IDs
   const otherIds = ids.filter(id => id !== changedId);
-  
-  // Get current values of the other two
   const other1 = Number(document.getElementById(otherIds[0]).value);
   const other2 = Number(document.getElementById(otherIds[1]).value);
   const otherSum = other1 + other2;
-  
-  // Distribute remaining proportionally (or equally if sum is 0)
   if (otherSum > 0) {
     const new1 = (other1 / otherSum) * remaining;
     const new2 = (other2 / otherSum) * remaining;
@@ -605,64 +734,71 @@ function updatePriorityConstraint(changedId) {
   }
 }
 
-function update(){
+function update() {
   const params = getParams();
   const out = projectNetWorth(params);
   const monthsMin = monthsToDebtFree(params.initialDebt, params.rDebt, params.minDebtPayment);
   const monthsExtra = monthsToDebtFree(params.initialDebt, params.rDebt, params.minDebtPayment + out.alloc.Debt);
-  
-  // Calculate priority sum for display
   const prioritySum = params.pInvest + params.pDebt + params.pSave;
+  
+  // Build 401k section of results
+  let match401kHtml = '';
+  if (params.has401k && out.match401k > 0) {
+    const mr = out.matchResult;
+    match401kHtml = `
+      <div style="background:#d4edda;padding:10px;border-radius:6px;margin-bottom:12px;">
+        <strong>🎁 401(k) Match (Pre-Allocated)</strong><br>
+        Your contribution: $${out.match401k.toFixed(0)}/mo<br>
+        Employer match: +$${mr.matchGained.toFixed(0)}/mo<br>
+        <span class="small">Total going to 401(k): $${(out.match401k + mr.matchGained).toFixed(0)}/mo</span>
+      </div>
+    `;
+  }
 
   document.getElementById('results').innerHTML = `
-    <strong>Discretionary:</strong> ${out.discretionary.toFixed(0)}<br>
+    <strong>Discretionary:</strong> ${out.discretionary.toFixed(0)}${params.has401k && out.match401k > 0 ? ` <span class="small">(${out.match401k.toFixed(0)} pre-allocated to 401k match)</span>` : ''}<br>
     <div class="small" style="margin-top:4px;">Priority Sum: ${prioritySum.toFixed(2)} ${Math.abs(prioritySum - 1.0) < 0.01 ? '✓' : '⚠️ (should be 1.0)'}</div>
     <br>
+    ${match401kHtml}
     <strong>Monthly allocations</strong><br>
     Invest: ${out.alloc.Invest.toFixed(0)}<br>
     Debt: ${out.alloc.Debt.toFixed(0)} <span class="small">(in addition to your ${params.minDebtPayment.toFixed(0)} minimum payment)</span><br>
     Save: ${out.alloc.Save.toFixed(0)}<br><br>
     <strong>Projection after ${params.years} years</strong><br>
-    Investment: ${out.invest.toFixed(0)}<br>
+    Investment: ${out.invest.toFixed(0)}${params.has401k ? ' <span class="small">(includes 401k)</span>' : ''}<br>
     Savings: ${out.save.toFixed(0)}<br>
     Debt remaining: ${out.debt.toFixed(0)}<br>
     Net worth: <strong>${out.netWorth.toFixed(0)}</strong>
   `;
 
   document.getElementById('summary').innerHTML = `
-    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin/12).toFixed(1)} yrs)</div>
-    <div class="small">📉 Debt payoff (with extra): ${monthsExtra} months (${(monthsExtra/12).toFixed(1)} yrs)</div>
+    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin / 12).toFixed(1)} yrs)</div>
+    <div class="small">📉 Debt payoff (with extra): ${monthsExtra} months (${(monthsExtra / 12).toFixed(1)} yrs)</div>
   `;
 
-  Plotly.newPlot('piechart',[{values:[out.alloc.Invest,out.alloc.Debt,out.alloc.Save],labels:['Invest','Debt','Save'],type:'pie'}],{margin:{t:0}});
+  // Pie chart: include 401k contribution as part of Invest
+  const pieInvest = out.alloc.Invest + (params.has401k ? out.match401k : 0);
+  Plotly.newPlot('piechart', [{
+    values: [pieInvest, out.alloc.Debt, out.alloc.Save],
+    labels: params.has401k && out.match401k > 0 ? ['Invest (incl. 401k)', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'],
+    type: 'pie'
+  }], { margin: { t: 0 } });
 }
 
-// Check for risk score and expected return from URL parameters
 window.addEventListener('DOMContentLoaded', function() {
   const urlParams = new URLSearchParams(window.location.search);
   const riskScore = urlParams.get('risk');
   const expectedReturn = urlParams.get('return');
-  
   if (riskScore) {
     const score = parseFloat(riskScore);
-    if (score >= 0 && score <= 1) {
-      lockRiskTolerance(score);
-      update();
-      updateRiskAssessmentLink();
-    }
+    if (score >= 0 && score <= 1) { lockRiskTolerance(score); update(); updateRiskAssessmentLink(); }
   }
-  
   if (expectedReturn) {
     const returnVal = parseFloat(expectedReturn);
-    if (returnVal >= 0 && returnVal <= 0.2) { // Reasonable range for returns (0-20%)
-      lockInvestmentReturn(returnVal);
-      update();
-      updateRiskAssessmentLink();
-    }
+    if (returnVal >= 0 && returnVal <= 0.2) { lockInvestmentReturn(returnVal); update(); updateRiskAssessmentLink(); }
   }
 });
 
-// Initial render on page load
 loadState();
 update();
 updateRiskAssessmentLink();
