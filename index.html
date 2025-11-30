@@ -34,6 +34,26 @@
     .unlock-btn{background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;padding:4px 12px;font-size:12px;margin-left:8px;cursor:pointer}
     .rt-controls{display:flex;align-items:center;gap:8px}
     .hidden{display:none}
+    .intro-page{text-align:center;padding:20px 10px}
+    .intro-page h2{font-size:24px;color:#111;margin:0 0 8px 0}
+    .intro-icon{font-size:48px;margin-bottom:16px}
+    .intro-subtitle{color:#666;font-size:15px;margin:0 0 28px 0}
+    .intro-section{text-align:left;margin-bottom:24px;padding:16px;background:#f6f8fa;border-radius:10px}
+    .intro-section h3{margin:0 0 10px 0;font-size:16px;color:#1f6feb}
+    .intro-section p{margin:0;font-size:14px;color:#555;line-height:1.6}
+    .intro-goals{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+    .intro-goal{flex:1;min-width:140px;background:#fff;border:1px solid #e6e9ef;border-radius:8px;padding:12px;text-align:center}
+    .goal-icon{display:block;font-size:24px;margin-bottom:6px}
+    .goal-label{display:block;font-weight:600;font-size:14px;color:#111}
+    .goal-desc{display:block;font-size:12px;color:#666;margin-top:2px}
+    .intro-steps{margin-top:12px}
+    .intro-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;background:#fff;padding:12px;border-radius:8px;border:1px solid #e6e9ef}
+    .step-number{width:28px;height:28px;background:#1f6feb;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex-shrink:0}
+    .step-content{text-align:left}
+    .step-content strong{display:block;font-size:14px;color:#111}
+    .step-content span{font-size:13px;color:#666}
+    .intro-tip{background:#e6f7ff;border-left:4px solid #1f6feb}
+    .intro-start-btn{margin-top:20px;padding:16px 32px;font-size:18px;font-weight:600}
     .onboarding{text-align:center;padding:40px 20px}
     .onboarding h2{font-size:24px;margin-bottom:8px;color:#111}
     .onboarding p{color:#666;margin-bottom:32px}
@@ -99,12 +119,94 @@
   </header>
 
   <div class="steps" id="step-indicator">
-    <div class="step active" id="step-dot-1"></div>
+    <div class="step active" id="step-dot-0"></div>
+    <div class="step" id="step-dot-1"></div>
     <div class="step" id="step-dot-2"></div>
     <div class="step" id="step-dot-3"></div>
   </div>
 
-  <div id="step-1" class="card">
+  <!-- STEP 0: Introduction -->
+  <div id="step-0" class="card">
+    <div class="intro-page">
+      <div class="intro-icon">💰</div>
+      <h2>Welcome to the Behavioral Financial Allocator</h2>
+      <p class="intro-subtitle">A smarter way to decide where your money should go each month</p>
+      
+      <div class="intro-section">
+        <h3>📊 What This Tool Does</h3>
+        <p>This tool helps you figure out the optimal way to split your discretionary income between three key financial goals:</p>
+        <div class="intro-goals">
+          <div class="intro-goal">
+            <span class="goal-icon">📈</span>
+            <span class="goal-label">Investing</span>
+            <span class="goal-desc">Build long-term wealth</span>
+          </div>
+          <div class="intro-goal">
+            <span class="goal-icon">💳</span>
+            <span class="goal-label">Debt Payoff</span>
+            <span class="goal-desc">Reduce what you owe</span>
+          </div>
+          <div class="intro-goal">
+            <span class="goal-icon">🏦</span>
+            <span class="goal-label">Savings</span>
+            <span class="goal-desc">Emergency fund & goals</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="intro-section">
+        <h3>🧠 How It Works</h3>
+        <p>Unlike generic calculators, this tool factors in your <strong>behavioral preferences</strong>—your comfort with risk and your feelings about debt—to create a plan you'll actually stick to.</p>
+      </div>
+      
+      <div class="intro-section">
+        <h3>✅ Steps to Complete</h3>
+        <div class="intro-steps">
+          <div class="intro-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <strong>Choose Your Path</strong>
+              <span>Tell us if you have existing contributions or are starting fresh</span>
+            </div>
+          </div>
+          <div class="intro-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <strong>Enter Your Numbers</strong>
+              <span>Income, expenses, debts, and current balances</span>
+            </div>
+          </div>
+          <div class="intro-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <strong>Set Your Preferences</strong>
+              <span>Risk tolerance, debt aversion, and personal priorities</span>
+            </div>
+          </div>
+          <div class="intro-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <strong>Get Your Plan</strong>
+              <span>See exactly how much to allocate to each goal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="intro-section">
+        <h3>⏱️ Time Required</h3>
+        <p>About <strong>5-10 minutes</strong> to complete. Your progress is saved automatically.</p>
+      </div>
+      
+      <div class="intro-section intro-tip">
+        <strong>💡 Pro Tip:</strong> Have these ready before you start: your monthly income, regular expenses, any debt balances and interest rates, and current savings/investment account balances.
+      </div>
+      
+      <button onclick="goToStep(1)" class="intro-start-btn">Get Started →</button>
+    </div>
+  </div>
+
+  <div id="step-1" class="card hidden">
     <div class="onboarding">
       <h2>Let's personalize your financial plan</h2>
       <p>Are you currently making any automated contributions to investments or savings?</p>
@@ -178,7 +280,7 @@
     </div>
     
     <div style="margin-top:20px;">
-      <button onclick="goToStep(1)" class="secondary">← Back</button>
+      <button onclick="goToStep(0)" class="secondary">← Back</button>
       <button onclick="goToStep(3)">Continue →</button>
     </div>
   </div>
@@ -186,7 +288,7 @@
   <div id="step-3" class="card hidden">
     <h2 style="margin-top:0;">Your Financial Picture</h2>
     <div id="sliders"></div>
-    <button onclick="goToStep(userPath === 'existing' ? 2 : 1)" class="secondary">← Back</button>
+    <button onclick="goToStep(userPath === 'existing' ? 2 : 0)" class="secondary">← Back</button>
     <button onclick="runProjection()">Run Projection →</button>
   </div>
 
@@ -259,7 +361,7 @@
 <script>
 /* State */
 let userPath = null;
-let currentStep = 1;
+let currentStep = 0;
 let rtLocked = false;
 let rInvestLocked = false;
 
@@ -314,11 +416,12 @@ function selectPath(path) {
 
 function goToStep(step) {
   currentStep = step;
-  ['step-1', 'step-2', 'step-3', 'step-4'].forEach((id, i) => {
-    document.getElementById(id).classList.toggle('hidden', i + 1 !== step);
+  ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'].forEach((id, i) => {
+    document.getElementById(id).classList.toggle('hidden', i !== step);
   });
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 0; i <= 3; i++) {
     const dot = document.getElementById('step-dot-' + i);
+    if (!dot) continue;
     dot.classList.remove('active', 'completed');
     if (i < step) dot.classList.add('completed');
     else if (i === step || (step === 4 && i === 3)) dot.classList.add('active');
@@ -601,6 +704,8 @@ function loadState() {
       if (s.rInvestLocked) lockInvestmentReturn(Number(s.rInvest));
       updateDebtRelatedSliders();
       if (userPath && currentStep > 1) goToStep(currentStep);
+      else if (userPath && currentStep === 1) goToStep(1);
+      else if (currentStep === 0 || !userPath) goToStep(0);
     } catch (e) { console.error('Error loading state:', e); }
   }
 }
