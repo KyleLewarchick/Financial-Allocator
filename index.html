@@ -4,28 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Behavioral Financial Allocator</title>
-  <!-- 
-    =====================================================
-    INDEX.HTML - GUIDED FLOW WITH CURRENT VS RECOMMENDED
-    Last Updated: November 2024
-    =====================================================
-    
-    NEW FEATURES:
-    1. Onboarding flow - asks if user has existing contributions
-    2. Two paths: "Starting Fresh" vs "Existing Contributions"
-    3. For existing contributors: captures current 401k, auto-invest, 
-       auto-save, and extra debt payments
-    4. Comparison view showing Current → Recommended with deltas
-    5. Actionable insights (over-saving, under-investing, etc.)
-    6. Projected net worth comparison between paths
-    
-    FLOW:
-    Step 1: Choose path (fresh vs existing)
-    Step 2: If existing, enter current contributions
-    Step 3: Financial info + behavioral preferences
-    Step 4: Results with comparison (if existing) or allocation (if fresh)
-    =====================================================
-  -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fbfdff;color:#111;margin:0;padding:24px}
@@ -56,8 +34,6 @@
     .unlock-btn{background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;padding:4px 12px;font-size:12px;margin-left:8px;cursor:pointer}
     .rt-controls{display:flex;align-items:center;gap:8px}
     .hidden{display:none}
-    
-    /* Onboarding styles */
     .onboarding{text-align:center;padding:40px 20px}
     .onboarding h2{font-size:24px;margin-bottom:8px;color:#111}
     .onboarding p{color:#666;margin-bottom:32px}
@@ -68,14 +44,10 @@
     .path-option h3{margin:0 0 8px 0;font-size:16px;color:#111}
     .path-option p{margin:0;font-size:13px;color:#666}
     .path-icon{font-size:32px;margin-bottom:12px}
-    
-    /* Step indicator */
     .steps{display:flex;justify-content:center;gap:8px;margin-bottom:24px}
     .step{width:40px;height:4px;background:#e6e9ef;border-radius:2px}
     .step.active{background:#1f6feb}
     .step.completed{background:#56d364}
-    
-    /* Comparison table */
     .comparison-table{width:100%;border-collapse:collapse;margin:16px 0}
     .comparison-table th{text-align:left;padding:12px;background:#f6f8fa;font-size:13px;font-weight:600;border-bottom:2px solid #e6e9ef}
     .comparison-table td{padding:12px;border-bottom:1px solid #e6e9ef;font-size:14px}
@@ -85,15 +57,11 @@
     .comparison-table .delta.increase{color:#56d364}
     .comparison-table .delta.decrease{color:#f59e0b}
     .comparison-table .delta.none{color:#666}
-    
-    /* Insight cards */
     .insight{padding:12px 16px;border-radius:8px;margin:8px 0;font-size:13px;display:flex;align-items:flex-start;gap:10px}
     .insight-icon{font-size:18px;flex-shrink:0}
     .insight-warning{background:#fff3cd;border-left:4px solid #ffc107}
     .insight-success{background:#d4edda;border-left:4px solid #56d364}
     .insight-tip{background:#e6f7ff;border-left:4px solid #1f6feb}
-    
-    /* Projection comparison */
     .projection-compare{display:flex;gap:20px;margin-top:20px;flex-wrap:wrap}
     .projection-box{flex:1;min-width:200px;padding:20px;border-radius:12px;text-align:center}
     .projection-box.current{background:#f6f8fa;border:1px solid #e6e9ef}
@@ -101,8 +69,6 @@
     .projection-box h4{margin:0 0 4px 0;font-size:13px;color:#666;font-weight:500}
     .projection-box .amount{font-size:28px;font-weight:700;color:#111}
     .projection-box .diff{font-size:14px;color:#56d364;margin-top:4px}
-    
-    /* Risk Assessment prompt */
     .risk-assessment-prompt{background:#f0f6ff;border:2px solid #1f6feb;border-radius:12px;padding:20px;margin:16px 0}
     .risk-assessment-prompt h4{margin:0 0 8px 0;font-size:15px;color:#1f6feb}
     .risk-assessment-prompt p{margin:0 0 12px 0;font-size:13px;color:#555;line-height:1.5}
@@ -110,16 +76,11 @@
     .risk-assessment-prompt button{background:#1f6feb;margin:0}
     .risk-assessment-prompt button:hover{background:#1a5dd1}
     .risk-assessment-prompt .skip-link{display:block;margin-top:10px;font-size:12px;color:#666;text-decoration:underline;cursor:pointer}
-    
-    /* 401k section */
     .match-toggle{display:flex;align-items:center;gap:10px;margin-bottom:12px}
     .match-toggle input[type=checkbox]{width:18px;height:18px;cursor:pointer}
     .match-toggle label{margin:0;font-size:14px;font-weight:500;color:#333;cursor:pointer}
     .match-section{padding:16px;background:#f0fff4;border:1px solid #56d364;border-radius:8px;margin-bottom:8px}
     .match-section.collapsed{display:none}
-    .match-callout{padding:12px;background:#fff;border-left:4px solid #56d364;border-radius:4px;font-size:13px}
-    .match-result{padding:12px;background:#d4edda;border-radius:6px;margin-top:12px;font-size:14px}
-    .match-warning{padding:12px;background:#fff3cd;border-left:4px solid #ffc107;border-radius:4px;margin-top:12px;font-size:13px}
   </style>
 </head>
 <body>
@@ -137,14 +98,12 @@
     <h1>Behavioral Financial Allocator</h1>
   </header>
 
-  <!-- Step Indicator -->
   <div class="steps" id="step-indicator">
     <div class="step active" id="step-dot-1"></div>
     <div class="step" id="step-dot-2"></div>
     <div class="step" id="step-dot-3"></div>
   </div>
 
-  <!-- STEP 1: Onboarding -->
   <div id="step-1" class="card">
     <div class="onboarding">
       <h2>Let's personalize your financial plan</h2>
@@ -164,7 +123,6 @@
     </div>
   </div>
 
-  <!-- STEP 2: Current Contributions (only for existing path) -->
   <div id="step-2" class="card hidden">
     <h2 style="margin-top:0;">Tell us about your current setup</h2>
     <p class="small">Enter your current automated contributions. Leave at $0 if you don't have that type.</p>
@@ -225,7 +183,6 @@
     </div>
   </div>
 
-  <!-- STEP 3: Financial Info + Behavioral Preferences -->
   <div id="step-3" class="card hidden">
     <h2 style="margin-top:0;">Your Financial Picture</h2>
     <div id="sliders"></div>
@@ -233,13 +190,11 @@
     <button onclick="runProjection()">Run Projection →</button>
   </div>
 
-  <!-- STEP 4: Results -->
   <div id="step-4" class="card hidden">
     <div id="results-header">
       <h2 style="margin-top:0;">Your Personalized Allocation</h2>
     </div>
     
-    <!-- Comparison view for existing contributors -->
     <div id="comparison-results" class="hidden">
       <div id="insights-container"></div>
       <table class="comparison-table">
@@ -254,7 +209,6 @@
         <tbody id="comparison-body"></tbody>
       </table>
       
-      <!-- Risk Assessment Prompt -->
       <div class="risk-assessment-prompt" id="risk-prompt-comparison">
         <h4>📊 Not sure how to invest your money?</h4>
         <div class="invest-amount" id="invest-amount-comparison">$0/mo to investments</div>
@@ -278,11 +232,9 @@
       </div>
     </div>
     
-    <!-- Simple view for fresh starters -->
     <div id="simple-results" class="hidden">
       <div id="simple-results-content"></div>
       
-      <!-- Risk Assessment Prompt -->
       <div class="risk-assessment-prompt" id="risk-prompt-simple">
         <h4>📊 Not sure how to invest your money?</h4>
         <div class="invest-amount" id="invest-amount-simple">$0/mo to investments</div>
@@ -306,7 +258,7 @@
 
 <script>
 /* State */
-let userPath = null; // 'fresh' or 'existing'
+let userPath = null;
 let currentStep = 1;
 let rtLocked = false;
 let rInvestLocked = false;
@@ -365,7 +317,6 @@ function goToStep(step) {
   ['step-1', 'step-2', 'step-3', 'step-4'].forEach((id, i) => {
     document.getElementById(id).classList.toggle('hidden', i + 1 !== step);
   });
-  // Update step indicators
   for (let i = 1; i <= 3; i++) {
     const dot = document.getElementById('step-dot-' + i);
     dot.classList.remove('active', 'completed');
@@ -687,7 +638,6 @@ function behavioralAllocation(p) {
   const disc = baseDisc - match.needed;
   if (disc <= 0) return { allocations: { Invest: 0, Debt: 0, Save: 0 }, discretionary: baseDisc, match401k: Math.min(match.needed, Math.max(0, baseDisc)), matchResult: match };
   
-  // If no debt, only allocate between Invest and Save
   if (p.initialDebt <= 0) {
     const rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
     const rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
@@ -695,7 +645,6 @@ function behavioralAllocation(p) {
     const exp = rates.map(r => Math.exp(p.k * r));
     const sum = exp.reduce((a, b) => a + b, 0);
     const base = exp.map(v => v / sum);
-    // Redistribute debt priority to invest/save proportionally
     const pInvestAdj = p.pInvest + p.pDebt * (p.pInvest / (p.pInvest + p.pSave + 0.001));
     const pSaveAdj = p.pSave + p.pDebt * (p.pSave / (p.pInvest + p.pSave + 0.001));
     const P = [pInvestAdj, pSaveAdj];
@@ -734,7 +683,6 @@ function projectNetWorth(p, useCurrentAlloc = false) {
   let investAlloc, debtAlloc, saveAlloc, match401kContrib, matchGained;
   
   if (useCurrentAlloc) {
-    // Use user's current contributions
     const match = calculate401kMatch(p);
     match401kContrib = match.current401kMonthly;
     matchGained = match.currentMatch;
@@ -742,7 +690,6 @@ function projectNetWorth(p, useCurrentAlloc = false) {
     debtAlloc = p.currentExtraDebt;
     saveAlloc = p.currentAutoSave;
   } else {
-    // Use recommended allocation
     const res = behavioralAllocation(p);
     match401kContrib = res.match401k + (res.matchResult.current401kMonthly || 0);
     matchGained = res.matchResult.matchGained;
@@ -782,7 +729,7 @@ function goToRiskAssessment() {
   const res = behavioralAllocation(p);
   const match = res.matchResult;
   const investTotal = Math.round(res.allocations.Invest + res.match401k + (match.matchGained || 0));
-  window.location.href = `./risk-assessment.html?invest=${investTotal}`;
+  window.location.href = './risk-assessment.html?invest=' + investTotal;
 }
 
 function dismissRiskPrompt(type) {
@@ -796,207 +743,8 @@ function dismissRiskPrompt(type) {
 function updateRiskPromptAmount(investAmount, type) {
   const el = document.getElementById('invest-amount-' + type);
   if (el) {
-    el.innerText = '
-function runProjection() {
-  const p = getParams();
-  const res = behavioralAllocation(p);
-  const match = res.matchResult;
-  
-  goToStep(4);
-  
-  if (userPath === 'existing') {
-    showComparisonResults(p, res);
-  } else {
-    showSimpleResults(p, res);
+    el.innerText = '$' + investAmount.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '/mo to investments';
   }
-  
-  // Update Risk Assessment link
-  const investTotal = Math.round(res.allocations.Invest + res.match401k);
-  document.getElementById('risk-link').href = `./risk-assessment.html?invest=${investTotal}`;
-}
-
-function showComparisonResults(p, res) {
-  document.getElementById('comparison-results').classList.remove('hidden');
-  document.getElementById('simple-results').classList.add('hidden');
-  
-  const match = res.matchResult;
-  const current401k = match.current401kMonthly || 0;
-  const recommended401k = current401k + match.needed;
-  
-  // Build comparison table
-  const tbody = document.getElementById('comparison-body');
-  tbody.innerHTML = '';
-  
-  const rows = [
-    { label: '401(k) Contribution', current: current401k, recommended: recommended401k, show: p.has401k },
-    { label: 'Employer Match', current: match.currentMatch || 0, recommended: match.matchGained, show: p.has401k },
-    { label: 'Other Investments', current: p.currentAutoInvest, recommended: res.allocations.Invest },
-    { label: 'Extra Debt Payment', current: p.currentExtraDebt, recommended: res.allocations.Debt, show: p.initialDebt > 0 },
-    { label: 'Savings', current: p.currentAutoSave, recommended: res.allocations.Save }
-  ];
-  
-  rows.forEach(r => {
-    if (r.show === false) return;
-    const delta = r.recommended - r.current;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${r.label}</td>
-      <td class="current">$${r.current.toFixed(0)}/mo</td>
-      <td class="recommended">$${r.recommended.toFixed(0)}/mo</td>
-      <td class="delta ${delta > 5 ? 'increase' : delta < -5 ? 'decrease' : 'none'}">
-        ${delta > 5 ? '↑' : delta < -5 ? '↓' : '—'} ${delta !== 0 ? '$' + Math.abs(delta).toFixed(0) : 'No change'}
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-  
-  // Generate insights
-  const insights = [];
-  if (p.has401k && match.needed > 0) {
-    insights.push({ type: 'warning', icon: '💰', text: `You're leaving $${match.matchGained.toFixed(0)}/mo in free employer match on the table. Increase your 401(k) contribution by $${match.needed.toFixed(0)}/mo to capture it.` });
-  } else if (p.has401k && match.isCapturingFull) {
-    insights.push({ type: 'success', icon: '✅', text: `Great job! You're capturing the full employer match.` });
-  }
-  
-  if (p.currentAutoSave > res.allocations.Save + 50) {
-    insights.push({ type: 'tip', icon: '📊', text: `Based on your risk tolerance, you may be over-saving. Consider shifting $${(p.currentAutoSave - res.allocations.Save).toFixed(0)}/mo to investments for better long-term growth.` });
-  }
-  
-  if (p.currentAutoInvest < res.allocations.Invest - 50 && p.RT > 0.4) {
-    insights.push({ type: 'tip', icon: '📈', text: `Your risk tolerance suggests you could invest more. Consider increasing investments by $${(res.allocations.Invest - p.currentAutoInvest).toFixed(0)}/mo.` });
-  }
-  
-  if (p.rDebt > p.rSave && p.currentExtraDebt < res.allocations.Debt - 25) {
-    insights.push({ type: 'tip', icon: '💳', text: `Your debt interest (${(p.rDebt * 100).toFixed(1)}%) exceeds your savings return (${(p.rSave * 100).toFixed(1)}%). Consider allocating more to debt payoff.` });
-  }
-  
-  const insightsContainer = document.getElementById('insights-container');
-  insightsContainer.innerHTML = insights.map(i => `
-    <div class="insight insight-${i.type}">
-      <span class="insight-icon">${i.icon}</span>
-      <span>${i.text}</span>
-    </div>
-  `).join('');
-  
-  // Projection comparison
-  const currentProj = projectNetWorth(p, true);
-  const optProj = projectNetWorth(p, false);
-  const diff = optProj.netWorth - currentProj.netWorth;
-  
-  document.getElementById('projection-current').innerText = '$' + currentProj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  document.getElementById('projection-optimized').innerText = '$' + optProj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  document.getElementById('projection-diff').innerText = (diff >= 0 ? '+$' : '-$') + Math.abs(diff).toLocaleString('en-US', { maximumFractionDigits: 0 });
-  document.getElementById('years-display-1').innerText = p.years;
-  document.getElementById('years-display-2').innerText = p.years;
-  
-  // Update Risk Assessment link and prompt
-  const investTotal = Math.round(res.allocations.Invest + res.match401k + (match.matchGained || 0));
-  document.getElementById('risk-link').href = `./risk-assessment.html?invest=${investTotal}`;
-  updateRiskPromptAmount(investTotal, 'comparison');
-  
-  // Pie chart - recommended allocation
-  const pieData = p.has401k 
-    ? [recommended401k + match.matchGained + res.allocations.Invest, res.allocations.Debt, res.allocations.Save]
-    : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
-  const pieLabels = p.has401k 
-    ? ['Invest (incl. 401k)', 'Debt', 'Save']
-    : ['Invest', 'Debt', 'Save'];
-  
-  Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie' }], { margin: { t: 0 } });
-  
-  // Summary
-  const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
-  const monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
-  document.getElementById('summary').innerHTML = `
-    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin / 12).toFixed(1)} yrs)</div>
-    <div class="small">📉 Debt payoff (optimized): ${monthsOpt} months (${(monthsOpt / 12).toFixed(1)} yrs)</div>
-  `;
-}
-
-function showSimpleResults(p, res) {
-  document.getElementById('comparison-results').classList.add('hidden');
-  document.getElementById('simple-results').classList.remove('hidden');
-  
-  const match = res.matchResult;
-  const proj = projectNetWorth(p, false);
-  
-  // Update Risk Assessment prompt with invest amount
-  const investTotal = Math.round(res.allocations.Invest + res.match401k + (match.matchGained || 0));
-  document.getElementById('risk-link').href = `./risk-assessment.html?invest=${investTotal}`;
-  updateRiskPromptAmount(investTotal, 'simple');
-  
-  let match401kHtml = '';
-  if (p.has401k && res.match401k > 0) {
-    match401kHtml = `
-      <div style="background:#d4edda;padding:12px;border-radius:8px;margin-bottom:16px;">
-        <strong>🎁 401(k) Match (Pre-Allocated)</strong><br>
-        Your contribution: $${res.match401k.toFixed(0)}/mo<br>
-        Employer match: +$${match.matchGained.toFixed(0)}/mo<br>
-        <span class="small">Total to 401(k): $${(res.match401k + match.matchGained).toFixed(0)}/mo</span>
-      </div>
-    `;
-  }
-  
-  document.getElementById('simple-results-content').innerHTML = `
-    <p><strong>Discretionary Income:</strong> $${res.discretionary.toFixed(0)}/mo</p>
-    ${match401kHtml}
-    <h3>Recommended Monthly Allocation</h3>
-    <p><strong>Invest:</strong> $${res.allocations.Invest.toFixed(0)}/mo</p>
-    <p><strong>Extra Debt Payment:</strong> $${res.allocations.Debt.toFixed(0)}/mo <span class="small">(beyond $${p.minDebtPayment} minimum)</span></p>
-    <p><strong>Save:</strong> $${res.allocations.Save.toFixed(0)}/mo</p>
-    <hr style="margin:20px 0;border:none;border-top:1px solid #eee;">
-    <h3>Projection After ${p.years} Years</h3>
-    <p><strong>Investments:</strong> $${proj.invest.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-    <p><strong>Savings:</strong> $${proj.save.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-    <p><strong>Debt Remaining:</strong> $${proj.debt.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-    <p style="font-size:18px;"><strong>Net Worth: $${proj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 })}</strong></p>
-  `;
-  
-  // Pie chart
-  const pieData = p.has401k 
-    ? [res.match401k + match.matchGained + res.allocations.Invest, res.allocations.Debt, res.allocations.Save]
-    : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
-  const pieLabels = p.has401k 
-    ? ['Invest (incl. 401k)', 'Debt', 'Save']
-    : ['Invest', 'Debt', 'Save'];
-  
-  Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie' }], { margin: { t: 0 } });
-  
-  // Summary
-  const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
-  const monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
-  document.getElementById('summary').innerHTML = `
-    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin / 12).toFixed(1)} yrs)</div>
-    <div class="small">📉 Debt payoff (with extra): ${monthsOpt} months (${(monthsOpt / 12).toFixed(1)} yrs)</div>
-  `;
-}
-
-/* Init */
-makeSliders();
-updateDebtRelatedSliders();
-
-window.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const risk = urlParams.get('risk');
-  const ret = urlParams.get('return');
-  
-  loadState();
-  
-  if (risk) {
-    const s = parseFloat(risk);
-    if (s >= 0 && s <= 1) lockRiskTolerance(s);
-  }
-  if (ret) {
-    const r = parseFloat(ret);
-    if (r >= 0 && r <= 0.2) lockInvestmentReturn(r);
-  }
-});
-</script>
-</body>
-</html>
- + investAmount.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '/mo to investments';
-  }
-  // Hide prompt if already completed risk assessment
   const prompt = document.getElementById('risk-prompt-' + type);
   if (prompt && (rtLocked || localStorage.getItem('riskPromptDismissed') === 'true')) {
     prompt.style.display = 'none';
@@ -1017,9 +765,8 @@ function runProjection() {
     showSimpleResults(p, res);
   }
   
-  // Update Risk Assessment link
   const investTotal = Math.round(res.allocations.Invest + res.match401k);
-  document.getElementById('risk-link').href = `./risk-assessment.html?invest=${investTotal}`;
+  document.getElementById('risk-link').href = './risk-assessment.html?invest=' + investTotal;
 }
 
 function showComparisonResults(p, res) {
@@ -1030,7 +777,6 @@ function showComparisonResults(p, res) {
   const current401k = match.current401kMonthly || 0;
   const recommended401k = current401k + match.needed;
   
-  // Build comparison table
   const tbody = document.getElementById('comparison-body');
   tbody.innerHTML = '';
   
@@ -1046,46 +792,32 @@ function showComparisonResults(p, res) {
     if (r.show === false) return;
     const delta = r.recommended - r.current;
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${r.label}</td>
-      <td class="current">$${r.current.toFixed(0)}/mo</td>
-      <td class="recommended">$${r.recommended.toFixed(0)}/mo</td>
-      <td class="delta ${delta > 5 ? 'increase' : delta < -5 ? 'decrease' : 'none'}">
-        ${delta > 5 ? '↑' : delta < -5 ? '↓' : '—'} ${delta !== 0 ? '$' + Math.abs(delta).toFixed(0) : 'No change'}
-      </td>
-    `;
+    tr.innerHTML = '<td>' + r.label + '</td><td class="current">$' + r.current.toFixed(0) + '/mo</td><td class="recommended">$' + r.recommended.toFixed(0) + '/mo</td><td class="delta ' + (delta > 5 ? 'increase' : delta < -5 ? 'decrease' : 'none') + '">' + (delta > 5 ? '↑' : delta < -5 ? '↓' : '—') + ' ' + (delta !== 0 ? '$' + Math.abs(delta).toFixed(0) : 'No change') + '</td>';
     tbody.appendChild(tr);
   });
   
-  // Generate insights
   const insights = [];
   if (p.has401k && match.needed > 0) {
-    insights.push({ type: 'warning', icon: '💰', text: `You're leaving $${match.matchGained.toFixed(0)}/mo in free employer match on the table. Increase your 401(k) contribution by $${match.needed.toFixed(0)}/mo to capture it.` });
+    insights.push({ type: 'warning', icon: '💰', text: 'You\'re leaving $' + match.matchGained.toFixed(0) + '/mo in free employer match on the table. Increase your 401(k) contribution by $' + match.needed.toFixed(0) + '/mo to capture it.' });
   } else if (p.has401k && match.isCapturingFull) {
-    insights.push({ type: 'success', icon: '✅', text: `Great job! You're capturing the full employer match.` });
+    insights.push({ type: 'success', icon: '✅', text: 'Great job! You\'re capturing the full employer match.' });
   }
   
   if (p.currentAutoSave > res.allocations.Save + 50) {
-    insights.push({ type: 'tip', icon: '📊', text: `Based on your risk tolerance, you may be over-saving. Consider shifting $${(p.currentAutoSave - res.allocations.Save).toFixed(0)}/mo to investments for better long-term growth.` });
+    insights.push({ type: 'tip', icon: '📊', text: 'Based on your risk tolerance, you may be over-saving. Consider shifting $' + (p.currentAutoSave - res.allocations.Save).toFixed(0) + '/mo to investments for better long-term growth.' });
   }
   
   if (p.currentAutoInvest < res.allocations.Invest - 50 && p.RT > 0.4) {
-    insights.push({ type: 'tip', icon: '📈', text: `Your risk tolerance suggests you could invest more. Consider increasing investments by $${(res.allocations.Invest - p.currentAutoInvest).toFixed(0)}/mo.` });
+    insights.push({ type: 'tip', icon: '📈', text: 'Your risk tolerance suggests you could invest more. Consider increasing investments by $' + (res.allocations.Invest - p.currentAutoInvest).toFixed(0) + '/mo.' });
   }
   
   if (p.rDebt > p.rSave && p.currentExtraDebt < res.allocations.Debt - 25) {
-    insights.push({ type: 'tip', icon: '💳', text: `Your debt interest (${(p.rDebt * 100).toFixed(1)}%) exceeds your savings return (${(p.rSave * 100).toFixed(1)}%). Consider allocating more to debt payoff.` });
+    insights.push({ type: 'tip', icon: '💳', text: 'Your debt interest (' + (p.rDebt * 100).toFixed(1) + '%) exceeds your savings return (' + (p.rSave * 100).toFixed(1) + '%). Consider allocating more to debt payoff.' });
   }
   
   const insightsContainer = document.getElementById('insights-container');
-  insightsContainer.innerHTML = insights.map(i => `
-    <div class="insight insight-${i.type}">
-      <span class="insight-icon">${i.icon}</span>
-      <span>${i.text}</span>
-    </div>
-  `).join('');
+  insightsContainer.innerHTML = insights.map(i => '<div class="insight insight-' + i.type + '"><span class="insight-icon">' + i.icon + '</span><span>' + i.text + '</span></div>').join('');
   
-  // Projection comparison
   const currentProj = projectNetWorth(p, true);
   const optProj = projectNetWorth(p, false);
   const diff = optProj.netWorth - currentProj.netWorth;
@@ -1096,7 +828,10 @@ function showComparisonResults(p, res) {
   document.getElementById('years-display-1').innerText = p.years;
   document.getElementById('years-display-2').innerText = p.years;
   
-  // Pie chart - recommended allocation
+  const investTotal = Math.round(res.allocations.Invest + res.match401k + (match.matchGained || 0));
+  document.getElementById('risk-link').href = './risk-assessment.html?invest=' + investTotal;
+  updateRiskPromptAmount(investTotal, 'comparison');
+  
   const pieData = p.has401k 
     ? [recommended401k + match.matchGained + res.allocations.Invest, res.allocations.Debt, res.allocations.Save]
     : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
@@ -1106,13 +841,9 @@ function showComparisonResults(p, res) {
   
   Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie' }], { margin: { t: 0 } });
   
-  // Summary
   const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
   const monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
-  document.getElementById('summary').innerHTML = `
-    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin / 12).toFixed(1)} yrs)</div>
-    <div class="small">📉 Debt payoff (optimized): ${monthsOpt} months (${(monthsOpt / 12).toFixed(1)} yrs)</div>
-  `;
+  document.getElementById('summary').innerHTML = '<div class="small">📉 Debt payoff (min only): ' + monthsMin + ' months (' + (monthsMin / 12).toFixed(1) + ' yrs)</div><div class="small">📉 Debt payoff (optimized): ' + monthsOpt + ' months (' + (monthsOpt / 12).toFixed(1) + ' yrs)</div>';
 }
 
 function showSimpleResults(p, res) {
@@ -1122,34 +853,17 @@ function showSimpleResults(p, res) {
   const match = res.matchResult;
   const proj = projectNetWorth(p, false);
   
+  const investTotal = Math.round(res.allocations.Invest + res.match401k + (match.matchGained || 0));
+  document.getElementById('risk-link').href = './risk-assessment.html?invest=' + investTotal;
+  updateRiskPromptAmount(investTotal, 'simple');
+  
   let match401kHtml = '';
   if (p.has401k && res.match401k > 0) {
-    match401kHtml = `
-      <div style="background:#d4edda;padding:12px;border-radius:8px;margin-bottom:16px;">
-        <strong>🎁 401(k) Match (Pre-Allocated)</strong><br>
-        Your contribution: $${res.match401k.toFixed(0)}/mo<br>
-        Employer match: +$${match.matchGained.toFixed(0)}/mo<br>
-        <span class="small">Total to 401(k): $${(res.match401k + match.matchGained).toFixed(0)}/mo</span>
-      </div>
-    `;
+    match401kHtml = '<div style="background:#d4edda;padding:12px;border-radius:8px;margin-bottom:16px;"><strong>🎁 401(k) Match (Pre-Allocated)</strong><br>Your contribution: $' + res.match401k.toFixed(0) + '/mo<br>Employer match: +$' + match.matchGained.toFixed(0) + '/mo<br><span class="small">Total to 401(k): $' + (res.match401k + match.matchGained).toFixed(0) + '/mo</span></div>';
   }
   
-  document.getElementById('simple-results-content').innerHTML = `
-    <p><strong>Discretionary Income:</strong> $${res.discretionary.toFixed(0)}/mo</p>
-    ${match401kHtml}
-    <h3>Recommended Monthly Allocation</h3>
-    <p><strong>Invest:</strong> $${res.allocations.Invest.toFixed(0)}/mo</p>
-    <p><strong>Extra Debt Payment:</strong> $${res.allocations.Debt.toFixed(0)}/mo <span class="small">(beyond $${p.minDebtPayment} minimum)</span></p>
-    <p><strong>Save:</strong> $${res.allocations.Save.toFixed(0)}/mo</p>
-    <hr style="margin:20px 0;border:none;border-top:1px solid #eee;">
-    <h3>Projection After ${p.years} Years</h3>
-    <p><strong>Investments:</strong> $${proj.invest.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-    <p><strong>Savings:</strong> $${proj.save.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-    <p><strong>Debt Remaining:</strong> $${proj.debt.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-    <p style="font-size:18px;"><strong>Net Worth: $${proj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 })}</strong></p>
-  `;
+  document.getElementById('simple-results-content').innerHTML = '<p><strong>Discretionary Income:</strong> $' + res.discretionary.toFixed(0) + '/mo</p>' + match401kHtml + '<h3>Recommended Monthly Allocation</h3><p><strong>Invest:</strong> $' + res.allocations.Invest.toFixed(0) + '/mo</p><p><strong>Extra Debt Payment:</strong> $' + res.allocations.Debt.toFixed(0) + '/mo <span class="small">(beyond $' + p.minDebtPayment + ' minimum)</span></p><p><strong>Save:</strong> $' + res.allocations.Save.toFixed(0) + '/mo</p><hr style="margin:20px 0;border:none;border-top:1px solid #eee;"><h3>Projection After ' + p.years + ' Years</h3><p><strong>Investments:</strong> $' + proj.invest.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p><strong>Savings:</strong> $' + proj.save.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p><strong>Debt Remaining:</strong> $' + proj.debt.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p style="font-size:18px;"><strong>Net Worth: $' + proj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</strong></p>';
   
-  // Pie chart
   const pieData = p.has401k 
     ? [res.match401k + match.matchGained + res.allocations.Invest, res.allocations.Debt, res.allocations.Save]
     : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
@@ -1159,13 +873,9 @@ function showSimpleResults(p, res) {
   
   Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie' }], { margin: { t: 0 } });
   
-  // Summary
   const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
   const monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
-  document.getElementById('summary').innerHTML = `
-    <div class="small">📉 Debt payoff (min only): ${monthsMin} months (${(monthsMin / 12).toFixed(1)} yrs)</div>
-    <div class="small">📉 Debt payoff (with extra): ${monthsOpt} months (${(monthsOpt / 12).toFixed(1)} yrs)</div>
-  `;
+  document.getElementById('summary').innerHTML = '<div class="small">📉 Debt payoff (min only): ' + monthsMin + ' months (' + (monthsMin / 12).toFixed(1) + ' yrs)</div><div class="small">📉 Debt payoff (with extra): ' + monthsOpt + ' months (' + (monthsOpt / 12).toFixed(1) + ' yrs)</div>';
 }
 
 /* Init */
