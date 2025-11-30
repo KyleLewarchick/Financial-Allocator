@@ -93,7 +93,6 @@
     .risk-assessment-prompt p{margin:0 0 12px 0;font-size:13px;color:#555;line-height:1.5}
     .risk-assessment-prompt .invest-amount{font-size:18px;font-weight:600;color:#111;margin-bottom:12px}
     .risk-assessment-prompt button{background:#1f6feb;margin:0}
-    .risk-assessment-prompt button:hover{background:#1a5dd1}
     .risk-assessment-prompt .skip-link{display:block;margin-top:10px;font-size:12px;color:#666;text-decoration:underline;cursor:pointer}
     .match-toggle{display:flex;align-items:center;gap:10px;margin-bottom:12px}
     .match-toggle input[type=checkbox]{width:18px;height:18px;cursor:pointer}
@@ -101,7 +100,7 @@
     .match-section{padding:16px;background:#f0fff4;border:1px solid #56d364;border-radius:8px;margin-bottom:8px}
     .match-section.collapsed{display:none}
     .emergency-fund-alert{background:#fff3cd;border:2px solid #ffc107;border-radius:12px;padding:20px;margin:16px 0}
-    .emergency-fund-alert h4{margin:0 0 12px 0;font-size:16px;color:#856404;display:flex;align-items:center;gap:8px}
+    .emergency-fund-alert h4{margin:0 0 12px 0;font-size:16px;color:#856404}
     .emergency-fund-alert p{margin:0 0 10px 0;font-size:14px;color:#664d03;line-height:1.6}
     .emergency-fund-alert .ef-stats{background:#fff;border-radius:8px;padding:12px;margin:12px 0}
     .emergency-fund-alert .ef-stats div{margin:4px 0;font-size:13px;color:#555}
@@ -146,21 +145,9 @@
         <h3>📊 What This Tool Does</h3>
         <p>This tool helps you figure out the optimal way to split your discretionary income between three key financial goals:</p>
         <div class="intro-goals">
-          <div class="intro-goal">
-            <span class="goal-icon">📈</span>
-            <span class="goal-label">Investing</span>
-            <span class="goal-desc">Build long-term wealth</span>
-          </div>
-          <div class="intro-goal">
-            <span class="goal-icon">💳</span>
-            <span class="goal-label">Debt Payoff</span>
-            <span class="goal-desc">Reduce what you owe</span>
-          </div>
-          <div class="intro-goal">
-            <span class="goal-icon">🏦</span>
-            <span class="goal-label">Savings</span>
-            <span class="goal-desc">Emergency fund & goals</span>
-          </div>
+          <div class="intro-goal"><span class="goal-icon">📈</span><span class="goal-label">Investing</span><span class="goal-desc">Build long-term wealth</span></div>
+          <div class="intro-goal"><span class="goal-icon">💳</span><span class="goal-label">Debt Payoff</span><span class="goal-desc">Reduce what you owe</span></div>
+          <div class="intro-goal"><span class="goal-icon">🏦</span><span class="goal-label">Savings</span><span class="goal-desc">Emergency fund & goals</span></div>
         </div>
       </div>
       
@@ -172,34 +159,10 @@
       <div class="intro-section">
         <h3>✅ Steps to Complete</h3>
         <div class="intro-steps">
-          <div class="intro-step">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <strong>Choose Your Path</strong>
-              <span>Tell us if you have existing contributions or are starting fresh</span>
-            </div>
-          </div>
-          <div class="intro-step">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <strong>Enter Your Numbers</strong>
-              <span>Income, expenses, debts, and current balances</span>
-            </div>
-          </div>
-          <div class="intro-step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <strong>Set Your Preferences</strong>
-              <span>Risk tolerance, debt aversion, and personal priorities</span>
-            </div>
-          </div>
-          <div class="intro-step">
-            <div class="step-number">4</div>
-            <div class="step-content">
-              <strong>Get Your Plan</strong>
-              <span>See exactly how much to allocate to each goal</span>
-            </div>
-          </div>
+          <div class="intro-step"><div class="step-number">1</div><div class="step-content"><strong>Choose Your Path</strong><span>Tell us if you have existing contributions or are starting fresh</span></div></div>
+          <div class="intro-step"><div class="step-number">2</div><div class="step-content"><strong>Enter Your Numbers</strong><span>Income, expenses, debts, and current balances</span></div></div>
+          <div class="intro-step"><div class="step-number">3</div><div class="step-content"><strong>Set Your Preferences</strong><span>Risk tolerance, debt aversion, and personal priorities</span></div></div>
+          <div class="intro-step"><div class="step-number">4</div><div class="step-content"><strong>Get Your Plan</strong><span>See exactly how much to allocate to each goal</span></div></div>
         </div>
       </div>
       
@@ -245,6 +208,7 @@
       <label for="has401k">I have access to a 401(k) or 403(b)</label>
     </div>
     <div id="match-section" class="match-section collapsed">
+      <p class="small" style="margin-top:0;margin-bottom:12px;">Note: 403(b) plans often don't include employer matching—set match to 0% if your employer doesn't match.</p>
       <div class="slider-row">
         <label>Annual Salary ($)</label>
         <div class="small" id="annualSalary_val">50000</div>
@@ -310,9 +274,7 @@
   </div>
 
   <div id="step-4" class="card hidden">
-    <div id="results-header">
-      <h2 style="margin-top:0;">Your Personalized Allocation</h2>
-    </div>
+    <h2 style="margin-top:0;">Your Personalized Allocation</h2>
     
     <div id="emergency-fund-notice" class="emergency-fund-alert hidden">
       <h4>🚨 Emergency Fund Priority Mode</h4>
@@ -331,17 +293,9 @@
     <div id="comparison-results" class="hidden">
       <div id="insights-container"></div>
       <table class="comparison-table">
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Your Current</th>
-            <th>Recommended</th>
-            <th>Change</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Category</th><th>Your Current</th><th>Recommended</th><th>Change</th></tr></thead>
         <tbody id="comparison-body"></tbody>
       </table>
-      
       <div class="risk-assessment-prompt" id="risk-prompt-comparison">
         <h4>📊 Not sure how to invest your money?</h4>
         <div class="invest-amount" id="invest-amount-comparison">$0/mo to investments</div>
@@ -349,25 +303,14 @@
         <button onclick="goToRiskAssessment()">Take Risk Assessment →</button>
         <span class="skip-link" onclick="dismissRiskPrompt('comparison')">I'll figure it out myself</span>
       </div>
-      
       <div class="projection-compare">
-        <div class="projection-box current">
-          <h4>Current Path</h4>
-          <div class="amount" id="projection-current">$0</div>
-          <div class="small">Net worth in <span id="years-display-1">10</span> years</div>
-        </div>
-        <div class="projection-box optimized">
-          <h4>Optimized Path</h4>
-          <div class="amount" id="projection-optimized">$0</div>
-          <div class="diff" id="projection-diff">+$0</div>
-          <div class="small">Net worth in <span id="years-display-2">10</span> years</div>
-        </div>
+        <div class="projection-box current"><h4>Current Path</h4><div class="amount" id="projection-current">$0</div><div class="small">Net worth in <span id="years-display-1">10</span> years</div></div>
+        <div class="projection-box optimized"><h4>Optimized Path</h4><div class="amount" id="projection-optimized">$0</div><div class="diff" id="projection-diff">+$0</div><div class="small">Net worth in <span id="years-display-2">10</span> years</div></div>
       </div>
     </div>
     
     <div id="simple-results" class="hidden">
       <div id="simple-results-content"></div>
-      
       <div class="risk-assessment-prompt" id="risk-prompt-simple">
         <h4>📊 Not sure how to invest your money?</h4>
         <div class="invest-amount" id="invest-amount-simple">$0/mo to investments</div>
@@ -390,28 +333,23 @@
 </div>
 
 <script>
-const ANNUAL_401K_LIMIT = 23500;
-const MONTHLY_401K_LIMIT = ANNUAL_401K_LIMIT / 12;
+var ANNUAL_401K_LIMIT = 23500;
+var MONTHLY_401K_LIMIT = ANNUAL_401K_LIMIT / 12;
+var userPath = null;
+var currentStep = 0;
+var rtLocked = false;
+var rInvestLocked = false;
 
-let userPath = null;
-let currentStep = 0;
-let rtLocked = false;
-let rInvestLocked = false;
-
-const defaults = {
+var defaults = {
   income: 4000, expenses: 2200, minDebtPayment: 300,
   has401k: false, annualSalary: 50000, employerMatchPercent: 50, matchCapPercent: 6, current401kPercent: 0,
-  prioritizeTaxAdvantaged: false,
-  currentAutoInvest: 0, currentAutoSave: 0, currentExtraDebt: 0,
-  rInvest: 0.08, rDebt: 0.06, rSave: 0.015,
-  RT: 0.5, DA: 0.5,
-  pInvest: 0.33, pDebt: 0.33, pSave: 0.33,
-  years: 10,
-  initialInvest: 0, initialSavings: 0, initialDebt: 50000,
-  taxBracket: 0.22
+  prioritizeTaxAdvantaged: false, currentAutoInvest: 0, currentAutoSave: 0, currentExtraDebt: 0,
+  rInvest: 0.08, rDebt: 0.06, rSave: 0.015, RT: 0.5, DA: 0.5,
+  pInvest: 0.33, pDebt: 0.33, pSave: 0.33, years: 10,
+  initialInvest: 0, initialSavings: 0, initialDebt: 50000
 };
 
-const sliderDefs = [
+var sliderDefs = [
   ["income", "Monthly Take-Home Pay", defaults.income, 1000, 15000, 100, "What lands in your bank after taxes and any current retirement contributions."],
   ["expenses", "Monthly Expenses", defaults.expenses, 500, 12000, 50, "Regular monthly expenses (rent, utilities, groceries, etc.)."],
   ["minDebtPayment", "Minimum Debt Payment", defaults.minDebtPayment, 0, 2000, 10, "The minimum you must pay on debts each month."],
@@ -426,25 +364,23 @@ const sliderDefs = [
   ["years", "Projection Years", defaults.years, 1, 50, 1, "How many years to project."],
   ["initialInvest", "Existing Investments", defaults.initialInvest, 0, 200000, 1000, "Current investment account balances."],
   ["initialSavings", "Existing Savings", defaults.initialSavings, 0, 200000, 1000, "Current savings account balances."],
-  ["initialDebt", "Total Debt", defaults.initialDebt, 0, 200000, 1000, "Total debt you currently have."],
-  ["taxBracket", "Marginal Tax Bracket", defaults.taxBracket, 0.10, 0.37, 0.01, "Your estimated marginal tax rate (22% is common)."]
+  ["initialDebt", "Total Debt", defaults.initialDebt, 0, 200000, 1000, "Total debt you currently have."]
 ];
 
-const sections = [
+var sections = [
   { title: "Take-Home Pay & Expenses", start: 0, end: 3 },
   { title: "Expected Rates", start: 3, end: 6 },
   { title: "Behavioral Preferences", start: 6, end: 8 },
   { title: "Personal Priorities (must sum to 1.0)", start: 8, end: 11 },
   { title: "Timeline", start: 11, end: 12 },
-  { title: "Existing Balances", start: 12, end: 15 },
-  { title: "Tax Information", start: 15, end: 16 }
+  { title: "Existing Balances", start: 12, end: 15 }
 ];
 
 function selectPath(path) {
   userPath = path;
-  document.querySelectorAll('.path-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.path-option').forEach(function(el) { el.classList.remove('selected'); });
   event.currentTarget.classList.add('selected');
-  setTimeout(() => {
+  setTimeout(function() {
     if (path === 'existing') goToStep(2);
     else goToStep(3);
   }, 200);
@@ -452,11 +388,11 @@ function selectPath(path) {
 
 function goToStep(step) {
   currentStep = step;
-  ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'].forEach((id, i) => {
+  ['step-0', 'step-1', 'step-2', 'step-3', 'step-4'].forEach(function(id, i) {
     document.getElementById(id).classList.toggle('hidden', i !== step);
   });
-  for (let i = 0; i <= 3; i++) {
-    const dot = document.getElementById('step-dot-' + i);
+  for (var i = 0; i <= 3; i++) {
+    var dot = document.getElementById('step-dot-' + i);
     if (!dot) continue;
     dot.classList.remove('active', 'completed');
     if (i < step) dot.classList.add('completed');
@@ -476,56 +412,54 @@ function resetAll() {
 }
 
 function updateSliderVal(id) {
-  const el = document.getElementById(id);
-  const valEl = document.getElementById(id + '_val');
-  if (el && valEl) {
-    if (id === 'taxBracket') valEl.innerText = (el.value * 100).toFixed(0) + '%';
-    else valEl.innerText = el.value;
-  }
+  var el = document.getElementById(id);
+  var valEl = document.getElementById(id + '_val');
+  if (el && valEl) valEl.innerText = el.value;
   saveState();
 }
 
 function toggle401kSection() {
-  const cb = document.getElementById('has401k');
-  const sec = document.getElementById('match-section');
+  var cb = document.getElementById('has401k');
+  var sec = document.getElementById('match-section');
   if (cb.checked) sec.classList.remove('collapsed');
   else sec.classList.add('collapsed');
   saveState();
 }
 
 function makeSliders() {
-  const container = document.getElementById('sliders');
-  sliderDefs.forEach(([id, label, val, min, max, step, expl], idx) => {
-    for (let i = 0; i < sections.length; i++) {
+  var container = document.getElementById('sliders');
+  sliderDefs.forEach(function(def, idx) {
+    var id = def[0], label = def[1], val = def[2], min = def[3], max = def[4], step = def[5], expl = def[6];
+    for (var i = 0; i < sections.length; i++) {
       if (idx === sections[i].start) {
-        const h = document.createElement('div');
+        var h = document.createElement('div');
         h.className = 'section-header';
         h.innerText = sections[i].title;
         container.appendChild(h);
         break;
       }
     }
-    const row = document.createElement('div');
+    var row = document.createElement('div');
     row.className = 'slider-row';
     row.id = id + '_row';
-    const lbl = document.createElement('label');
+    var lbl = document.createElement('label');
     lbl.innerText = label;
     row.appendChild(lbl);
     if (expl) {
-      const exp = document.createElement('div');
+      var exp = document.createElement('div');
       exp.className = 'slider-explanation';
       exp.innerText = expl;
       row.appendChild(exp);
     }
     if (id === 'RT') {
-      const ctrl = document.createElement('div');
+      var ctrl = document.createElement('div');
       ctrl.className = 'rt-controls';
-      const vs = document.createElement('div');
+      var vs = document.createElement('div');
       vs.className = 'small';
       vs.id = id + '_val';
       vs.innerText = val;
       ctrl.appendChild(vs);
-      const ub = document.createElement('button');
+      var ub = document.createElement('button');
       ub.className = 'unlock-btn';
       ub.id = 'rt-unlock-btn';
       ub.innerText = 'Unlock';
@@ -533,51 +467,50 @@ function makeSliders() {
       ub.onclick = unlockRiskTolerance;
       ctrl.appendChild(ub);
       row.appendChild(ctrl);
-      const st = document.createElement('div');
+      var st = document.createElement('div');
       st.className = 'small';
       st.id = 'rt-status';
       st.style.marginTop = '4px';
       row.appendChild(st);
     } else if (id === 'rInvest') {
-      const ctrl = document.createElement('div');
-      ctrl.className = 'rt-controls';
-      const vs = document.createElement('div');
-      vs.className = 'small';
-      vs.id = id + '_val';
-      vs.innerText = val;
-      ctrl.appendChild(vs);
-      const ub = document.createElement('button');
-      ub.className = 'unlock-btn';
-      ub.id = 'rinvest-unlock-btn';
-      ub.innerText = 'Unlock';
-      ub.style.display = 'none';
-      ub.onclick = unlockInvestmentReturn;
-      ctrl.appendChild(ub);
-      row.appendChild(ctrl);
-      const st = document.createElement('div');
-      st.className = 'small';
-      st.id = 'rinvest-status';
-      st.style.marginTop = '4px';
-      row.appendChild(st);
+      var ctrl2 = document.createElement('div');
+      ctrl2.className = 'rt-controls';
+      var vs2 = document.createElement('div');
+      vs2.className = 'small';
+      vs2.id = id + '_val';
+      vs2.innerText = val;
+      ctrl2.appendChild(vs2);
+      var ub2 = document.createElement('button');
+      ub2.className = 'unlock-btn';
+      ub2.id = 'rinvest-unlock-btn';
+      ub2.innerText = 'Unlock';
+      ub2.style.display = 'none';
+      ub2.onclick = unlockInvestmentReturn;
+      ctrl2.appendChild(ub2);
+      row.appendChild(ctrl2);
+      var st2 = document.createElement('div');
+      st2.className = 'small';
+      st2.id = 'rinvest-status';
+      st2.style.marginTop = '4px';
+      row.appendChild(st2);
     } else {
-      const vs = document.createElement('div');
-      vs.className = 'small';
-      vs.id = id + '_val';
-      vs.innerText = id === 'taxBracket' ? (val * 100).toFixed(0) + '%' : val;
-      row.appendChild(vs);
+      var vsn = document.createElement('div');
+      vsn.className = 'small';
+      vsn.id = id + '_val';
+      vsn.innerText = val;
+      row.appendChild(vsn);
     }
-    const inp = document.createElement('input');
+    var inp = document.createElement('input');
     inp.type = 'range';
     inp.id = id;
     inp.min = min;
     inp.max = max;
     inp.step = step;
     inp.value = val;
-    inp.oninput = () => {
-      if (id === 'taxBracket') document.getElementById(id + '_val').innerText = (inp.value * 100).toFixed(0) + '%';
-      else document.getElementById(id + '_val').innerText = inp.value;
-      if (id === 'initialDebt') updateDebtRelatedSliders();
-      if (['pInvest', 'pDebt', 'pSave'].includes(id)) updatePriorityConstraint(id);
+    inp.oninput = function() {
+      document.getElementById(this.id + '_val').innerText = this.value;
+      if (this.id === 'initialDebt') updateDebtRelatedSliders();
+      if (['pInvest', 'pDebt', 'pSave'].indexOf(this.id) >= 0) updatePriorityConstraint(this.id);
       saveState();
     };
     row.appendChild(inp);
@@ -586,10 +519,10 @@ function makeSliders() {
 }
 
 function lockRiskTolerance(score) {
-  const row = document.getElementById('RT_row');
-  const slider = document.getElementById('RT');
-  const status = document.getElementById('rt-status');
-  const btn = document.getElementById('rt-unlock-btn');
+  var row = document.getElementById('RT_row');
+  var slider = document.getElementById('RT');
+  var status = document.getElementById('rt-status');
+  var btn = document.getElementById('rt-unlock-btn');
   row.classList.add('locked');
   slider.value = score.toFixed(2);
   document.getElementById('RT_val').innerText = score.toFixed(2);
@@ -601,9 +534,9 @@ function lockRiskTolerance(score) {
 }
 
 function unlockRiskTolerance() {
-  const row = document.getElementById('RT_row');
-  const status = document.getElementById('rt-status');
-  const btn = document.getElementById('rt-unlock-btn');
+  var row = document.getElementById('RT_row');
+  var status = document.getElementById('rt-status');
+  var btn = document.getElementById('rt-unlock-btn');
   if (!row) return;
   row.classList.remove('locked');
   status.innerHTML = '';
@@ -613,10 +546,10 @@ function unlockRiskTolerance() {
 }
 
 function lockInvestmentReturn(ret) {
-  const row = document.getElementById('rInvest_row');
-  const slider = document.getElementById('rInvest');
-  const status = document.getElementById('rinvest-status');
-  const btn = document.getElementById('rinvest-unlock-btn');
+  var row = document.getElementById('rInvest_row');
+  var slider = document.getElementById('rInvest');
+  var status = document.getElementById('rinvest-status');
+  var btn = document.getElementById('rinvest-unlock-btn');
   row.classList.add('locked');
   slider.value = ret.toFixed(4);
   document.getElementById('rInvest_val').innerText = ret.toFixed(4);
@@ -628,9 +561,9 @@ function lockInvestmentReturn(ret) {
 }
 
 function unlockInvestmentReturn() {
-  const row = document.getElementById('rInvest_row');
-  const status = document.getElementById('rinvest-status');
-  const btn = document.getElementById('rinvest-unlock-btn');
+  var row = document.getElementById('rInvest_row');
+  var status = document.getElementById('rinvest-status');
+  var btn = document.getElementById('rinvest-unlock-btn');
   if (!row) return;
   row.classList.remove('locked');
   status.innerHTML = '';
@@ -640,25 +573,25 @@ function unlockInvestmentReturn() {
 }
 
 function updateDebtRelatedSliders() {
-  const dv = Number(document.getElementById('initialDebt').value);
-  const ids = ['minDebtPayment', 'rDebt', 'DA'];
+  var dv = Number(document.getElementById('initialDebt').value);
+  var ids = ['minDebtPayment', 'rDebt', 'DA'];
   if (dv <= 0) {
-    ids.forEach(id => {
-      const s = document.getElementById(id);
+    ids.forEach(function(id) {
+      var s = document.getElementById(id);
       if (s) {
         s.value = 0;
         document.getElementById(id + '_val').innerText = '0';
         s.closest('.slider-row').classList.add('disabled');
       }
     });
-    const pds = document.getElementById('pDebt');
-    const cpd = Number(pds.value);
+    var pds = document.getElementById('pDebt');
+    var cpd = Number(pds.value);
     if (cpd > 0) {
       pds.value = 0;
       document.getElementById('pDebt_val').innerText = '0.00';
-      const pi = Number(document.getElementById('pInvest').value);
-      const ps = Number(document.getElementById('pSave').value);
-      const b = cpd / 2;
+      var pi = Number(document.getElementById('pInvest').value);
+      var ps = Number(document.getElementById('pSave').value);
+      var b = cpd / 2;
       document.getElementById('pInvest').value = (pi + b).toFixed(2);
       document.getElementById('pInvest_val').innerText = (pi + b).toFixed(2);
       document.getElementById('pSave').value = (ps + b).toFixed(2);
@@ -666,8 +599,8 @@ function updateDebtRelatedSliders() {
     }
     pds.closest('.slider-row').classList.add('disabled');
   } else {
-    ids.forEach(id => {
-      const s = document.getElementById(id);
+    ids.forEach(function(id) {
+      var s = document.getElementById(id);
       if (s) s.closest('.slider-row').classList.remove('disabled');
     });
     document.getElementById('pDebt').closest('.slider-row').classList.remove('disabled');
@@ -675,21 +608,21 @@ function updateDebtRelatedSliders() {
 }
 
 function updatePriorityConstraint(changed) {
-  const ids = ['pInvest', 'pDebt', 'pSave'];
-  const cv = Number(document.getElementById(changed).value);
-  const rem = 1.0 - cv;
-  const others = ids.filter(id => id !== changed);
-  const o1 = Number(document.getElementById(others[0]).value);
-  const o2 = Number(document.getElementById(others[1]).value);
-  const os = o1 + o2;
+  var ids = ['pInvest', 'pDebt', 'pSave'];
+  var cv = Number(document.getElementById(changed).value);
+  var rem = 1.0 - cv;
+  var others = ids.filter(function(id) { return id !== changed; });
+  var o1 = Number(document.getElementById(others[0]).value);
+  var o2 = Number(document.getElementById(others[1]).value);
+  var os = o1 + o2;
   if (os > 0) {
-    const n1 = (o1 / os) * rem, n2 = (o2 / os) * rem;
+    var n1 = (o1 / os) * rem, n2 = (o2 / os) * rem;
     document.getElementById(others[0]).value = n1.toFixed(2);
     document.getElementById(others[1]).value = n2.toFixed(2);
     document.getElementById(others[0] + '_val').innerText = n1.toFixed(2);
     document.getElementById(others[1] + '_val').innerText = n2.toFixed(2);
   } else {
-    const eq = rem / 2;
+    var eq = rem / 2;
     document.getElementById(others[0]).value = eq.toFixed(2);
     document.getElementById(others[1]).value = eq.toFixed(2);
     document.getElementById(others[0] + '_val').innerText = eq.toFixed(2);
@@ -698,42 +631,36 @@ function updatePriorityConstraint(changed) {
 }
 
 function saveState() {
-  const state = { userPath, currentStep, rtLocked, rInvestLocked };
-  sliderDefs.forEach(([id]) => { state[id] = document.getElementById(id)?.value; });
-  state.has401k = document.getElementById('has401k')?.checked || false;
-  state.prioritizeTaxAdvantaged = document.getElementById('prioritizeTaxAdvantaged')?.checked || false;
-  state.annualSalary = document.getElementById('annualSalary')?.value;
-  state.current401kPercent = document.getElementById('current401kPercent')?.value;
-  state.employerMatchPercent = document.getElementById('employerMatchPercent')?.value;
-  state.matchCapPercent = document.getElementById('matchCapPercent')?.value;
-  state.currentAutoInvest = document.getElementById('currentAutoInvest')?.value;
-  state.currentAutoSave = document.getElementById('currentAutoSave')?.value;
-  state.currentExtraDebt = document.getElementById('currentExtraDebt')?.value;
+  var state = { userPath: userPath, currentStep: currentStep, rtLocked: rtLocked, rInvestLocked: rInvestLocked };
+  sliderDefs.forEach(function(def) { var id = def[0]; var el = document.getElementById(id); if (el) state[id] = el.value; });
+  var h401k = document.getElementById('has401k'); if (h401k) state.has401k = h401k.checked;
+  var pta = document.getElementById('prioritizeTaxAdvantaged'); if (pta) state.prioritizeTaxAdvantaged = pta.checked;
+  ['annualSalary', 'current401kPercent', 'employerMatchPercent', 'matchCapPercent', 'currentAutoInvest', 'currentAutoSave', 'currentExtraDebt'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) state[id] = el.value;
+  });
   localStorage.setItem('financialAllocatorState', JSON.stringify(state));
 }
 
 function loadState() {
-  const saved = localStorage.getItem('financialAllocatorState');
+  var saved = localStorage.getItem('financialAllocatorState');
   if (saved) {
     try {
-      const s = JSON.parse(saved);
+      var s = JSON.parse(saved);
       userPath = s.userPath;
       if (s.currentStep) currentStep = s.currentStep;
-      sliderDefs.forEach(([id]) => {
+      sliderDefs.forEach(function(def) {
+        var id = def[0];
         if (s[id] !== undefined && document.getElementById(id)) {
           document.getElementById(id).value = s[id];
-          if (id === 'taxBracket') document.getElementById(id + '_val').innerText = (s[id] * 100).toFixed(0) + '%';
-          else document.getElementById(id + '_val').innerText = s[id];
+          document.getElementById(id + '_val').innerText = s[id];
         }
       });
       if (s.has401k) {
         document.getElementById('has401k').checked = true;
         document.getElementById('match-section').classList.remove('collapsed');
       }
-      if (s.prioritizeTaxAdvantaged) {
-        document.getElementById('prioritizeTaxAdvantaged').checked = true;
-      }
-      ['annualSalary', 'current401kPercent', 'employerMatchPercent', 'matchCapPercent', 'currentAutoInvest', 'currentAutoSave', 'currentExtraDebt'].forEach(id => {
+      if (s.prioritizeTaxAdvantaged) document.getElementById('prioritizeTaxAdvantaged').checked = true;
+      ['annualSalary', 'current401kPercent', 'employerMatchPercent', 'matchCapPercent', 'currentAutoInvest', 'currentAutoSave', 'currentExtraDebt'].forEach(function(id) {
         if (s[id] && document.getElementById(id)) {
           document.getElementById(id).value = s[id];
           document.getElementById(id + '_val').innerText = s[id];
@@ -744,64 +671,78 @@ function loadState() {
       updateDebtRelatedSliders();
       if (userPath && currentStep > 1) goToStep(currentStep);
       else if (userPath && currentStep === 1) goToStep(1);
-      else if (currentStep === 0 || !userPath) goToStep(0);
+      else goToStep(0);
     } catch (e) { console.error('Error loading state:', e); }
   }
 }
 
+function estimateTaxBracket(p) {
+  var annualGross;
+  if (p.has401k && p.annualSalary > 0) annualGross = p.annualSalary;
+  else annualGross = (p.income * 12) / 0.75;
+  var standardDeduction = 15000;
+  var taxable = Math.max(0, annualGross - standardDeduction);
+  if (taxable <= 11925) return 0.10;
+  if (taxable <= 48475) return 0.12;
+  if (taxable <= 103350) return 0.22;
+  if (taxable <= 197300) return 0.24;
+  if (taxable <= 250525) return 0.32;
+  if (taxable <= 626350) return 0.35;
+  return 0.37;
+}
+
 function getParams() {
-  const p = {};
-  sliderDefs.forEach(([id]) => p[id] = Number(document.getElementById(id).value));
-  p.has401k = document.getElementById('has401k')?.checked || false;
-  p.prioritizeTaxAdvantaged = document.getElementById('prioritizeTaxAdvantaged')?.checked || false;
-  p.annualSalary = Number(document.getElementById('annualSalary')?.value || 50000);
-  p.current401kPercent = Number(document.getElementById('current401kPercent')?.value || 0);
-  p.employerMatchPercent = Number(document.getElementById('employerMatchPercent')?.value || 50);
-  p.matchCapPercent = Number(document.getElementById('matchCapPercent')?.value || 6);
-  p.currentAutoInvest = Number(document.getElementById('currentAutoInvest')?.value || 0);
-  p.currentAutoSave = Number(document.getElementById('currentAutoSave')?.value || 0);
-  p.currentExtraDebt = Number(document.getElementById('currentExtraDebt')?.value || 0);
+  var p = {};
+  sliderDefs.forEach(function(def) { p[def[0]] = Number(document.getElementById(def[0]).value); });
+  p.has401k = document.getElementById('has401k') ? document.getElementById('has401k').checked : false;
+  p.prioritizeTaxAdvantaged = document.getElementById('prioritizeTaxAdvantaged') ? document.getElementById('prioritizeTaxAdvantaged').checked : false;
+  p.annualSalary = Number(document.getElementById('annualSalary') ? document.getElementById('annualSalary').value : 50000);
+  p.current401kPercent = Number(document.getElementById('current401kPercent') ? document.getElementById('current401kPercent').value : 0);
+  p.employerMatchPercent = Number(document.getElementById('employerMatchPercent') ? document.getElementById('employerMatchPercent').value : 50);
+  p.matchCapPercent = Number(document.getElementById('matchCapPercent') ? document.getElementById('matchCapPercent').value : 6);
+  p.currentAutoInvest = Number(document.getElementById('currentAutoInvest') ? document.getElementById('currentAutoInvest').value : 0);
+  p.currentAutoSave = Number(document.getElementById('currentAutoSave') ? document.getElementById('currentAutoSave').value : 0);
+  p.currentExtraDebt = Number(document.getElementById('currentExtraDebt') ? document.getElementById('currentExtraDebt').value : 0);
   p.alpha = 0.5; p.beta = 0.5; p.delta = 0.5; p.gammaDebt = 0.02; p.gammaSave = 0.01; p.k = 15; p.goalStrength = 0.25;
+  p.taxBracket = estimateTaxBracket(p);
   return p;
 }
 
 function calculate401kMatch(p) {
   if (!p.has401k || p.annualSalary <= 0) return { needed: 0, current401kMonthly: 0, matchGained: 0, fullMatch: 0, isCapturingFull: true, roomToMax: 0 };
-  const monthlyMax = (p.annualSalary * p.matchCapPercent / 100) / 12;
-  const current = (p.annualSalary * p.current401kPercent / 100) / 12;
-  const needed = Math.max(0, monthlyMax - current);
-  const matchRate = p.employerMatchPercent / 100;
-  const fullMatch = monthlyMax * matchRate;
-  const currentMatch = Math.min(current, monthlyMax) * matchRate;
-  const roomToMax = Math.max(0, MONTHLY_401K_LIMIT - current);
-  return { needed, current401kMonthly: current, matchGained: fullMatch, currentMatch, isCapturingFull: needed === 0, fullContribution: monthlyMax, roomToMax };
+  var monthlyMax = (p.annualSalary * p.matchCapPercent / 100) / 12;
+  var current = (p.annualSalary * p.current401kPercent / 100) / 12;
+  var needed = Math.max(0, monthlyMax - current);
+  var matchRate = p.employerMatchPercent / 100;
+  var fullMatch = monthlyMax * matchRate;
+  var currentMatch = Math.min(current, monthlyMax) * matchRate;
+  var roomToMax = Math.max(0, MONTHLY_401K_LIMIT - current);
+  return { needed: needed, current401kMonthly: current, matchGained: fullMatch, currentMatch: currentMatch, isCapturingFull: needed === 0, fullContribution: monthlyMax, roomToMax: roomToMax };
 }
 
 function checkEmergencyFund(p) {
-  const threeMonthTarget = p.expenses * 3;
-  const needsEmergencyFund = p.initialSavings < threeMonthTarget;
-  const amountNeeded = threeMonthTarget - p.initialSavings;
-  return { needsEmergencyFund, threeMonthTarget, amountNeeded, currentSavings: p.initialSavings, monthlyExpenses: p.expenses };
+  var threeMonthTarget = p.expenses * 3;
+  var needsEmergencyFund = p.initialSavings < threeMonthTarget;
+  var amountNeeded = threeMonthTarget - p.initialSavings;
+  return { needsEmergencyFund: needsEmergencyFund, threeMonthTarget: threeMonthTarget, amountNeeded: amountNeeded, currentSavings: p.initialSavings, monthlyExpenses: p.expenses };
 }
 
 function behavioralAllocation(p) {
-  const match = calculate401kMatch(p);
-  const baseDisc = p.income - p.expenses - p.minDebtPayment;
-  const discAfterMatch = baseDisc - match.needed;
-  const efCheck = checkEmergencyFund(p);
+  var match = calculate401kMatch(p);
+  var baseDisc = p.income - p.expenses - p.minDebtPayment;
+  var discAfterMatch = baseDisc - match.needed;
+  var efCheck = checkEmergencyFund(p);
   
-  if (discAfterMatch <= 0) return { allocations: { Invest: 0, Debt: 0, Save: 0 }, retirement401k: 0, discretionary: baseDisc, match401k: Math.min(match.needed, Math.max(0, baseDisc)), matchResult: match, emergencyFundMode: false, efCheck, taxSavingsOpportunity: 0 };
+  if (discAfterMatch <= 0) return { allocations: { Invest: 0, Debt: 0, Save: 0 }, retirement401k: 0, discretionary: baseDisc, match401k: Math.min(match.needed, Math.max(0, baseDisc)), matchResult: match, emergencyFundMode: false, efCheck: efCheck, taxSavingsOpportunity: 0 };
   
-  if (efCheck.needsEmergencyFund) {
-    return { allocations: { Invest: 0, Debt: 0, Save: discAfterMatch }, retirement401k: 0, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: true, efCheck, taxSavingsOpportunity: 0 };
-  }
+  if (efCheck.needsEmergencyFund) return { allocations: { Invest: 0, Debt: 0, Save: discAfterMatch }, retirement401k: 0, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: true, efCheck: efCheck, taxSavingsOpportunity: 0 };
   
-  let disc = discAfterMatch;
-  let extra401k = 0;
-  let taxSavingsOpportunity = 0;
+  var disc = discAfterMatch;
+  var extra401k = 0;
+  var taxSavingsOpportunity = 0;
   
   if (p.has401k && p.prioritizeTaxAdvantaged && match.roomToMax > match.needed) {
-    const additionalRoom = match.roomToMax - match.needed;
+    var additionalRoom = match.roomToMax - match.needed;
     extra401k = Math.min(additionalRoom, disc);
     disc -= extra401k;
   }
@@ -810,46 +751,46 @@ function behavioralAllocation(p) {
     taxSavingsOpportunity = Math.min(match.roomToMax - match.needed, discAfterMatch) * p.taxBracket * 12;
   }
   
-  if (disc <= 0) {
-    return { allocations: { Invest: 0, Debt: 0, Save: 0 }, retirement401k: extra401k, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: false, efCheck, taxSavingsOpportunity };
-  }
+  if (disc <= 0) return { allocations: { Invest: 0, Debt: 0, Save: 0 }, retirement401k: extra401k, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: false, efCheck: efCheck, taxSavingsOpportunity: taxSavingsOpportunity };
+  
+  var rI, rD, rS, rates, exp, sum, base, P, blend, sumB, final;
   
   if (p.initialDebt <= 0) {
-    const rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
-    const rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
-    const rates = [rI, rS];
-    const exp = rates.map(r => Math.exp(p.k * r));
-    const sum = exp.reduce((a, b) => a + b, 0);
-    const base = exp.map(v => v / sum);
-    const pInvestAdj = p.pInvest + p.pDebt * (p.pInvest / (p.pInvest + p.pSave + 0.001));
-    const pSaveAdj = p.pSave + p.pDebt * (p.pSave / (p.pInvest + p.pSave + 0.001));
-    const P = [pInvestAdj, pSaveAdj];
-    const blend = base.map((b, i) => b * (1 - p.goalStrength) + P[i] * p.goalStrength);
-    const sumB = blend.reduce((a, b) => a + b, 0);
-    const final = blend.map(x => x / sumB);
-    return { allocations: { Invest: final[0] * disc, Debt: 0, Save: final[1] * disc }, retirement401k: extra401k, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: false, efCheck, taxSavingsOpportunity };
+    rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
+    rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
+    rates = [rI, rS];
+    exp = rates.map(function(r) { return Math.exp(p.k * r); });
+    sum = exp.reduce(function(a, b) { return a + b; }, 0);
+    base = exp.map(function(v) { return v / sum; });
+    var pInvestAdj = p.pInvest + p.pDebt * (p.pInvest / (p.pInvest + p.pSave + 0.001));
+    var pSaveAdj = p.pSave + p.pDebt * (p.pSave / (p.pInvest + p.pSave + 0.001));
+    P = [pInvestAdj, pSaveAdj];
+    blend = base.map(function(b, i) { return b * (1 - p.goalStrength) + P[i] * p.goalStrength; });
+    sumB = blend.reduce(function(a, b) { return a + b; }, 0);
+    final = blend.map(function(x) { return x / sumB; });
+    return { allocations: { Invest: final[0] * disc, Debt: 0, Save: final[1] * disc }, retirement401k: extra401k, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: false, efCheck: efCheck, taxSavingsOpportunity: taxSavingsOpportunity };
   }
   
-  const rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
-  const rD = p.rDebt * (1 + p.beta * (2 * p.DA - 1)) + p.gammaDebt * p.DA;
-  const rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
-  const rates = [rI, rD, rS];
-  const exp = rates.map(r => Math.exp(p.k * r));
-  const sum = exp.reduce((a, b) => a + b, 0);
-  const base = exp.map(v => v / sum);
-  const P = [p.pInvest, p.pDebt, p.pSave];
-  const blend = base.map((b, i) => b * (1 - p.goalStrength) + P[i] * p.goalStrength);
-  const sumB = blend.reduce((a, b) => a + b, 0);
-  const final = blend.map(x => x / sumB);
+  rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
+  rD = p.rDebt * (1 + p.beta * (2 * p.DA - 1)) + p.gammaDebt * p.DA;
+  rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
+  rates = [rI, rD, rS];
+  exp = rates.map(function(r) { return Math.exp(p.k * r); });
+  sum = exp.reduce(function(a, b) { return a + b; }, 0);
+  base = exp.map(function(v) { return v / sum; });
+  P = [p.pInvest, p.pDebt, p.pSave];
+  blend = base.map(function(b, i) { return b * (1 - p.goalStrength) + P[i] * p.goalStrength; });
+  sumB = blend.reduce(function(a, b) { return a + b; }, 0);
+  final = blend.map(function(x) { return x / sumB; });
   
-  return { allocations: { Invest: final[0] * disc, Debt: final[1] * disc, Save: final[2] * disc }, retirement401k: extra401k, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: false, efCheck, taxSavingsOpportunity };
+  return { allocations: { Invest: final[0] * disc, Debt: final[1] * disc, Save: final[2] * disc }, retirement401k: extra401k, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: false, efCheck: efCheck, taxSavingsOpportunity: taxSavingsOpportunity };
 }
 
-function projectNetWorth(p, useCurrentAlloc = false) {
-  let investAlloc, debtAlloc, saveAlloc, match401kContrib, matchGained, extra401k;
+function projectNetWorth(p, useCurrentAlloc) {
+  var investAlloc, debtAlloc, saveAlloc, match401kContrib, matchGained, extra401k;
   
   if (useCurrentAlloc) {
-    const match = calculate401kMatch(p);
+    var match = calculate401kMatch(p);
     match401kContrib = match.current401kMonthly;
     matchGained = match.currentMatch;
     investAlloc = p.currentAutoInvest;
@@ -857,7 +798,7 @@ function projectNetWorth(p, useCurrentAlloc = false) {
     saveAlloc = p.currentAutoSave;
     extra401k = 0;
   } else {
-    const res = behavioralAllocation(p);
+    var res = behavioralAllocation(p);
     match401kContrib = res.match401k + (res.matchResult.current401kMonthly || 0);
     matchGained = res.matchResult.matchGained;
     investAlloc = res.allocations.Invest;
@@ -866,40 +807,40 @@ function projectNetWorth(p, useCurrentAlloc = false) {
     extra401k = res.retirement401k || 0;
   }
   
-  let invest = p.initialInvest, save = p.initialSavings, debt = p.initialDebt;
-  const months = p.years * 12;
+  var invest = p.initialInvest, save = p.initialSavings, debt = p.initialDebt;
+  var months = p.years * 12;
   
-  for (let m = 0; m < months; m++) {
-    const total401k = match401kContrib + matchGained + extra401k;
+  for (var m = 0; m < months; m++) {
+    var total401k = match401kContrib + matchGained + extra401k;
     invest = invest * (1 + p.rInvest / 12) + investAlloc + total401k;
     save = save * (1 + p.rSave / 12) + saveAlloc;
     debt = Math.max(0, debt * (1 + p.rDebt / 12) - p.minDebtPayment - debtAlloc);
     if (debt <= 0 && debtAlloc > 0) {
-      const ratio = investAlloc / (investAlloc + saveAlloc + 0.01);
+      var ratio = investAlloc / (investAlloc + saveAlloc + 0.01);
       investAlloc += debtAlloc * ratio;
       saveAlloc += debtAlloc * (1 - ratio);
       debtAlloc = 0;
     }
   }
-  return { invest, save, debt, netWorth: invest + save - debt };
+  return { invest: invest, save: save, debt: debt, netWorth: invest + save - debt };
 }
 
 function monthsToDebtFree(bal, apr, pmt) {
-  let m = 0;
+  var m = 0;
   while (bal > 0 && pmt > 0 && m < 1000) { bal = bal * (1 + apr / 12) - pmt; m++; }
   return m;
 }
 
 function goToRiskAssessment() {
-  const p = getParams();
-  const res = behavioralAllocation(p);
-  const match = res.matchResult;
-  const investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  var p = getParams();
+  var res = behavioralAllocation(p);
+  var match = res.matchResult;
+  var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
   window.location.href = './risk-assessment.html?invest=' + investTotal;
 }
 
 function dismissRiskPrompt(type) {
-  const prompt = document.getElementById('risk-prompt-' + type);
+  var prompt = document.getElementById('risk-prompt-' + type);
   if (prompt) {
     prompt.style.display = 'none';
     localStorage.setItem('riskPromptDismissed', 'true');
@@ -907,22 +848,22 @@ function dismissRiskPrompt(type) {
 }
 
 function updateRiskPromptAmount(investAmount, type) {
-  const el = document.getElementById('invest-amount-' + type);
+  var el = document.getElementById('invest-amount-' + type);
   if (el) el.innerText = '$' + investAmount.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '/mo to investments';
-  const prompt = document.getElementById('risk-prompt-' + type);
+  var prompt = document.getElementById('risk-prompt-' + type);
   if (prompt && (rtLocked || localStorage.getItem('riskPromptDismissed') === 'true')) prompt.style.display = 'none';
 }
 
 function showEmergencyFundNotice(res, disc) {
-  const notice = document.getElementById('emergency-fund-notice');
-  const ef = res.efCheck;
+  var notice = document.getElementById('emergency-fund-notice');
+  var ef = res.efCheck;
   if (res.emergencyFundMode) {
     notice.classList.remove('hidden');
     document.getElementById('ef-current').innerText = '$' + ef.currentSavings.toLocaleString('en-US', { maximumFractionDigits: 0 });
     document.getElementById('ef-expenses').innerText = '$' + ef.monthlyExpenses.toLocaleString('en-US', { maximumFractionDigits: 0 });
     document.getElementById('ef-target').innerText = '$' + ef.threeMonthTarget.toLocaleString('en-US', { maximumFractionDigits: 0 });
     document.getElementById('ef-needed').innerText = '$' + ef.amountNeeded.toLocaleString('en-US', { maximumFractionDigits: 0 });
-    const monthsToGoal = disc > 0 ? Math.ceil(ef.amountNeeded / disc) : 0;
+    var monthsToGoal = disc > 0 ? Math.ceil(ef.amountNeeded / disc) : 0;
     document.getElementById('ef-months').innerText = monthsToGoal + ' months';
   } else {
     notice.classList.add('hidden');
@@ -930,42 +871,43 @@ function showEmergencyFundNotice(res, disc) {
 }
 
 function runProjection() {
-  const p = getParams();
-  const res = behavioralAllocation(p);
+  var p = getParams();
+  var res = behavioralAllocation(p);
   goToStep(4);
   showEmergencyFundNotice(res, res.discretionary - res.match401k);
   if (userPath === 'existing') showComparisonResults(p, res);
   else showSimpleResults(p, res);
-  const investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0));
-  document.getElementById('risk-link').href = './risk-assessment.html?invest=' + investTotal;
 }
 
 function showComparisonResults(p, res) {
   document.getElementById('comparison-results').classList.remove('hidden');
   document.getElementById('simple-results').classList.add('hidden');
-  const match = res.matchResult;
-  const current401k = match.current401kMonthly || 0;
-  const recommended401k = current401k + match.needed + (res.retirement401k || 0);
-  const tbody = document.getElementById('comparison-body');
+  var match = res.matchResult;
+  var current401k = match.current401kMonthly || 0;
+  var recommended401k = current401k + match.needed + (res.retirement401k || 0);
+  var tbody = document.getElementById('comparison-body');
   tbody.innerHTML = '';
   
-  const rows = [
+  var rows = [
     { label: 'Retirement (401k/403b)', current: current401k, recommended: recommended401k, show: p.has401k },
     { label: 'Employer Match', current: match.currentMatch || 0, recommended: match.matchGained, show: p.has401k },
-    { label: 'Other Investments', current: p.currentAutoInvest, recommended: res.allocations.Invest },
+    { label: 'Other Investments', current: p.currentAutoInvest, recommended: res.allocations.Invest, show: true },
     { label: 'Extra Debt Payment', current: p.currentExtraDebt, recommended: res.allocations.Debt, show: p.initialDebt > 0 },
-    { label: 'Savings', current: p.currentAutoSave, recommended: res.allocations.Save }
+    { label: 'Savings', current: p.currentAutoSave, recommended: res.allocations.Save, show: true }
   ];
   
-  rows.forEach(r => {
+  rows.forEach(function(r) {
     if (r.show === false) return;
-    const delta = r.recommended - r.current;
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + r.label + '</td><td class="current">$' + r.current.toFixed(0) + '/mo</td><td class="recommended">$' + r.recommended.toFixed(0) + '/mo</td><td class="delta ' + (delta > 5 ? 'increase' : delta < -5 ? 'decrease' : 'none') + '">' + (delta > 5 ? '↑' : delta < -5 ? '↓' : '—') + ' ' + (delta !== 0 ? '$' + Math.abs(delta).toFixed(0) : 'No change') + '</td>';
+    var delta = r.recommended - r.current;
+    var tr = document.createElement('tr');
+    var cls = delta > 5 ? 'increase' : (delta < -5 ? 'decrease' : 'none');
+    var arrow = delta > 5 ? '↑' : (delta < -5 ? '↓' : '—');
+    var changeText = delta !== 0 ? '$' + Math.abs(delta).toFixed(0) : 'No change';
+    tr.innerHTML = '<td>' + r.label + '</td><td class="current">$' + r.current.toFixed(0) + '/mo</td><td class="recommended">$' + r.recommended.toFixed(0) + '/mo</td><td class="delta ' + cls + '">' + arrow + ' ' + changeText + '</td>';
     tbody.appendChild(tr);
   });
   
-  const insights = [];
+  var insights = [];
   if (res.emergencyFundMode) {
     insights.push({ type: 'warning', icon: '🚨', text: 'Emergency fund priority active. All discretionary income directed to savings until you reach 3 months of expenses ($' + res.efCheck.threeMonthTarget.toFixed(0) + ').' });
   }
@@ -975,11 +917,11 @@ function showComparisonResults(p, res) {
     insights.push({ type: 'success', icon: '✅', text: 'Great job! You\'re capturing the full employer match.' });
   }
   if (res.taxSavingsOpportunity > 0 && !res.emergencyFundMode) {
-    insights.push({ type: 'tip', icon: '💵', text: 'Tax savings opportunity: You could save ~$' + res.taxSavingsOpportunity.toFixed(0) + '/year by maxing your 401k/403b before investing in taxable accounts. Enable "Prioritize tax-advantaged retirement accounts" in settings.' });
+    insights.push({ type: 'tip', icon: '💵', text: 'Tax savings opportunity: Based on your ~' + (p.taxBracket * 100).toFixed(0) + '% tax bracket, you could save ~$' + res.taxSavingsOpportunity.toFixed(0) + '/year by maxing your 401k/403b before taxable accounts. Enable "Prioritize tax-advantaged retirement accounts" in settings.' });
   }
   if (p.has401k && p.prioritizeTaxAdvantaged && res.retirement401k > 0) {
-    const annualTaxSaved = res.retirement401k * 12 * p.taxBracket;
-    insights.push({ type: 'success', icon: '💵', text: 'Tax-advantaged priority active. Saving ~$' + annualTaxSaved.toFixed(0) + '/year in taxes by maxing retirement accounts first.' });
+    var annualTaxSaved = res.retirement401k * 12 * p.taxBracket;
+    insights.push({ type: 'success', icon: '💵', text: 'Tax-advantaged priority active. Estimated ~$' + annualTaxSaved.toFixed(0) + '/year in tax savings (based on ' + (p.taxBracket * 100).toFixed(0) + '% bracket).' });
   }
   if (!res.emergencyFundMode && p.currentAutoSave > res.allocations.Save + 50) {
     insights.push({ type: 'tip', icon: '📊', text: 'Based on your risk tolerance, you may be over-saving. Consider shifting $' + (p.currentAutoSave - res.allocations.Save).toFixed(0) + '/mo to investments.' });
@@ -988,11 +930,11 @@ function showComparisonResults(p, res) {
     insights.push({ type: 'tip', icon: '💳', text: 'Your debt interest (' + (p.rDebt * 100).toFixed(1) + '%) exceeds your savings return (' + (p.rSave * 100).toFixed(1) + '%). Consider allocating more to debt payoff.' });
   }
   
-  document.getElementById('insights-container').innerHTML = insights.map(i => '<div class="insight insight-' + i.type + '"><span class="insight-icon">' + i.icon + '</span><span>' + i.text + '</span></div>').join('');
+  document.getElementById('insights-container').innerHTML = insights.map(function(i) { return '<div class="insight insight-' + i.type + '"><span class="insight-icon">' + i.icon + '</span><span>' + i.text + '</span></div>'; }).join('');
   
-  const currentProj = projectNetWorth(p, true);
-  const optProj = projectNetWorth(p, false);
-  const diff = optProj.netWorth - currentProj.netWorth;
+  var currentProj = projectNetWorth(p, true);
+  var optProj = projectNetWorth(p, false);
+  var diff = optProj.netWorth - currentProj.netWorth;
   
   document.getElementById('projection-current').innerText = '$' + currentProj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 });
   document.getElementById('projection-optimized').innerText = '$' + optProj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -1000,61 +942,61 @@ function showComparisonResults(p, res) {
   document.getElementById('years-display-1').innerText = p.years;
   document.getElementById('years-display-2').innerText = p.years;
   
-  const investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
   document.getElementById('risk-link').href = './risk-assessment.html?invest=' + investTotal;
   updateRiskPromptAmount(investTotal, 'comparison');
   if (res.emergencyFundMode) document.getElementById('risk-prompt-comparison').style.display = 'none';
   
-  const retirementTotal = recommended401k + match.matchGained;
-  const pieData = p.has401k ? [retirementTotal, res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
-  const pieLabels = p.has401k ? ['Retirement (401k/403b)', 'Other Investments', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
-  const pieColors = p.has401k ? ['#2563eb', '#60a5fa', '#f59e0b', '#10b981'] : ['#2563eb', '#f59e0b', '#10b981'];
+  var retirementTotal = recommended401k + match.matchGained;
+  var pieData = p.has401k ? [retirementTotal, res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
+  var pieLabels = p.has401k ? ['Retirement (401k/403b)', 'Other Investments', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
+  var pieColors = p.has401k ? ['#2563eb', '#60a5fa', '#f59e0b', '#10b981'] : ['#2563eb', '#f59e0b', '#10b981'];
   Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie', marker: { colors: pieColors } }], { margin: { t: 0 } });
   
-  const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
-  const monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
+  var monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
+  var monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
   document.getElementById('summary').innerHTML = '<div class="small">📉 Debt payoff (min only): ' + monthsMin + ' months (' + (monthsMin / 12).toFixed(1) + ' yrs)</div><div class="small">📉 Debt payoff (optimized): ' + monthsOpt + ' months (' + (monthsOpt / 12).toFixed(1) + ' yrs)</div>';
 }
 
 function showSimpleResults(p, res) {
   document.getElementById('comparison-results').classList.add('hidden');
   document.getElementById('simple-results').classList.remove('hidden');
-  const match = res.matchResult;
-  const proj = projectNetWorth(p, false);
-  const investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  var match = res.matchResult;
+  var proj = projectNetWorth(p, false);
+  var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
   document.getElementById('risk-link').href = './risk-assessment.html?invest=' + investTotal;
   updateRiskPromptAmount(investTotal, 'simple');
   if (res.emergencyFundMode) document.getElementById('risk-prompt-simple').style.display = 'none';
   
-  let retirementHtml = '';
-  const totalRetirement = res.match401k + (res.retirement401k || 0);
+  var retirementHtml = '';
+  var totalRetirement = res.match401k + (res.retirement401k || 0);
   if (p.has401k && totalRetirement > 0) {
-    let breakdown = 'To capture match: $' + res.match401k.toFixed(0) + '/mo';
+    var breakdown = 'To capture match: $' + res.match401k.toFixed(0) + '/mo';
     if (res.retirement401k > 0) breakdown += '<br>Additional tax-advantaged: $' + res.retirement401k.toFixed(0) + '/mo';
     breakdown += '<br>Employer match: +$' + match.matchGained.toFixed(0) + '/mo';
     retirementHtml = '<div style="background:#dbeafe;padding:12px;border-radius:8px;margin-bottom:16px;"><strong>🏦 Retirement (401k/403b)</strong><br>' + breakdown + '<br><span class="small">Total to retirement: $' + (totalRetirement + match.matchGained).toFixed(0) + '/mo</span></div>';
   }
   
-  let efModeHtml = '';
+  var efModeHtml = '';
   if (res.emergencyFundMode) {
     efModeHtml = '<div style="background:#fff3cd;padding:12px;border-radius:8px;margin-bottom:16px;"><strong>🚨 Emergency Fund Priority</strong><br>100% of discretionary income going to savings until you reach $' + res.efCheck.threeMonthTarget.toFixed(0) + '</div>';
   }
   
-  let taxTipHtml = '';
+  var taxTipHtml = '';
   if (res.taxSavingsOpportunity > 0 && !res.emergencyFundMode) {
-    taxTipHtml = '<div style="background:#e6f7ff;padding:12px;border-radius:8px;margin-bottom:16px;border-left:4px solid #1f6feb;"><strong>💡 Tax Tip</strong><br>You could save ~$' + res.taxSavingsOpportunity.toFixed(0) + '/year by enabling "Prioritize tax-advantaged retirement accounts".</div>';
+    taxTipHtml = '<div style="background:#e6f7ff;padding:12px;border-radius:8px;margin-bottom:16px;border-left:4px solid #1f6feb;"><strong>💡 Tax Tip</strong><br>Based on your estimated ' + (p.taxBracket * 100).toFixed(0) + '% tax bracket, you could save ~$' + res.taxSavingsOpportunity.toFixed(0) + '/year by enabling "Prioritize tax-advantaged retirement accounts".</div>';
   }
   
   document.getElementById('simple-results-content').innerHTML = '<p><strong>Discretionary Income:</strong> $' + res.discretionary.toFixed(0) + '/mo</p>' + retirementHtml + efModeHtml + taxTipHtml + '<h3>Recommended Monthly Allocation</h3><p><strong>Other Investments:</strong> $' + res.allocations.Invest.toFixed(0) + '/mo</p><p><strong>Extra Debt Payment:</strong> $' + res.allocations.Debt.toFixed(0) + '/mo <span class="small">(beyond $' + p.minDebtPayment + ' minimum)</span></p><p><strong>Save:</strong> $' + res.allocations.Save.toFixed(0) + '/mo</p><hr style="margin:20px 0;border:none;border-top:1px solid #eee;"><h3>Projection After ' + p.years + ' Years</h3><p><strong>Investments:</strong> $' + proj.invest.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p><strong>Savings:</strong> $' + proj.save.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p><strong>Debt Remaining:</strong> $' + proj.debt.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p style="font-size:18px;"><strong>Net Worth: $' + proj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</strong></p>';
   
-  const retirementTotal = totalRetirement + match.matchGained;
-  const pieData = p.has401k ? [retirementTotal, res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
-  const pieLabels = p.has401k ? ['Retirement (401k/403b)', 'Other Investments', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
-  const pieColors = p.has401k ? ['#2563eb', '#60a5fa', '#f59e0b', '#10b981'] : ['#2563eb', '#f59e0b', '#10b981'];
+  var retirementTotal = totalRetirement + match.matchGained;
+  var pieData = p.has401k ? [retirementTotal, res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
+  var pieLabels = p.has401k ? ['Retirement (401k/403b)', 'Other Investments', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
+  var pieColors = p.has401k ? ['#2563eb', '#60a5fa', '#f59e0b', '#10b981'] : ['#2563eb', '#f59e0b', '#10b981'];
   Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie', marker: { colors: pieColors } }], { margin: { t: 0 } });
   
-  const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
-  const monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
+  var monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
+  var monthsOpt = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment + res.allocations.Debt);
   document.getElementById('summary').innerHTML = '<div class="small">📉 Debt payoff (min only): ' + monthsMin + ' months (' + (monthsMin / 12).toFixed(1) + ' yrs)</div><div class="small">📉 Debt payoff (with extra): ' + monthsOpt + ' months (' + (monthsOpt / 12).toFixed(1) + ' yrs)</div>';
 }
 
@@ -1062,16 +1004,16 @@ makeSliders();
 updateDebtRelatedSliders();
 
 window.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const risk = urlParams.get('risk');
-  const ret = urlParams.get('return');
+  var urlParams = new URLSearchParams(window.location.search);
+  var risk = urlParams.get('risk');
+  var ret = urlParams.get('return');
   loadState();
   if (risk) {
-    const s = parseFloat(risk);
+    var s = parseFloat(risk);
     if (s >= 0 && s <= 1) lockRiskTolerance(s);
   }
   if (ret) {
-    const r = parseFloat(ret);
+    var r = parseFloat(ret);
     if (r >= 0 && r <= 0.2) lockInvestmentReturn(r);
   }
 });
