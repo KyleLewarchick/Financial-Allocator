@@ -659,6 +659,29 @@ function behavioralAllocation(p) {
   const disc = baseDisc - match.needed;
   if (disc <= 0) return { allocations: { Invest: 0, Debt: 0, Save: 0 }, discretionary: baseDisc, match401k: Math.min(match.needed, Math.max(0, baseDisc)), matchResult: match };
   
+  // If no debt, only allocate between Invest and Save
+  if (p.initialDebt <= 0) {
+    const rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
+    const rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
+    const rates = [rI, rS];
+    const exp = rates.map(r => Math.exp(p.k * r));
+    const sum = exp.reduce((a, b) => a + b, 0);
+    const base = exp.map(v => v / sum);
+    // Redistribute debt priority to invest/save proportionally
+    const pInvestAdj = p.pInvest + p.pDebt * (p.pInvest / (p.pInvest + p.pSave + 0.001));
+    const pSaveAdj = p.pSave + p.pDebt * (p.pSave / (p.pInvest + p.pSave + 0.001));
+    const P = [pInvestAdj, pSaveAdj];
+    const blend = base.map((b, i) => b * (1 - p.goalStrength) + P[i] * p.goalStrength);
+    const sumB = blend.reduce((a, b) => a + b, 0);
+    const final = blend.map(x => x / sumB);
+    return {
+      allocations: { Invest: final[0] * disc, Debt: 0, Save: final[1] * disc },
+      discretionary: baseDisc,
+      match401k: match.needed,
+      matchResult: match
+    };
+  }
+  
   const rI = p.rInvest * (1 + p.alpha * (2 * p.RT - 1));
   const rD = p.rDebt * (1 + p.beta * (2 * p.DA - 1)) + p.gammaDebt * p.DA;
   const rS = p.rSave * (1 + p.delta * (1 - p.RT)) + p.gammaSave * (1 - p.RT);
@@ -761,7 +784,7 @@ function showComparisonResults(p, res) {
     { label: '401(k) Contribution', current: current401k, recommended: recommended401k, show: p.has401k },
     { label: 'Employer Match', current: match.currentMatch || 0, recommended: match.matchGained, show: p.has401k },
     { label: 'Other Investments', current: p.currentAutoInvest, recommended: res.allocations.Invest },
-    { label: 'Extra Debt Payment', current: p.currentExtraDebt, recommended: res.allocations.Debt },
+    { label: 'Extra Debt Payment', current: p.currentExtraDebt, recommended: res.allocations.Debt, show: p.initialDebt > 0 },
     { label: 'Savings', current: p.currentAutoSave, recommended: res.allocations.Save }
   ];
   
