@@ -111,6 +111,14 @@
     .tax-toggle-content{flex:1}
     .tax-toggle label{margin:0;font-size:14px;font-weight:500;color:#1f6feb;cursor:pointer;display:block}
     .tax-toggle .tax-explanation{font-size:12px;color:#555;margin-top:4px;line-height:1.4}
+    .rt-quiz-prompt{margin-top:12px;padding:14px;background:linear-gradient(135deg,#f0f6ff 0%,#e6f0ff 100%);border:1px solid #1f6feb;border-radius:10px}
+    .rt-quiz-prompt h4{margin:0 0 6px 0;font-size:14px;color:#1f6feb;font-weight:600}
+    .rt-quiz-prompt p{margin:0 0 10px 0;font-size:13px;color:#555;line-height:1.5}
+    .rt-quiz-prompt button{background:#1f6feb;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;margin:0}
+    .rt-quiz-prompt button:hover{background:#1557cf}
+    .rt-quiz-prompt .quiz-benefits{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+    .rt-quiz-prompt .quiz-benefit{font-size:12px;color:#444;display:flex;align-items:center;gap:4px}
+    .rt-locked-msg{margin-top:8px;padding:10px;background:#d4edda;border-radius:6px;font-size:12px;color:#155724}
   </style>
 </head>
 <body>
@@ -472,6 +480,19 @@ function makeSliders() {
       st.id = 'rt-status';
       st.style.marginTop = '4px';
       row.appendChild(st);
+      
+      var quizPrompt = document.createElement('div');
+      quizPrompt.className = 'rt-quiz-prompt';
+      quizPrompt.id = 'rt-quiz-prompt';
+      quizPrompt.innerHTML = '<h4>🎯 Not sure what to set this to?</h4><p>Risk tolerance affects how much goes to investing vs. saving. Take a quick quiz to find yours!</p><div class="quiz-benefits"><span class="quiz-benefit">✓ Find your risk score</span><span class="quiz-benefit">✓ Get investment suggestions</span><span class="quiz-benefit">✓ See sample portfolios</span></div><button onclick="goToRiskQuiz()">Take 2-Min Quiz →</button>';
+      row.appendChild(quizPrompt);
+      
+      var lockedMsg = document.createElement('div');
+      lockedMsg.className = 'rt-locked-msg';
+      lockedMsg.id = 'rt-locked-msg';
+      lockedMsg.style.display = 'none';
+      lockedMsg.innerHTML = '✓ Risk tolerance set from quiz. <a href="#" onclick="goToRiskQuiz();return false;" style="color:#155724;text-decoration:underline;">Retake quiz</a> or click "Unlock" to adjust manually.';
+      row.appendChild(lockedMsg);
     } else if (id === 'rInvest') {
       var ctrl2 = document.createElement('div');
       ctrl2.className = 'rt-controls';
@@ -523,12 +544,16 @@ function lockRiskTolerance(score) {
   var slider = document.getElementById('RT');
   var status = document.getElementById('rt-status');
   var btn = document.getElementById('rt-unlock-btn');
+  var prompt = document.getElementById('rt-quiz-prompt');
+  var lockedMsg = document.getElementById('rt-locked-msg');
   row.classList.add('locked');
   slider.value = score.toFixed(2);
   document.getElementById('RT_val').innerText = score.toFixed(2);
   status.innerHTML = '✓ Set from Risk Assessment';
   status.style.color = '#1f6feb';
   btn.style.display = 'inline-block';
+  if (prompt) prompt.style.display = 'none';
+  if (lockedMsg) lockedMsg.style.display = 'block';
   rtLocked = true;
   saveState();
 }
@@ -537,10 +562,14 @@ function unlockRiskTolerance() {
   var row = document.getElementById('RT_row');
   var status = document.getElementById('rt-status');
   var btn = document.getElementById('rt-unlock-btn');
+  var prompt = document.getElementById('rt-quiz-prompt');
+  var lockedMsg = document.getElementById('rt-locked-msg');
   if (!row) return;
   row.classList.remove('locked');
   status.innerHTML = '';
   btn.style.display = 'none';
+  if (prompt) prompt.style.display = 'block';
+  if (lockedMsg) lockedMsg.style.display = 'none';
   rtLocked = false;
   saveState();
 }
@@ -837,6 +866,14 @@ function goToRiskAssessment() {
   var match = res.matchResult;
   var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
   window.location.href = './risk-assessment.html?invest=' + investTotal;
+}
+
+function goToRiskQuiz() {
+  var p = getParams();
+  var res = behavioralAllocation(p);
+  var match = res.matchResult;
+  var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  window.location.href = './risk-assessment.html?invest=' + investTotal + '&from=slider';
 }
 
 function dismissRiskPrompt(type) {
