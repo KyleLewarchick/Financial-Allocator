@@ -24,7 +24,6 @@
     .slider-row.disabled{opacity:0.4;pointer-events:none}
     .slider-row.locked{opacity:0.7}
     .slider-row.locked input[type=range]{pointer-events:none}
-    .results{margin-top:10px;font-size:15px;line-height:1.4}
     .section-header{font-weight:600;font-size:15px;color:#1f6feb;margin-top:24px;margin-bottom:12px}
     nav{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
@@ -220,7 +219,7 @@
         <div class="path-option" onclick="selectPath('existing')">
           <div class="path-icon">📊</div>
           <h3>Yes, I have existing contributions</h3>
-          <p>401k, auto-invest, auto-save, or extra debt payments. Help me see if I should adjust.</p>
+          <p>401k/403b, auto-invest, auto-save, or extra debt payments. Help me see if I should adjust.</p>
         </div>
         <div class="path-option" onclick="selectPath('fresh')">
           <div class="path-icon">🚀</div>
@@ -235,10 +234,10 @@
     <h2 style="margin-top:0;">Tell us about your current setup</h2>
     <p class="small">Enter your current automated contributions. Leave at $0 if you don't have that type.</p>
     
-    <div class="section-header">401(k) Contribution</div>
+    <div class="section-header">Workplace Retirement Plan</div>
     <div class="match-toggle">
       <input type="checkbox" id="has401k" onchange="toggle401kSection()">
-      <label for="has401k">I have access to a 401(k)</label>
+      <label for="has401k">I have access to a 401(k) or 403(b)</label>
     </div>
     <div id="match-section" class="match-section collapsed">
       <div class="slider-row">
@@ -247,7 +246,7 @@
         <input type="range" id="annualSalary" min="20000" max="300000" step="1000" value="50000" oninput="updateSliderVal('annualSalary')">
       </div>
       <div class="slider-row">
-        <label>Your Current 401(k) Contribution (% of salary)</label>
+        <label>Your Current Contribution (% of salary)</label>
         <div class="small" id="current401kPercent_val">0</div>
         <input type="range" id="current401kPercent" min="0" max="23" step="0.5" value="0" oninput="updateSliderVal('current401kPercent')">
       </div>
@@ -268,7 +267,7 @@
     <div class="section-header">Other Automated Contributions</div>
     <div class="slider-row">
       <label>Auto-Invest ($/month)</label>
-      <div class="slider-explanation">Brokerage, Acorns, Robinhood, etc. (outside of 401k)</div>
+      <div class="slider-explanation">Brokerage, Acorns, Robinhood, etc. (outside of retirement accounts)</div>
       <div class="small" id="currentAutoInvest_val">0</div>
       <input type="range" id="currentAutoInvest" min="0" max="2000" step="25" value="0" oninput="updateSliderVal('currentAutoInvest')">
     </div>
@@ -764,14 +763,7 @@ function behavioralAllocation(p) {
   if (disc <= 0) return { allocations: { Invest: 0, Debt: 0, Save: 0 }, discretionary: baseDisc, match401k: Math.min(match.needed, Math.max(0, baseDisc)), matchResult: match, emergencyFundMode: false, efCheck };
   
   if (efCheck.needsEmergencyFund) {
-    return {
-      allocations: { Invest: 0, Debt: 0, Save: disc },
-      discretionary: baseDisc,
-      match401k: match.needed,
-      matchResult: match,
-      emergencyFundMode: true,
-      efCheck
-    };
+    return { allocations: { Invest: 0, Debt: 0, Save: disc }, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: true, efCheck };
   }
   
   if (p.initialDebt <= 0) {
@@ -908,7 +900,7 @@ function showComparisonResults(p, res) {
   tbody.innerHTML = '';
   
   const rows = [
-    { label: '401(k) Contribution', current: current401k, recommended: recommended401k, show: p.has401k },
+    { label: 'Retirement Contribution', current: current401k, recommended: recommended401k, show: p.has401k },
     { label: 'Employer Match', current: match.currentMatch || 0, recommended: match.matchGained, show: p.has401k },
     { label: 'Other Investments', current: p.currentAutoInvest, recommended: res.allocations.Invest },
     { label: 'Extra Debt Payment', current: p.currentExtraDebt, recommended: res.allocations.Debt, show: p.initialDebt > 0 },
@@ -928,7 +920,7 @@ function showComparisonResults(p, res) {
     insights.push({ type: 'warning', icon: '🚨', text: 'Emergency fund priority active. All discretionary income directed to savings until you reach 3 months of expenses ($' + res.efCheck.threeMonthTarget.toFixed(0) + ').' });
   }
   if (p.has401k && match.needed > 0 && !res.emergencyFundMode) {
-    insights.push({ type: 'warning', icon: '💰', text: 'You\'re leaving $' + match.matchGained.toFixed(0) + '/mo in free employer match on the table. Increase your 401(k) contribution by $' + match.needed.toFixed(0) + '/mo to capture it.' });
+    insights.push({ type: 'warning', icon: '💰', text: 'You\'re leaving $' + match.matchGained.toFixed(0) + '/mo in free employer match on the table. Increase your retirement contribution by $' + match.needed.toFixed(0) + '/mo to capture it.' });
   } else if (p.has401k && match.isCapturingFull) {
     insights.push({ type: 'success', icon: '✅', text: 'Great job! You\'re capturing the full employer match.' });
   }
@@ -960,7 +952,7 @@ function showComparisonResults(p, res) {
   if (res.emergencyFundMode) document.getElementById('risk-prompt-comparison').style.display = 'none';
   
   const pieData = p.has401k ? [recommended401k + match.matchGained + res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
-  const pieLabels = p.has401k ? ['Invest (incl. 401k)', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
+  const pieLabels = p.has401k ? ['Invest (incl. retirement)', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
   Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie' }], { margin: { t: 0 } });
   
   const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
@@ -980,7 +972,7 @@ function showSimpleResults(p, res) {
   
   let match401kHtml = '';
   if (p.has401k && res.match401k > 0) {
-    match401kHtml = '<div style="background:#d4edda;padding:12px;border-radius:8px;margin-bottom:16px;"><strong>🎁 401(k) Match (Pre-Allocated)</strong><br>Your contribution: $' + res.match401k.toFixed(0) + '/mo<br>Employer match: +$' + match.matchGained.toFixed(0) + '/mo<br><span class="small">Total to 401(k): $' + (res.match401k + match.matchGained).toFixed(0) + '/mo</span></div>';
+    match401kHtml = '<div style="background:#d4edda;padding:12px;border-radius:8px;margin-bottom:16px;"><strong>🎁 Retirement Plan Match (Pre-Allocated)</strong><br>Your contribution: $' + res.match401k.toFixed(0) + '/mo<br>Employer match: +$' + match.matchGained.toFixed(0) + '/mo<br><span class="small">Total to retirement: $' + (res.match401k + match.matchGained).toFixed(0) + '/mo</span></div>';
   }
   
   let efModeHtml = '';
@@ -991,7 +983,7 @@ function showSimpleResults(p, res) {
   document.getElementById('simple-results-content').innerHTML = '<p><strong>Discretionary Income:</strong> $' + res.discretionary.toFixed(0) + '/mo</p>' + match401kHtml + efModeHtml + '<h3>Recommended Monthly Allocation</h3><p><strong>Invest:</strong> $' + res.allocations.Invest.toFixed(0) + '/mo</p><p><strong>Extra Debt Payment:</strong> $' + res.allocations.Debt.toFixed(0) + '/mo <span class="small">(beyond $' + p.minDebtPayment + ' minimum)</span></p><p><strong>Save:</strong> $' + res.allocations.Save.toFixed(0) + '/mo</p><hr style="margin:20px 0;border:none;border-top:1px solid #eee;"><h3>Projection After ' + p.years + ' Years</h3><p><strong>Investments:</strong> $' + proj.invest.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p><strong>Savings:</strong> $' + proj.save.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p><strong>Debt Remaining:</strong> $' + proj.debt.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</p><p style="font-size:18px;"><strong>Net Worth: $' + proj.netWorth.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</strong></p>';
   
   const pieData = p.has401k ? [res.match401k + match.matchGained + res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
-  const pieLabels = p.has401k ? ['Invest (incl. 401k)', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
+  const pieLabels = p.has401k ? ['Invest (incl. retirement)', 'Debt', 'Save'] : ['Invest', 'Debt', 'Save'];
   Plotly.newPlot('piechart', [{ values: pieData, labels: pieLabels, type: 'pie' }], { margin: { t: 0 } });
   
   const monthsMin = monthsToDebtFree(p.initialDebt, p.rDebt, p.minDebtPayment);
