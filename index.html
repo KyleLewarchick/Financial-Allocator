@@ -412,7 +412,7 @@ const defaults = {
 };
 
 const sliderDefs = [
-  ["income", "Monthly Income", defaults.income, 1000, 15000, 100, "Your total monthly income before expenses."],
+  ["income", "Monthly Take-Home Pay", defaults.income, 1000, 15000, 100, "What lands in your bank after taxes and any current retirement contributions."],
   ["expenses", "Monthly Expenses", defaults.expenses, 500, 12000, 50, "Regular monthly expenses (rent, utilities, groceries, etc.)."],
   ["minDebtPayment", "Minimum Debt Payment", defaults.minDebtPayment, 0, 2000, 10, "The minimum you must pay on debts each month."],
   ["rInvest", "Expected Investment Return", defaults.rInvest, 0, 0.15, 0.005, "Expected annual return (8% = stock market average)."],
@@ -431,7 +431,7 @@ const sliderDefs = [
 ];
 
 const sections = [
-  { title: "Monthly Income & Expenses", start: 0, end: 3 },
+  { title: "Take-Home Pay & Expenses", start: 0, end: 3 },
   { title: "Expected Rates", start: 3, end: 6 },
   { title: "Behavioral Preferences", start: 6, end: 8 },
   { title: "Personal Priorities (must sum to 1.0)", start: 8, end: 11 },
