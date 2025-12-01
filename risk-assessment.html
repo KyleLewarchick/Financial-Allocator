@@ -476,7 +476,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('from-allocator-banner').style.display = 'none';
   }
   
-  // Load any saved answers to pre-fill the form
+  // Load any saved answers
   var saved = localStorage.getItem('riskAssessmentAnswers');
   if (saved) {
     try {
@@ -485,6 +485,16 @@ window.addEventListener('DOMContentLoaded', function() {
       if (answers.growthPreference) document.getElementById('growth-pref').value = answers.growthPreference;
       if (answers.timeHorizon) document.getElementById('time-horizon').value = answers.timeHorizon;
       if (answers.experience) document.getElementById('experience').value = answers.experience;
+      
+      // If allocator is complete and we have saved answers with a score, auto-show full results
+      if (isAllocatorComplete && !cameFromAllocator && answers.riskScore > 0) {
+        currentRiskScore = answers.riskScore;
+        expectedReturn = answers.expectedReturn || 0.08;
+        var portfolio = mapRiskToPortfolio(currentRiskScore);
+        displayFullResults(currentRiskScore, portfolio);
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+      }
     } catch (e) {}
   }
 });
