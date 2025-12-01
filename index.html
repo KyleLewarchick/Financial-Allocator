@@ -21,8 +21,8 @@
     button:hover{background:#1a5dd1}
     button.secondary{background:#e6e9ef;color:#111}
     button.secondary:hover{background:#d0d4dc}
-    button.danger{background:#dc3545;color:#fff}
-    button.danger:hover{background:#c82333}
+    button.success{background:#28a745}
+    button.success:hover{background:#218838}
     .slider-row.disabled{opacity:0.4;pointer-events:none}
     .slider-row.locked{opacity:0.7}
     .slider-row.locked input[type=range]{pointer-events:none}
@@ -32,9 +32,8 @@
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
     nav a.active{background:#1f6feb;color:#fff}
     nav a:not(.active){color:#1f6feb;background:#f6f8fa}
-    nav a:not(.active):hover{background:#e6e9ef}
-    .start-over-nav{background:#fff !important;color:#dc3545 !important;border:1px solid #dc3545;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer}
-    .start-over-nav:hover{background:#dc3545 !important;color:#fff !important}
+    .start-over-nav{background:#fff;color:#dc3545;border:1px solid #dc3545;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin:0}
+    .start-over-nav:hover{background:#dc3545;color:#fff}
     .unlock-btn{background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;padding:4px 12px;font-size:12px;margin-left:8px;cursor:pointer}
     .rt-controls{display:flex;align-items:center;gap:8px}
     .hidden{display:none}
@@ -111,7 +110,6 @@
     .rt-quiz-prompt h4{margin:0 0 6px 0;font-size:14px;color:#1f6feb;font-weight:600}
     .rt-quiz-prompt p{margin:0 0 10px 0;font-size:13px;color:#555;line-height:1.5}
     .rt-quiz-prompt button{background:#1f6feb;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;margin:0}
-    .rt-quiz-prompt button:hover{background:#1557cf}
     .rt-quiz-prompt .quiz-benefits{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
     .rt-quiz-prompt .quiz-benefit{font-size:12px;color:#444;display:flex;align-items:center;gap:4px}
     .rt-locked-msg{margin-top:8px;padding:10px;background:#d4edda;border-radius:6px;font-size:12px;color:#155724}
@@ -121,9 +119,64 @@
     .risk-assessment-prompt .invest-amount{font-size:18px;font-weight:600;color:#111;margin-bottom:12px}
     .risk-assessment-prompt button{background:#1f6feb;margin:0}
     .risk-assessment-prompt .skip-link{display:block;margin-top:10px;font-size:12px;color:#666;text-decoration:underline;cursor:pointer}
+    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;padding:20px;box-sizing:border-box}
+    .modal-content{background:white;border-radius:12px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .modal-header h3{margin:0;font-size:20px;color:#333}
+    .modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:#666;padding:0;width:auto;margin:0;line-height:1}
+    .modal-close:hover{color:#333;background:none}
+    .portfolio-table{width:100%;border-collapse:collapse;margin-top:12px}
+    .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
+    .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
+    .portfolio-table td:nth-child(2),.portfolio-table td:nth-child(3){text-align:right;font-weight:600}
+    .tip{padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
   </style>
 </head>
 <body>
+
+<div class="modal-overlay" id="investment-modal" onclick="closeInvestmentModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📊 Your Investment Breakdown</h3>
+      <button class="modal-close" onclick="closeInvestmentModal()">&times;</button>
+    </div>
+    <div id="modal-risk-score"></div>
+    <table class="portfolio-table">
+      <thead><tr id="portfolio-header"><th>Asset Class</th><th>Allocation</th><th>Monthly $</th></tr></thead>
+      <tbody id="portfolio-body"></tbody>
+    </table>
+    <div id="modal-piechart" style="width:100%;height:280px;margin-top:16px"></div>
+    <div class="tip" style="margin-top:16px;">
+      💡 <strong>Tip:</strong> Use these ETFs in any brokerage (Fidelity, Schwab, Vanguard, etc.)
+    </div>
+    <div style="margin-top:16px;padding:16px;background:#f6f8fa;border-radius:8px;">
+      <h4 style="margin:0 0 12px 0;font-size:15px;color:#333;">🚀 How to Get Started</h4>
+      <ol style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#555;">
+        <li><strong>Open a brokerage account</strong> — Fidelity, Schwab, or Vanguard (all free)</li>
+        <li><strong>Link your bank</strong> — Connect your checking account</li>
+        <li><strong>Search for ETFs</strong> — Use ticker symbols (e.g., "VTI")</li>
+        <li><strong>Buy shares</strong> — Most brokers allow fractional shares</li>
+        <li><strong>Set up auto-invest</strong> — Automate monthly purchases</li>
+      </ol>
+      <div style="margin-top:12px;padding:10px;background:#fff;border-radius:6px;font-size:12px;color:#666;">
+        <strong>💰 Pro tip:</strong> Consider a Roth IRA if eligible — tax-free growth! 2024/2025 limit: $7,000/year.
+      </div>
+    </div>
+    <button onclick="closeInvestmentModal()" style="margin-top:16px;">Got It!</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="invest-prompt-modal" onclick="closeInvestPromptModal(event)">
+  <div class="modal-content" style="text-align:center;max-width:450px;" onclick="event.stopPropagation()">
+    <div style="font-size:48px;margin-bottom:16px;">🎉</div>
+    <h3 style="margin:0 0 8px 0;font-size:22px;color:#111;">Your Financial Plan is Ready!</h3>
+    <p style="color:#666;font-size:15px;margin-bottom:20px;">You're allocating <strong id="prompt-invest-amount">$0/mo</strong> to investments.</p>
+    <p style="color:#555;font-size:14px;margin-bottom:24px;">Would you like to see exactly how to split this across stocks, bonds, and other assets?</p>
+    <button class="success" onclick="showInvestmentBreakdown()">Yes, Show Me How to Invest →</button>
+    <button class="secondary" onclick="closeInvestPromptModal()" style="margin-top:8px;">Maybe Later</button>
+  </div>
+</div>
+
 <div class="wrap">
   <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#664d03;">
     <strong>⚠️ Disclaimer:</strong> This tool is for educational purposes only and does not constitute financial advice.
@@ -344,10 +397,10 @@
         <tbody id="comparison-body"></tbody>
       </table>
       <div class="risk-assessment-prompt" id="risk-prompt-comparison">
-        <h4>📊 How should you invest this money?</h4>
+        <h4 id="risk-prompt-comparison-title">📊 Not sure how to invest your money?</h4>
         <div class="invest-amount" id="invest-amount-comparison">$0/mo to investments</div>
-        <p>See exactly how to split this across stocks, bonds, and other assets based on your risk profile.</p>
-        <button onclick="goToRiskAssessment()">See Investment Breakdown →</button>
+        <p id="risk-prompt-comparison-desc">Take a quick 4-question quiz to get a personalized portfolio breakdown.</p>
+        <button id="risk-prompt-comparison-btn" onclick="goToRiskQuiz()">Take Risk Assessment →</button>
         <span class="skip-link" onclick="dismissRiskPrompt('comparison')">I'll figure it out myself</span>
       </div>
       <div class="projection-compare">
@@ -359,10 +412,10 @@
     <div id="simple-results" class="hidden">
       <div id="simple-results-content"></div>
       <div class="risk-assessment-prompt" id="risk-prompt-simple">
-        <h4>📊 How should you invest this money?</h4>
+        <h4 id="risk-prompt-simple-title">📊 Not sure how to invest your money?</h4>
         <div class="invest-amount" id="invest-amount-simple">$0/mo to investments</div>
-        <p>See exactly how to split this across stocks, bonds, and other assets based on your risk profile.</p>
-        <button onclick="goToRiskAssessment()">See Investment Breakdown →</button>
+        <p id="risk-prompt-simple-desc">Take a quick 4-question quiz to get a personalized portfolio breakdown.</p>
+        <button id="risk-prompt-simple-btn" onclick="goToRiskQuiz()">Take Risk Assessment →</button>
         <span class="skip-link" onclick="dismissRiskPrompt('simple')">I'll figure it out myself</span>
       </div>
     </div>
@@ -385,6 +438,21 @@ var userPath = null;
 var currentStep = 0;
 var rtLocked = false;
 var rInvestLocked = false;
+var lastInvestAmount = 0;
+
+var etfSuggestions = {
+  'US Stocks': 'e.g., VTI, VOO, SPY',
+  'International Stocks': 'e.g., VXUS, VEU, IXUS',
+  'Bonds': 'e.g., BND, AGG, SCHZ',
+  'Alternatives': 'e.g., VNQ (REITs), GLD (Gold)'
+};
+
+var expectedReturns = {
+  'US Stocks': 0.10,
+  'International Stocks': 0.07,
+  'Bonds': 0.05,
+  'Alternatives': 0.05
+};
 
 var sliderDefs = [
   ["income", "Monthly Take-Home Pay", 0, 0, 15000, 100, "What lands in your bank after taxes and any current retirement contributions."],
@@ -871,9 +939,7 @@ function behavioralAllocation(p) {
   
   if (efCheck.needsEmergencyFund) return { allocations: { Invest: 0, Debt: 0, Save: discAfterMatch }, retirement401k: 0, discretionary: baseDisc, match401k: match.needed, matchResult: match, emergencyFundMode: true, efCheck: efCheck, taxSavingsOpportunity: 0 };
   
-  var disc = discAfterMatch;
-  var extra401k = 0;
-  var taxSavingsOpportunity = 0;
+  var disc = discAfterMatch, extra401k = 0, taxSavingsOpportunity = 0;
   
   if (p.has401k && p.prioritizeTaxAdvantaged && match.roomToMax > match.needed) {
     var additionalRoom = match.roomToMax - match.needed;
@@ -965,18 +1031,87 @@ function monthsToDebtFree(bal, apr, pmt) {
   return m;
 }
 
-function goToRiskAssessment() {
-  saveState();
-  var p = getParams();
-  var res = behavioralAllocation(p);
-  var match = res.matchResult;
-  var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
-  window.location.href = './risk-assessment.html?invest=' + investTotal;
-}
-
 function goToRiskQuiz() {
   saveState();
   window.location.href = './risk-assessment.html?from=allocator';
+}
+
+function mapRiskToPortfolio(score) {
+  if (score < 0.25) return {'US Stocks': 20, 'International Stocks': 10, 'Bonds': 60, 'Alternatives': 10};
+  if (score < 0.45) return {'US Stocks': 40, 'International Stocks': 15, 'Bonds': 40, 'Alternatives': 5};
+  if (score < 0.65) return {'US Stocks': 55, 'International Stocks': 20, 'Bonds': 20, 'Alternatives': 5};
+  if (score < 0.85) return {'US Stocks': 70, 'International Stocks': 20, 'Bonds': 10, 'Alternatives': 0};
+  return {'US Stocks': 85, 'International Stocks': 10, 'Bonds': 5, 'Alternatives': 0};
+}
+
+function getRiskLabel(score) {
+  if (score < 0.25) return 'Conservative';
+  if (score < 0.45) return 'Moderately Conservative';
+  if (score < 0.65) return 'Moderate';
+  if (score < 0.85) return 'Moderately Aggressive';
+  return 'Aggressive';
+}
+
+function openInvestPromptModal(investAmount) {
+  if (!rtLocked) return;
+  document.getElementById('prompt-invest-amount').innerText = '$' + investAmount.toLocaleString('en-US', {maximumFractionDigits: 0}) + '/mo';
+  document.getElementById('invest-prompt-modal').style.display = 'flex';
+}
+
+function closeInvestPromptModal(event) {
+  if (!event || event.target === document.getElementById('invest-prompt-modal')) {
+    document.getElementById('invest-prompt-modal').style.display = 'none';
+  }
+}
+
+function showInvestmentBreakdown() {
+  closeInvestPromptModal();
+  
+  var riskScore = Number(document.getElementById('RT').value);
+  var portfolio = mapRiskToPortfolio(riskScore);
+  var riskLabel = getRiskLabel(riskScore);
+  
+  var expReturn = 0;
+  for (var asset in portfolio) {
+    if (portfolio[asset] > 0 && expectedReturns[asset]) {
+      expReturn += (portfolio[asset] / 100) * expectedReturns[asset];
+    }
+  }
+  
+  document.getElementById('modal-risk-score').innerHTML = 
+    '<div style="margin-bottom:16px;padding:16px;background:linear-gradient(135deg,#f0f6ff 0%,#e6f0ff 100%);border-radius:8px;text-align:center;">' +
+    '<div style="font-size:14px;color:#666;">Your Risk Profile</div>' +
+    '<div style="font-size:24px;font-weight:700;color:#1f6feb;">' + riskLabel + '</div>' +
+    '<div style="font-size:14px;color:#555;">Expected return: ' + (expReturn * 100).toFixed(1) + '%/year</div></div>';
+  
+  var tbody = document.getElementById('portfolio-body');
+  tbody.innerHTML = '';
+  var values = [], labels = [];
+  
+  for (var asset in portfolio) {
+    var weight = portfolio[asset];
+    if (weight > 0) {
+      var suggestion = etfSuggestions[asset] || '';
+      var row = document.createElement('tr');
+      var dollars = (lastInvestAmount * weight / 100).toFixed(0);
+      row.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td><td>$' + dollars + '</td>';
+      tbody.appendChild(row);
+      values.push(weight);
+      labels.push(asset);
+    }
+  }
+  
+  document.getElementById('investment-modal').style.display = 'flex';
+  
+  setTimeout(function() {
+    Plotly.newPlot('modal-piechart', [{values: values, labels: labels, type: 'pie', marker: {colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']}}], {margin: {t: 0, b: 0, l: 0, r: 0}});
+  }, 100);
+}
+
+function closeInvestmentModal(event) {
+  if (!event || event.target === document.getElementById('investment-modal')) {
+    document.getElementById('investment-modal').style.display = 'none';
+  }
 }
 
 function dismissRiskPrompt(type) {
@@ -989,9 +1124,32 @@ function dismissRiskPrompt(type) {
 
 function updateRiskPromptAmount(investAmount, type) {
   var el = document.getElementById('invest-amount-' + type);
-  if (el) el.innerText = '$' + investAmount.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '/mo to investments';
   var prompt = document.getElementById('risk-prompt-' + type);
-  if (prompt && (rtLocked || localStorage.getItem('riskPromptDismissed') === 'true')) prompt.style.display = 'none';
+  
+  if (el) el.innerText = '$' + investAmount.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '/mo to investments';
+  
+  if (prompt) {
+    if (localStorage.getItem('riskPromptDismissed') === 'true') {
+      prompt.style.display = 'none';
+      return;
+    }
+    
+    var title = document.getElementById('risk-prompt-' + type + '-title');
+    var desc = document.getElementById('risk-prompt-' + type + '-desc');
+    var btn = document.getElementById('risk-prompt-' + type + '-btn');
+    
+    if (rtLocked) {
+      title.innerText = '📊 How should you invest this money?';
+      desc.innerText = 'See exactly how to split this across stocks, bonds, and other assets based on your risk profile.';
+      btn.innerText = 'See Investment Breakdown →';
+      btn.onclick = showInvestmentBreakdown;
+    } else {
+      title.innerText = '📊 Not sure how to invest your money?';
+      desc.innerText = 'Take a quick 4-question quiz to get a personalized portfolio breakdown.';
+      btn.innerText = 'Take Risk Assessment →';
+      btn.onclick = goToRiskQuiz;
+    }
+  }
 }
 
 function showEmergencyFundNotice(res, disc) {
@@ -1070,8 +1228,13 @@ function showComparisonResults(p, res) {
   document.getElementById('years-display-2').innerText = p.years;
   
   var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  lastInvestAmount = investTotal;
   updateRiskPromptAmount(investTotal, 'comparison');
   if (res.emergencyFundMode) document.getElementById('risk-prompt-comparison').style.display = 'none';
+  
+  if (rtLocked && !res.emergencyFundMode) {
+    setTimeout(function() { openInvestPromptModal(investTotal); }, 500);
+  }
   
   var retirementTotal = recommended401k + match.matchGained;
   var pieData = p.has401k ? [retirementTotal, res.allocations.Invest, res.allocations.Debt, res.allocations.Save] : [res.allocations.Invest, res.allocations.Debt, res.allocations.Save];
@@ -1090,8 +1253,13 @@ function showSimpleResults(p, res) {
   var match = res.matchResult;
   var proj = projectNetWorth(p, false);
   var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  lastInvestAmount = investTotal;
   updateRiskPromptAmount(investTotal, 'simple');
   if (res.emergencyFundMode) document.getElementById('risk-prompt-simple').style.display = 'none';
+  
+  if (rtLocked && !res.emergencyFundMode) {
+    setTimeout(function() { openInvestPromptModal(investTotal); }, 500);
+  }
   
   var retirementHtml = '';
   var totalRetirement = res.match401k + (res.retirement401k || 0);
