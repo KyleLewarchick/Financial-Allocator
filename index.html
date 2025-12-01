@@ -967,7 +967,11 @@ function monthsToDebtFree(bal, apr, pmt) {
 
 function goToRiskAssessment() {
   saveState();
-  window.location.href = './risk-assessment.html?from=allocator';
+  var p = getParams();
+  var res = behavioralAllocation(p);
+  var match = res.matchResult;
+  var investTotal = Math.round(res.allocations.Invest + res.match401k + (res.retirement401k || 0) + (match.matchGained || 0));
+  window.location.href = './risk-assessment.html?invest=' + investTotal;
 }
 
 function goToRiskQuiz() {
