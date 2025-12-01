@@ -19,18 +19,25 @@
     .learn-more-content{display:none;margin-top:8px;color:#666;line-height:1.5}
     button{background:#1f6feb;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;width:100%;margin-top:8px}
     button:hover{background:#1557cf}
-    .results{margin-top:20px;display:none}
+    button.secondary{background:#e6e9ef;color:#111}
+    button.secondary:hover{background:#d0d4dc}
+    button.success{background:#28a745}
+    button.success:hover{background:#218838}
+    .results{display:none}
     .risk-score{font-size:18px;font-weight:600;color:#1f6feb;margin-bottom:16px}
     .portfolio-table{width:100%;border-collapse:collapse;margin-top:12px}
     .portfolio-table th{text-align:left;padding:10px;background:#f6f8fa;font-size:13px;font-weight:600}
     .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
     .portfolio-table td:nth-child(2),.portfolio-table td:nth-child(3){text-align:right;font-weight:600}
     .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
-    nav{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
+    nav{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px;justify-content:space-between;align-items:center}
+    .nav-links{display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
     nav a.active{background:#1f6feb;color:white}
     nav a:not(.active){color:#1f6feb;background:#f6f8fa}
     nav a:not(.active):hover{background:#e6e9ef}
+    .start-over-nav{background:#fff !important;color:#dc3545 !important;border:1px solid #dc3545;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer}
+    .start-over-nav:hover{background:#dc3545 !important;color:#fff !important}
     .info-icon{display:inline-block;width:18px;height:18px;background:#1f6feb;color:white;border-radius:50%;text-align:center;font-size:12px;line-height:18px;cursor:pointer;margin-left:6px;font-weight:bold;vertical-align:middle}
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
     .modal-content{background:white;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
@@ -40,16 +47,16 @@
     .source-table{width:100%;border-collapse:collapse;margin:12px 0}
     .source-table th,.source-table td{padding:8px;text-align:left;border-bottom:1px solid #eee;font-size:13px}
     .source-table th{background:#f6f8fa;font-weight:600}
-    .from-slider-banner{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border:1px solid #28a745;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#155724}
-    .from-slider-banner strong{display:block;margin-bottom:4px;font-size:14px}
-    .apply-btn{background:#28a745;margin-top:16px}
-    .apply-btn:hover{background:#218838}
-    .complete-allocator-prompt{background:linear-gradient(135deg,#fff3cd 0%,#ffeeba 100%);border:2px solid #ffc107;border-radius:12px;padding:20px;margin-bottom:20px;text-align:center}
-    .complete-allocator-prompt h4{margin:0 0 8px 0;font-size:16px;color:#856404}
-    .complete-allocator-prompt p{margin:0 0 16px 0;font-size:14px;color:#664d03;line-height:1.5}
-    .complete-allocator-prompt button{background:#ffc107;color:#212529;max-width:300px}
-    .complete-allocator-prompt button:hover{background:#e0a800}
-    .limited-results-note{background:#f6f8fa;border-radius:8px;padding:12px;margin-top:16px;font-size:13px;color:#666;text-align:center}
+    .from-allocator-banner{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);border:1px solid #28a745;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#155724}
+    .from-allocator-banner strong{display:block;margin-bottom:4px;font-size:14px}
+    .risk-score-display{text-align:center;padding:30px;background:linear-gradient(135deg,#f0f6ff 0%,#e6f0ff 100%);border-radius:12px;margin-bottom:20px}
+    .risk-score-display .label{font-size:14px;color:#666;margin-bottom:8px}
+    .risk-score-display .profile{font-size:28px;font-weight:700;color:#1f6feb;margin-bottom:4px}
+    .risk-score-display .score{font-size:16px;color:#555}
+    .return-section{background:#d4edda;border:2px solid #28a745;border-radius:12px;padding:20px;text-align:center;margin-top:20px}
+    .return-section h3{margin:0 0 8px 0;color:#155724;font-size:18px}
+    .return-section p{margin:0 0 16px 0;color:#155724;font-size:14px}
+    .hidden{display:none}
   </style>
 </head>
 <body>
@@ -59,11 +66,13 @@
     </div>
     
     <nav>
-      <a href="./index.html" id="home-link">← Back to Allocator</a>
-      <a href="./risk-assessment.html" class="active">Risk Assessment</a>
+      <div class="nav-links">
+        <a href="./index.html" id="back-link">← Back to Allocator</a>
+      </div>
+      <button class="start-over-nav" onclick="resetAll()">🔄 Start Over</button>
     </nav>
     
-    <div class="from-slider-banner" id="from-slider-banner" style="display:none;">
+    <div class="from-allocator-banner" id="from-allocator-banner">
       <strong>🎯 Finding Your Risk Tolerance</strong>
       Answer 4 quick questions and we'll set your risk tolerance automatically!
     </div>
@@ -73,7 +82,7 @@
       <p class="subtitle">Answer 4 questions to find your risk tolerance</p>
     </header>
 
-    <div class="card">
+    <div class="card" id="quiz-section">
       <div class="question-group">
         <label>1. If your investments dropped 20%, how would you feel?</label>
         <select id="loss-comfort">
@@ -120,15 +129,6 @@
         </select>
       </div>
 
-      <div class="question-group" id="amount-group" style="display:none;">
-        <label>Monthly investment amount ($)</label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input type="number" id="monthly-amount" min="0" step="100" placeholder="e.g., 500" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;" disabled>
-          <button type="button" id="edit-amount-btn" onclick="enableAmountEdit()" style="width:auto;padding:8px 16px;font-size:13px;background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;">Edit</button>
-        </div>
-        <div style="font-size:12px;margin-top:4px;" id="amount-source"></div>
-      </div>
-
       <div class="learn-more">
         <div class="learn-more-toggle" onclick="toggleLearnMore()">💡 Why we ask these questions</div>
         <div class="learn-more-content" id="learn-more-content">
@@ -140,57 +140,68 @@
       </div>
 
       <button onclick="calculateRisk()">See My Results</button>
-      <button onclick="resetAssessment()" style="background:#e6e9ef;color:#111;margin-top:8px">Reset</button>
     </div>
 
     <div class="card results" id="results">
-      <div class="risk-score" id="risk-score"></div>
-      
-      <div id="complete-allocator-prompt" class="complete-allocator-prompt" style="display:none;">
-        <h4>📊 Want to see your personalized investment breakdown?</h4>
-        <p>Complete the Financial Allocator first to find out how much you should invest each month. Then come back here to see exactly how to split it across stocks, bonds, and other assets.</p>
-        <button onclick="window.location.href='./index.html?risk='+currentRiskScore.toFixed(2)">Complete Financial Allocator →</button>
+      <!-- Simple mode: just show score and return button -->
+      <div id="simple-results">
+        <div class="risk-score-display">
+          <div class="label">Your Risk Profile</div>
+          <div class="profile" id="risk-label-simple">Moderate</div>
+          <div class="score">Score: <span id="risk-score-simple">0.50</span></div>
+        </div>
+        
+        <div style="padding:16px;background:#f6f8fa;border-radius:8px;margin-bottom:16px;">
+          <h4 style="margin:0 0 8px 0;font-size:15px;color:#333;">What this means:</h4>
+          <p id="score-meaning" style="margin:0;font-size:14px;color:#555;line-height:1.6;"></p>
+        </div>
+        
+        <div class="return-section">
+          <h3>✓ Risk Tolerance Found!</h3>
+          <p>Click below to apply this to your financial plan and continue.</p>
+          <button class="success" onclick="applyAndReturn()">Apply & Return to Allocator →</button>
+        </div>
+        
+        <div style="margin-top:16px;text-align:center;">
+          <button class="secondary" onclick="retakeQuiz()">← Retake Quiz</button>
+        </div>
       </div>
       
-      <div id="apply-to-allocator" style="display:none;margin-bottom:20px;padding:16px;background:#f0fff4;border:2px solid #28a745;border-radius:10px;">
-        <strong style="color:#155724;font-size:15px;">✓ Ready to apply your results!</strong>
-        <p style="margin:8px 0 12px 0;font-size:13px;color:#555;">Click below to go back with your risk tolerance set.</p>
-        <button class="apply-btn" onclick="applyAndReturn()">Apply & Return to Allocator →</button>
-      </div>
-      
-      <div id="full-results">
+      <!-- Full mode: show everything after allocator is complete -->
+      <div id="full-results" class="hidden">
+        <div class="risk-score" id="risk-score-full"></div>
+        
         <h3 style="margin-top:0;font-size:18px">
           Suggested Portfolio Allocation 
           <span class="info-icon" onclick="openMethodologyModal()" title="View methodology">?</span>
         </h3>
         <table class="portfolio-table" id="portfolio-table">
-          <thead><tr><th>Asset Class</th><th>Allocation</th></tr></thead>
+          <thead><tr><th>Asset Class</th><th>Allocation</th><th>Monthly $</th></tr></thead>
           <tbody id="portfolio-body"></tbody>
         </table>
         <div id="piechart" style="width:100%;height:350px;margin-top:20px"></div>
         
-        <div id="limited-note" class="limited-results-note" style="display:none;">
-          💡 Complete the Financial Allocator to see dollar amounts and actionable next steps.
+        <div class="tip">
+          💡 <strong>Tip:</strong> Use these ETFs in any brokerage (Fidelity, Schwab, Vanguard, etc.)
         </div>
         
-        <div id="full-breakdown">
-          <div class="tip">
-            💡 <strong>Tip:</strong> Use these ETFs in any brokerage (Fidelity, Schwab, Vanguard, etc.)
+        <div style="margin-top:20px;padding:16px;background:#f6f8fa;border-radius:8px;">
+          <h4 style="margin:0 0 12px 0;font-size:15px;color:#333;">🚀 How to Get Started</h4>
+          <ol style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#555;">
+            <li><strong>Open a brokerage account</strong> — Fidelity, Schwab, or Vanguard (all free)</li>
+            <li><strong>Link your bank</strong> — Connect your checking account</li>
+            <li><strong>Search for ETFs</strong> — Use ticker symbols (e.g., "VTI")</li>
+            <li><strong>Buy shares</strong> — Most brokers allow fractional shares</li>
+            <li><strong>Set up auto-invest</strong> — Automate monthly purchases</li>
+          </ol>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:6px;font-size:12px;color:#666;">
+            <strong>💰 Pro tip:</strong> Consider a Roth IRA if eligible — tax-free growth! 2024/2025 limit: $7,000/year.
           </div>
-          
-          <div style="margin-top:20px;padding:16px;background:#f6f8fa;border-radius:8px;">
-            <h4 style="margin:0 0 12px 0;font-size:15px;color:#333;">🚀 How to Get Started</h4>
-            <ol style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#555;">
-              <li><strong>Open a brokerage account</strong> — Fidelity, Schwab, or Vanguard (all free)</li>
-              <li><strong>Link your bank</strong> — Connect your checking account</li>
-              <li><strong>Search for ETFs</strong> — Use ticker symbols (e.g., "VTI")</li>
-              <li><strong>Buy shares</strong> — Most brokers allow fractional shares</li>
-              <li><strong>Set up auto-invest</strong> — Automate monthly purchases</li>
-            </ol>
-            <div style="margin-top:12px;padding:10px;background:#fff;border-radius:6px;font-size:12px;color:#666;">
-              <strong>💰 Pro tip:</strong> Consider a Roth IRA if eligible — tax-free growth! 2024/2025 limit: $7,000/year.
-            </div>
-          </div>
+        </div>
+        
+        <div style="margin-top:20px;text-align:center;">
+          <button class="secondary" onclick="retakeQuiz()">← Retake Quiz</button>
+          <button onclick="window.location.href='./index.html'" style="margin-top:8px;">Back to Allocator</button>
         </div>
       </div>
     </div>
@@ -218,9 +229,10 @@
 
 <script>
 var currentRiskScore = 0;
-var cameFromSlider = false;
-var hasCompletedAllocator = false;
+var expectedReturn = 0.08;
 var investAmount = 0;
+var isAllocatorComplete = false;
+var cameFromAllocator = false;
 
 var etfSuggestions = {
   'US Stocks': 'e.g., VTI, VOO, SPY',
@@ -236,7 +248,7 @@ var expectedReturns = {
   'Alternatives': 0.05
 };
 
-function checkAllocatorCompleted() {
+function checkAllocatorComplete() {
   var urlParams = new URLSearchParams(window.location.search);
   var investParam = urlParams.get('invest');
   
@@ -249,12 +261,39 @@ function checkAllocatorCompleted() {
   if (saved) {
     try {
       var state = JSON.parse(saved);
-      if (state.income > 0 && state.expenses > 0 && state.income > state.expenses) {
+      // Check if they've completed the allocator (reached step 4 / results)
+      if (state.currentStep >= 4 && state.income > 0 && state.expenses > 0) {
         return true;
       }
     } catch (e) {}
   }
   return false;
+}
+
+function getInvestAmountFromAllocator() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var investParam = urlParams.get('invest');
+  if (investParam) return Number(investParam);
+  
+  // Try to calculate from saved state
+  var saved = localStorage.getItem('financialAllocatorState');
+  if (saved) {
+    try {
+      var s = JSON.parse(saved);
+      var disc = s.income - s.expenses - (s.minDebtPayment || 0);
+      return Math.max(0, disc * 0.5); // Rough estimate
+    } catch (e) {}
+  }
+  return 0;
+}
+
+function resetAll() {
+  if (confirm('This will clear all your data and start fresh. Are you sure?')) {
+    localStorage.removeItem('financialAllocatorState');
+    localStorage.removeItem('riskAssessmentAnswers');
+    localStorage.removeItem('riskPromptDismissed');
+    window.location.href = './index.html';
+  }
 }
 
 function openMethodologyModal() {
@@ -270,43 +309,6 @@ function closeMethodologyModal(event) {
 function toggleLearnMore() {
   var content = document.getElementById('learn-more-content');
   content.style.display = content.style.display === 'none' || content.style.display === '' ? 'block' : 'none';
-}
-
-function saveAnswers() {
-  var answers = {
-    lossComfort: document.getElementById('loss-comfort').value,
-    growthPreference: document.getElementById('growth-pref').value,
-    timeHorizon: document.getElementById('time-horizon').value,
-    experience: document.getElementById('experience').value,
-    monthlyAmount: document.getElementById('monthly-amount').value,
-    riskScore: currentRiskScore
-  };
-  localStorage.setItem('riskAssessmentAnswers', JSON.stringify(answers));
-}
-
-function loadAnswers() {
-  var saved = localStorage.getItem('riskAssessmentAnswers');
-  if (saved) {
-    try {
-      var answers = JSON.parse(saved);
-      if (answers.lossComfort) document.getElementById('loss-comfort').value = answers.lossComfort;
-      if (answers.growthPreference) document.getElementById('growth-pref').value = answers.growthPreference;
-      if (answers.timeHorizon) document.getElementById('time-horizon').value = answers.timeHorizon;
-      if (answers.experience) document.getElementById('experience').value = answers.experience;
-      
-      if (!investAmount && answers.monthlyAmount) {
-        document.getElementById('monthly-amount').value = answers.monthlyAmount;
-      }
-      
-      if (answers.lossComfort && answers.growthPreference && answers.timeHorizon && answers.experience && answers.riskScore > 0) {
-        currentRiskScore = answers.riskScore;
-        var portfolio = mapRiskToPortfolio(currentRiskScore);
-        var expReturn = calculateExpectedReturn(portfolio);
-        updateHomeLink(expReturn);
-        displayResults(currentRiskScore, portfolio);
-      }
-    } catch (e) {}
-  }
 }
 
 function calculateRiskScore(answers) {
@@ -348,35 +350,51 @@ function getRiskLabel(score) {
   return 'Aggressive';
 }
 
-function displayResults(score, portfolio) {
+function getRiskMeaning(score) {
+  if (score < 0.25) return 'You prefer stability over growth. Your portfolio will focus heavily on bonds and stable investments, with minimal stock exposure. This approach prioritizes protecting your principal over maximizing returns.';
+  if (score < 0.45) return 'You lean toward safety but want some growth potential. Your portfolio will have a moderate stock allocation balanced with substantial bond holdings to smooth out volatility.';
+  if (score < 0.65) return 'You\'re comfortable with a balanced approach. Your portfolio will have a healthy mix of stocks for growth and bonds for stability, suitable for medium-term goals.';
+  if (score < 0.85) return 'You\'re comfortable with volatility in pursuit of higher returns. Your portfolio will be stock-heavy, accepting short-term fluctuations for long-term growth potential.';
+  return 'You\'re very comfortable with market swings and focused on maximum growth. Your portfolio will be heavily weighted toward stocks, suitable for long time horizons and high risk tolerance.';
+}
+
+function saveAnswers() {
+  var answers = {
+    lossComfort: document.getElementById('loss-comfort').value,
+    growthPreference: document.getElementById('growth-pref').value,
+    timeHorizon: document.getElementById('time-horizon').value,
+    experience: document.getElementById('experience').value,
+    riskScore: currentRiskScore,
+    expectedReturn: expectedReturn
+  };
+  localStorage.setItem('riskAssessmentAnswers', JSON.stringify(answers));
+}
+
+function displaySimpleResults(score, portfolio) {
+  var riskLabel = getRiskLabel(score);
+  
+  document.getElementById('risk-label-simple').innerText = riskLabel;
+  document.getElementById('risk-score-simple').innerText = score.toFixed(2);
+  document.getElementById('score-meaning').innerText = getRiskMeaning(score);
+  
+  document.getElementById('simple-results').classList.remove('hidden');
+  document.getElementById('full-results').classList.add('hidden');
+}
+
+function displayFullResults(score, portfolio) {
   var expReturn = calculateExpectedReturn(portfolio);
   var riskLabel = getRiskLabel(score);
-  var monthlyAmount = investAmount || Number(document.getElementById('monthly-amount').value) || 0;
+  var monthlyAmount = investAmount || getInvestAmountFromAllocator();
   
-  document.getElementById('risk-score').innerHTML = 
+  document.getElementById('risk-score-full').innerHTML = 
     'Your Risk Profile: <span style="color:#1f6feb">' + riskLabel + '</span> (' + score.toFixed(2) + ')<br>' +
     '<span style="font-size:15px;margin-top:6px;display:inline-block;">Expected return: <span style="color:#1f6feb">' + (expReturn * 100).toFixed(1) + '%</span>/year</span>';
-  
-  // Show/hide sections based on allocator completion
-  if (hasCompletedAllocator) {
-    document.getElementById('complete-allocator-prompt').style.display = 'none';
-    document.getElementById('full-breakdown').style.display = 'block';
-    document.getElementById('limited-note').style.display = 'none';
-    if (cameFromSlider) {
-      document.getElementById('apply-to-allocator').style.display = 'block';
-    }
-  } else {
-    document.getElementById('complete-allocator-prompt').style.display = 'block';
-    document.getElementById('full-breakdown').style.display = 'none';
-    document.getElementById('limited-note').style.display = 'block';
-    document.getElementById('apply-to-allocator').style.display = 'none';
-  }
   
   var tbody = document.getElementById('portfolio-body');
   tbody.innerHTML = '';
   var values = [], labels = [];
   
-  var showDollars = hasCompletedAllocator && monthlyAmount > 0;
+  var showDollars = monthlyAmount > 0;
   var tableHeader = document.querySelector('#portfolio-table thead tr');
   tableHeader.innerHTML = showDollars ? '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>' : '<th>Asset Class</th><th>Allocation</th>';
   
@@ -397,7 +415,9 @@ function displayResults(score, portfolio) {
     }
   }
   
-  document.getElementById('results').style.display = 'block';
+  document.getElementById('simple-results').classList.add('hidden');
+  document.getElementById('full-results').classList.remove('hidden');
+  
   Plotly.newPlot('piechart', [{values: values, labels: labels, type: 'pie', marker: {colors: ['#1f6feb', '#56d364', '#f1e05a', '#d73a49']}}], {margin: {t: 0, b: 0, l: 0, r: 0}});
 }
 
@@ -416,86 +436,57 @@ function calculateRisk() {
   currentRiskScore = score;
   
   var portfolio = mapRiskToPortfolio(score);
-  var expReturn = calculateExpectedReturn(portfolio);
+  expectedReturn = calculateExpectedReturn(portfolio);
   
-  updateHomeLink(expReturn);
   saveAnswers();
-  displayResults(score, portfolio);
+  
+  // Show simple or full results based on whether allocator is complete
+  if (isAllocatorComplete && !cameFromAllocator) {
+    displayFullResults(score, portfolio);
+  } else {
+    displaySimpleResults(score, portfolio);
+  }
+  
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 }
 
-function updateHomeLink(expReturn) {
-  var homeLink = document.getElementById('home-link');
-  if (homeLink && currentRiskScore > 0) {
-    homeLink.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expReturn.toFixed(4);
-  }
+function retakeQuiz() {
+  document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
 }
 
 function applyAndReturn() {
-  var portfolio = mapRiskToPortfolio(currentRiskScore);
-  var expReturn = calculateExpectedReturn(portfolio);
-  window.location.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expReturn.toFixed(4);
-}
-
-function enableAmountEdit() {
-  var input = document.getElementById('monthly-amount');
-  var btn = document.getElementById('edit-amount-btn');
-  var source = document.getElementById('amount-source');
-  
-  if (input.disabled) {
-    input.disabled = false;
-    input.focus();
-    btn.innerText = 'Lock';
-    btn.style.background = '#1f6feb';
-    btn.style.color = 'white';
-    source.innerHTML = '💡 Enter amount, then click "Lock"';
-  } else {
-    input.disabled = true;
-    btn.innerText = 'Edit';
-    btn.style.background = '#f6f8fa';
-    btn.style.color = '#1f6feb';
-    source.innerHTML = '✓ Amount set';
-    saveAnswers();
-  }
-}
-
-function resetAssessment() {
-  document.getElementById('loss-comfort').value = '';
-  document.getElementById('growth-pref').value = '';
-  document.getElementById('time-horizon').value = '';
-  document.getElementById('experience').value = '';
-  document.getElementById('results').style.display = 'none';
-  currentRiskScore = 0;
-  localStorage.removeItem('riskAssessmentAnswers');
-  document.getElementById('home-link').href = './index.html';
+  saveAnswers();
+  window.location.href = './index.html?risk=' + currentRiskScore.toFixed(2) + '&return=' + expectedReturn.toFixed(4);
 }
 
 window.addEventListener('DOMContentLoaded', function() {
   var urlParams = new URLSearchParams(window.location.search);
+  cameFromAllocator = urlParams.get('from') === 'allocator';
   var investParam = urlParams.get('invest');
-  var fromSlider = urlParams.get('from');
   
-  hasCompletedAllocator = checkAllocatorCompleted();
+  if (investParam) investAmount = Number(investParam);
   
-  if (fromSlider === 'slider') {
-    cameFromSlider = true;
-    document.getElementById('from-slider-banner').style.display = 'block';
+  isAllocatorComplete = checkAllocatorComplete();
+  
+  // Show/hide the "from allocator" banner
+  if (!cameFromAllocator) {
+    document.getElementById('from-allocator-banner').style.display = 'none';
   }
   
-  // Only show amount field if they came from allocator
-  if (hasCompletedAllocator && investParam) {
-    document.getElementById('amount-group').style.display = 'block';
-    document.getElementById('monthly-amount').value = investParam;
-    document.getElementById('amount-source').innerHTML = '✓ From Financial Allocator';
-    document.getElementById('amount-source').style.color = '#1f6feb';
+  // Load any saved answers to pre-fill the form
+  var saved = localStorage.getItem('riskAssessmentAnswers');
+  if (saved) {
+    try {
+      var answers = JSON.parse(saved);
+      if (answers.lossComfort) document.getElementById('loss-comfort').value = answers.lossComfort;
+      if (answers.growthPreference) document.getElementById('growth-pref').value = answers.growthPreference;
+      if (answers.timeHorizon) document.getElementById('time-horizon').value = answers.timeHorizon;
+      if (answers.experience) document.getElementById('experience').value = answers.experience;
+    } catch (e) {}
   }
-  
-  loadAnswers();
-  
-  ['loss-comfort', 'growth-pref', 'time-horizon', 'experience'].forEach(function(id) {
-    document.getElementById(id).addEventListener('change', saveAnswers);
-  });
-  document.getElementById('monthly-amount').addEventListener('input', saveAnswers);
 });
 </script>
 </body>
