@@ -10,7 +10,7 @@
     .wrap{max-width:800px;margin:0 auto}
     h1{margin:0;font-size:26px;margin-bottom:8px}
     .subtitle{color:#666;font-size:14px;margin-bottom:24px}
-    .card{background:#ffffff;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
+    .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-top:12px}
     .question-group{margin-bottom:24px}
     label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:8px}
     select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:white}
@@ -26,19 +26,17 @@
     .portfolio-table td{padding:10px;border-bottom:1px solid #eee;font-size:14px}
     .portfolio-table td:nth-child(2),.portfolio-table td:nth-child(3){text-align:right;font-weight:600}
     .tip{margin-top:16px;padding:12px;background:#e6f7ff;border-left:4px solid #1f6feb;border-radius:4px;font-size:13px;color:#555}
-    nav{background:#ffffff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
+    nav{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(20,30,40,0.06);margin-bottom:20px;display:flex;gap:12px}
     nav a{text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;transition:background 0.2s}
     nav a.active{background:#1f6feb;color:white}
     nav a:not(.active){color:#1f6feb;background:#f6f8fa}
     nav a:not(.active):hover{background:#e6e9ef}
     .info-icon{display:inline-block;width:18px;height:18px;background:#1f6feb;color:white;border-radius:50%;text-align:center;font-size:12px;line-height:18px;cursor:pointer;margin-left:6px;font-weight:bold;vertical-align:middle}
-    .info-icon:hover{background:#1557cf}
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
     .modal-content{background:white;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
     .modal-header h3{margin:0;font-size:18px;color:#333}
     .modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#666;padding:0;width:auto}
-    .modal-close:hover{color:#333}
     .source-table{width:100%;border-collapse:collapse;margin:12px 0}
     .source-table th,.source-table td{padding:8px;text-align:left;border-bottom:1px solid #eee;font-size:13px}
     .source-table th{background:#f6f8fa;font-weight:600}
@@ -46,12 +44,18 @@
     .from-slider-banner strong{display:block;margin-bottom:4px;font-size:14px}
     .apply-btn{background:#28a745;margin-top:16px}
     .apply-btn:hover{background:#218838}
+    .complete-allocator-prompt{background:linear-gradient(135deg,#fff3cd 0%,#ffeeba 100%);border:2px solid #ffc107;border-radius:12px;padding:20px;margin-bottom:20px;text-align:center}
+    .complete-allocator-prompt h4{margin:0 0 8px 0;font-size:16px;color:#856404}
+    .complete-allocator-prompt p{margin:0 0 16px 0;font-size:14px;color:#664d03;line-height:1.5}
+    .complete-allocator-prompt button{background:#ffc107;color:#212529;max-width:300px}
+    .complete-allocator-prompt button:hover{background:#e0a800}
+    .limited-results-note{background:#f6f8fa;border-radius:8px;padding:12px;margin-top:16px;font-size:13px;color:#666;text-align:center}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#664d03;">
-      <strong>⚠️ Disclaimer:</strong> This tool is for educational purposes only and does not constitute financial advice. Expected returns are estimates based on historical averages and are not guaranteed.
+      <strong>⚠️ Disclaimer:</strong> This tool is for educational purposes only and does not constitute financial advice.
     </div>
     
     <nav>
@@ -61,19 +65,19 @@
     
     <div class="from-slider-banner" id="from-slider-banner" style="display:none;">
       <strong>🎯 Finding Your Risk Tolerance</strong>
-      Answer 4 quick questions and we'll set your risk tolerance automatically. You'll also get personalized investment suggestions!
+      Answer 4 quick questions and we'll set your risk tolerance automatically!
     </div>
     
     <header>
       <h1>Investment Risk Assessment</h1>
-      <p class="subtitle">Answer 4 questions to find your risk tolerance and get portfolio suggestions</p>
+      <p class="subtitle">Answer 4 questions to find your risk tolerance</p>
     </header>
 
     <div class="card">
       <div class="question-group">
-        <label for="loss-comfort">1. If your investments dropped 20%, how would you feel?</label>
+        <label>1. If your investments dropped 20%, how would you feel?</label>
         <select id="loss-comfort">
-          <option value="">-- Select an option --</option>
+          <option value="">-- Select --</option>
           <option value="Very Uncomfortable">Very Uncomfortable - I'd lose sleep</option>
           <option value="Uncomfortable">Uncomfortable - I'd be worried</option>
           <option value="Neutral">Neutral - It happens</option>
@@ -83,9 +87,9 @@
       </div>
 
       <div class="question-group">
-        <label for="growth-pref">2. What's your investment philosophy?</label>
+        <label>2. What's your investment philosophy?</label>
         <select id="growth-pref">
-          <option value="">-- Select an option --</option>
+          <option value="">-- Select --</option>
           <option value="Prefer Stability">Prefer Stability - Protect what I have</option>
           <option value="Slightly Prefer Stability">Slightly Prefer Stability</option>
           <option value="Neutral">Balanced - Mix of both</option>
@@ -95,9 +99,9 @@
       </div>
 
       <div class="question-group">
-        <label for="time-horizon">3. When will you need this money?</label>
+        <label>3. When will you need this money?</label>
         <select id="time-horizon">
-          <option value="">-- Select an option --</option>
+          <option value="">-- Select --</option>
           <option value="<1 year">Less than 1 year</option>
           <option value="1-3 years">1-3 years</option>
           <option value="3-5 years">3-5 years</option>
@@ -107,17 +111,17 @@
       </div>
 
       <div class="question-group">
-        <label for="experience">4. Prior investing experience?</label>
+        <label>4. Prior investing experience?</label>
         <select id="experience">
-          <option value="">-- Select an option --</option>
+          <option value="">-- Select --</option>
           <option value="None">None - I'm new to this</option>
           <option value="Some">Some - I've invested a bit</option>
           <option value="Significant">Significant - I'm experienced</option>
         </select>
       </div>
 
-      <div class="question-group">
-        <label for="monthly-amount">Monthly investment amount ($)</label>
+      <div class="question-group" id="amount-group" style="display:none;">
+        <label>Monthly investment amount ($)</label>
         <div style="display:flex;gap:8px;align-items:center;">
           <input type="number" id="monthly-amount" min="0" step="100" placeholder="e.g., 500" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;" disabled>
           <button type="button" id="edit-amount-btn" onclick="enableAmountEdit()" style="width:auto;padding:8px 16px;font-size:13px;background:#f6f8fa;color:#1f6feb;border:1px solid #ddd;">Edit</button>
@@ -128,10 +132,10 @@
       <div class="learn-more">
         <div class="learn-more-toggle" onclick="toggleLearnMore()">💡 Why we ask these questions</div>
         <div class="learn-more-content" id="learn-more-content">
-          <strong>Loss comfort (40% weight):</strong> How you react to losses is the biggest predictor of whether you'll stick to your plan.<br><br>
-          <strong>Growth preference (30%):</strong> Your goals—wealth building vs. preservation—should match your portfolio.<br><br>
-          <strong>Time horizon (20%):</strong> More time = more ability to recover from downturns.<br><br>
-          <strong>Experience (10%):</strong> Experienced investors often handle volatility better.
+          <strong>Loss comfort (40%):</strong> How you react to losses predicts if you'll stick to your plan.<br><br>
+          <strong>Growth preference (30%):</strong> Your goals should match your portfolio.<br><br>
+          <strong>Time horizon (20%):</strong> More time = more ability to recover.<br><br>
+          <strong>Experience (10%):</strong> Experienced investors handle volatility better.
         </div>
       </div>
 
@@ -142,41 +146,51 @@
     <div class="card results" id="results">
       <div class="risk-score" id="risk-score"></div>
       
+      <div id="complete-allocator-prompt" class="complete-allocator-prompt" style="display:none;">
+        <h4>📊 Want to see your personalized investment breakdown?</h4>
+        <p>Complete the Financial Allocator first to find out how much you should invest each month. Then come back here to see exactly how to split it across stocks, bonds, and other assets.</p>
+        <button onclick="window.location.href='./index.html?risk='+currentRiskScore.toFixed(2)">Complete Financial Allocator →</button>
+      </div>
+      
       <div id="apply-to-allocator" style="display:none;margin-bottom:20px;padding:16px;background:#f0fff4;border:2px solid #28a745;border-radius:10px;">
         <strong style="color:#155724;font-size:15px;">✓ Ready to apply your results!</strong>
-        <p style="margin:8px 0 12px 0;font-size:13px;color:#555;">Click below to go back to the Financial Allocator with your risk tolerance automatically set.</p>
+        <p style="margin:8px 0 12px 0;font-size:13px;color:#555;">Click below to go back with your risk tolerance set.</p>
         <button class="apply-btn" onclick="applyAndReturn()">Apply & Return to Allocator →</button>
       </div>
       
-      <h3 style="margin-top:0;font-size:18px">
-        Suggested Portfolio Allocation 
-        <span class="info-icon" onclick="openMethodologyModal()" title="View methodology">?</span>
-      </h3>
-      <table class="portfolio-table" id="portfolio-table">
-        <thead>
-          <tr>
-            <th>Asset Class</th>
-            <th>Allocation</th>
-          </tr>
-        </thead>
-        <tbody id="portfolio-body"></tbody>
-      </table>
-      <div id="piechart" style="width:100%;height:350px;margin-top:20px"></div>
-      <div class="tip">
-        💡 <strong>Tip:</strong> This portfolio suggestion is based on your risk profile. You can use these ETFs in any brokerage account (Fidelity, Schwab, Vanguard, etc.)
-      </div>
-      
-      <div style="margin-top:20px;padding:16px;background:#f6f8fa;border-radius:8px;">
-        <h4 style="margin:0 0 12px 0;font-size:15px;color:#333;">🚀 How to Get Started</h4>
-        <ol style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#555;">
-          <li><strong>Open a brokerage account</strong> — Fidelity, Charles Schwab, or Vanguard (all free)</li>
-          <li><strong>Link your bank</strong> — Connect your checking account</li>
-          <li><strong>Search for ETFs</strong> — Use ticker symbols (e.g., "VTI" for US Stocks)</li>
-          <li><strong>Buy shares</strong> — Enter your amount, most brokers allow fractional shares</li>
-          <li><strong>Set up auto-invest</strong> — Automate monthly purchases</li>
-        </ol>
-        <div style="margin-top:12px;padding:10px;background:#fff;border-radius:6px;font-size:12px;color:#666;">
-          <strong>💰 Pro tip:</strong> Consider a Roth IRA if eligible — investments grow tax-free! 2024/2025 limit is $7,000/year.
+      <div id="full-results">
+        <h3 style="margin-top:0;font-size:18px">
+          Suggested Portfolio Allocation 
+          <span class="info-icon" onclick="openMethodologyModal()" title="View methodology">?</span>
+        </h3>
+        <table class="portfolio-table" id="portfolio-table">
+          <thead><tr><th>Asset Class</th><th>Allocation</th></tr></thead>
+          <tbody id="portfolio-body"></tbody>
+        </table>
+        <div id="piechart" style="width:100%;height:350px;margin-top:20px"></div>
+        
+        <div id="limited-note" class="limited-results-note" style="display:none;">
+          💡 Complete the Financial Allocator to see dollar amounts and actionable next steps.
+        </div>
+        
+        <div id="full-breakdown">
+          <div class="tip">
+            💡 <strong>Tip:</strong> Use these ETFs in any brokerage (Fidelity, Schwab, Vanguard, etc.)
+          </div>
+          
+          <div style="margin-top:20px;padding:16px;background:#f6f8fa;border-radius:8px;">
+            <h4 style="margin:0 0 12px 0;font-size:15px;color:#333;">🚀 How to Get Started</h4>
+            <ol style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#555;">
+              <li><strong>Open a brokerage account</strong> — Fidelity, Schwab, or Vanguard (all free)</li>
+              <li><strong>Link your bank</strong> — Connect your checking account</li>
+              <li><strong>Search for ETFs</strong> — Use ticker symbols (e.g., "VTI")</li>
+              <li><strong>Buy shares</strong> — Most brokers allow fractional shares</li>
+              <li><strong>Set up auto-invest</strong> — Automate monthly purchases</li>
+            </ol>
+            <div style="margin-top:12px;padding:10px;background:#fff;border-radius:6px;font-size:12px;color:#666;">
+              <strong>💰 Pro tip:</strong> Consider a Roth IRA if eligible — tax-free growth! 2024/2025 limit: $7,000/year.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -188,27 +202,25 @@
         <h3>📊 Expected Return Methodology</h3>
         <button class="modal-close" onclick="closeMethodologyModal()">&times;</button>
       </div>
-      <p style="font-size:14px;color:#555;line-height:1.6;margin-top:0;">
-        Expected returns are based on long-term historical averages (nominal, before inflation).
-      </p>
+      <p style="font-size:14px;color:#555;line-height:1.6;margin-top:0;">Expected returns based on long-term historical averages.</p>
       <table class="source-table">
-        <thead><tr><th>Asset Class</th><th>Expected Return</th><th>Basis</th></tr></thead>
+        <thead><tr><th>Asset</th><th>Return</th><th>Basis</th></tr></thead>
         <tbody>
           <tr><td>US Stocks</td><td>10%</td><td>S&P 500 (1928-2024)</td></tr>
-          <tr><td>International Stocks</td><td>7%</td><td>MSCI EAFE (1970-2024)</td></tr>
-          <tr><td>Bonds</td><td>5%</td><td>US Aggregate Bond Index</td></tr>
-          <tr><td>Alternatives</td><td>5%</td><td>REITs/Commodities blend</td></tr>
+          <tr><td>Int'l Stocks</td><td>7%</td><td>MSCI EAFE</td></tr>
+          <tr><td>Bonds</td><td>5%</td><td>US Aggregate Bond</td></tr>
+          <tr><td>Alternatives</td><td>5%</td><td>REITs/Commodities</td></tr>
         </tbody>
       </table>
-      <p style="font-size:13px;color:#666;margin-bottom:4px;"><strong>Source:</strong> NYU Stern - Aswath Damodaran's Historical Returns</p>
-      <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html" target="_blank" style="display:inline-block;background:#1f6feb;color:white;padding:8px 14px;border-radius:6px;text-decoration:none;font-size:13px;margin-top:8px;">View Source →</a>
-      <p style="font-size:12px;color:#888;margin-top:16px;margin-bottom:0;"><strong>Note:</strong> Past performance does not guarantee future results.</p>
+      <p style="font-size:12px;color:#888;margin-top:16px;margin-bottom:0;"><strong>Note:</strong> Past performance ≠ future results.</p>
     </div>
   </div>
 
 <script>
 var currentRiskScore = 0;
 var cameFromSlider = false;
+var hasCompletedAllocator = false;
+var investAmount = 0;
 
 var etfSuggestions = {
   'US Stocks': 'e.g., VTI, VOO, SPY',
@@ -223,6 +235,27 @@ var expectedReturns = {
   'Bonds': 0.05,
   'Alternatives': 0.05
 };
+
+function checkAllocatorCompleted() {
+  var urlParams = new URLSearchParams(window.location.search);
+  var investParam = urlParams.get('invest');
+  
+  if (investParam && Number(investParam) > 0) {
+    investAmount = Number(investParam);
+    return true;
+  }
+  
+  var saved = localStorage.getItem('financialAllocatorState');
+  if (saved) {
+    try {
+      var state = JSON.parse(saved);
+      if (state.income > 0 && state.expenses > 0 && state.income > state.expenses) {
+        return true;
+      }
+    } catch (e) {}
+  }
+  return false;
+}
 
 function openMethodologyModal() {
   document.getElementById('methodology-modal').style.display = 'flex';
@@ -261,8 +294,6 @@ function loadAnswers() {
       if (answers.timeHorizon) document.getElementById('time-horizon').value = answers.timeHorizon;
       if (answers.experience) document.getElementById('experience').value = answers.experience;
       
-      var urlParams = new URLSearchParams(window.location.search);
-      var investAmount = urlParams.get('invest');
       if (!investAmount && answers.monthlyAmount) {
         document.getElementById('monthly-amount').value = answers.monthlyAmount;
       }
@@ -272,12 +303,9 @@ function loadAnswers() {
         var portfolio = mapRiskToPortfolio(currentRiskScore);
         var expReturn = calculateExpectedReturn(portfolio);
         updateHomeLink(expReturn);
-        var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
-        displayResults(currentRiskScore, portfolio, monthlyAmount);
+        displayResults(currentRiskScore, portfolio);
       }
-    } catch (e) {
-      console.error('Error loading saved answers:', e);
-    }
+    } catch (e) {}
   }
 }
 
@@ -305,9 +333,8 @@ function mapRiskToPortfolio(score) {
 function calculateExpectedReturn(portfolio) {
   var weightedReturn = 0;
   for (var asset in portfolio) {
-    var weight = portfolio[asset];
-    if (weight > 0 && expectedReturns[asset]) {
-      weightedReturn += (weight / 100) * expectedReturns[asset];
+    if (portfolio[asset] > 0 && expectedReturns[asset]) {
+      weightedReturn += (portfolio[asset] / 100) * expectedReturns[asset];
     }
   }
   return weightedReturn;
@@ -321,38 +348,50 @@ function getRiskLabel(score) {
   return 'Aggressive';
 }
 
-function displayResults(score, portfolio, monthlyAmount) {
+function displayResults(score, portfolio) {
   var expReturn = calculateExpectedReturn(portfolio);
   var riskLabel = getRiskLabel(score);
+  var monthlyAmount = investAmount || Number(document.getElementById('monthly-amount').value) || 0;
   
   document.getElementById('risk-score').innerHTML = 
     'Your Risk Profile: <span style="color:#1f6feb">' + riskLabel + '</span> (' + score.toFixed(2) + ')<br>' +
-    '<span style="font-size:15px;margin-top:6px;display:inline-block;">Expected portfolio return: <span style="color:#1f6feb">' + (expReturn * 100).toFixed(1) + '%</span>/year</span>';
+    '<span style="font-size:15px;margin-top:6px;display:inline-block;">Expected return: <span style="color:#1f6feb">' + (expReturn * 100).toFixed(1) + '%</span>/year</span>';
   
-  if (cameFromSlider) {
-    document.getElementById('apply-to-allocator').style.display = 'block';
+  // Show/hide sections based on allocator completion
+  if (hasCompletedAllocator) {
+    document.getElementById('complete-allocator-prompt').style.display = 'none';
+    document.getElementById('full-breakdown').style.display = 'block';
+    document.getElementById('limited-note').style.display = 'none';
+    if (cameFromSlider) {
+      document.getElementById('apply-to-allocator').style.display = 'block';
+    }
+  } else {
+    document.getElementById('complete-allocator-prompt').style.display = 'block';
+    document.getElementById('full-breakdown').style.display = 'none';
+    document.getElementById('limited-note').style.display = 'block';
+    document.getElementById('apply-to-allocator').style.display = 'none';
   }
   
   var tbody = document.getElementById('portfolio-body');
   tbody.innerHTML = '';
-  var values = [];
-  var labels = [];
+  var values = [], labels = [];
   
+  var showDollars = hasCompletedAllocator && monthlyAmount > 0;
   var tableHeader = document.querySelector('#portfolio-table thead tr');
-  tableHeader.innerHTML = monthlyAmount > 0 ? '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>' : '<th>Asset Class</th><th>Allocation</th>';
+  tableHeader.innerHTML = showDollars ? '<th>Asset Class</th><th>Allocation</th><th>Monthly $</th>' : '<th>Asset Class</th><th>Allocation</th>';
   
   for (var asset in portfolio) {
     var weight = portfolio[asset];
     if (weight > 0) {
       var suggestion = etfSuggestions[asset] || '';
-      var assetRow = document.createElement('tr');
-      if (monthlyAmount > 0) {
-        var dollarAmount = (monthlyAmount * weight / 100).toFixed(0);
-        assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td><td>$' + dollarAmount + '</td>';
+      var row = document.createElement('tr');
+      if (showDollars) {
+        var dollars = (monthlyAmount * weight / 100).toFixed(0);
+        row.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td><td>$' + dollars + '</td>';
       } else {
-        assetRow.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td>';
+        row.innerHTML = '<td><strong>' + asset + '</strong><br><span style="font-size:12px;color:#888;font-style:italic;">' + suggestion + '</span></td><td>' + weight + '%</td>';
       }
-      tbody.appendChild(assetRow);
+      tbody.appendChild(row);
       values.push(weight);
       labels.push(asset);
     }
@@ -363,19 +402,17 @@ function displayResults(score, portfolio, monthlyAmount) {
 }
 
 function calculateRisk() {
-  var lossComfort = document.getElementById('loss-comfort').value;
-  var growthPreference = document.getElementById('growth-pref').value;
-  var timeHorizon = document.getElementById('time-horizon').value;
-  var experience = document.getElementById('experience').value;
-  var monthlyAmount = Number(document.getElementById('monthly-amount').value) || 0;
+  var lc = document.getElementById('loss-comfort').value;
+  var gp = document.getElementById('growth-pref').value;
+  var th = document.getElementById('time-horizon').value;
+  var ex = document.getElementById('experience').value;
   
-  if (!lossComfort || !growthPreference || !timeHorizon || !experience) {
+  if (!lc || !gp || !th || !ex) {
     alert('Please answer all 4 questions.');
     return;
   }
   
-  var answers = {lossComfort: lossComfort, growthPreference: growthPreference, timeHorizon: timeHorizon, experience: experience};
-  var score = calculateRiskScore(answers);
+  var score = calculateRiskScore({lossComfort: lc, growthPreference: gp, timeHorizon: th, experience: ex});
   currentRiskScore = score;
   
   var portfolio = mapRiskToPortfolio(score);
@@ -383,7 +420,7 @@ function calculateRisk() {
   
   updateHomeLink(expReturn);
   saveAnswers();
-  displayResults(score, portfolio, monthlyAmount);
+  displayResults(score, portfolio);
   document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -411,15 +448,13 @@ function enableAmountEdit() {
     btn.innerText = 'Lock';
     btn.style.background = '#1f6feb';
     btn.style.color = 'white';
-    source.innerHTML = '💡 Enter your amount, then click "Lock"';
-    source.style.color = '#666';
+    source.innerHTML = '💡 Enter amount, then click "Lock"';
   } else {
     input.disabled = true;
     btn.innerText = 'Edit';
     btn.style.background = '#f6f8fa';
     btn.style.color = '#1f6feb';
     source.innerHTML = '✓ Amount set';
-    source.style.color = '#1f6feb';
     saveAnswers();
   }
 }
@@ -430,7 +465,6 @@ function resetAssessment() {
   document.getElementById('time-horizon').value = '';
   document.getElementById('experience').value = '';
   document.getElementById('results').style.display = 'none';
-  document.getElementById('apply-to-allocator').style.display = 'none';
   currentRiskScore = 0;
   localStorage.removeItem('riskAssessmentAnswers');
   document.getElementById('home-link').href = './index.html';
@@ -438,34 +472,29 @@ function resetAssessment() {
 
 window.addEventListener('DOMContentLoaded', function() {
   var urlParams = new URLSearchParams(window.location.search);
-  var investAmount = urlParams.get('invest');
+  var investParam = urlParams.get('invest');
   var fromSlider = urlParams.get('from');
+  
+  hasCompletedAllocator = checkAllocatorCompleted();
   
   if (fromSlider === 'slider') {
     cameFromSlider = true;
     document.getElementById('from-slider-banner').style.display = 'block';
   }
   
-  if (investAmount && investAmount > 0) {
-    document.getElementById('monthly-amount').value = investAmount;
+  // Only show amount field if they came from allocator
+  if (hasCompletedAllocator && investParam) {
+    document.getElementById('amount-group').style.display = 'block';
+    document.getElementById('monthly-amount').value = investParam;
     document.getElementById('amount-source').innerHTML = '✓ From Financial Allocator';
     document.getElementById('amount-source').style.color = '#1f6feb';
-  } else {
-    var input = document.getElementById('monthly-amount');
-    var btn = document.getElementById('edit-amount-btn');
-    var source = document.getElementById('amount-source');
-    input.disabled = false;
-    btn.style.display = 'none';
-    source.innerHTML = 'Enter your monthly investment amount';
-    source.style.color = '#666';
   }
   
   loadAnswers();
   
-  document.getElementById('loss-comfort').addEventListener('change', saveAnswers);
-  document.getElementById('growth-pref').addEventListener('change', saveAnswers);
-  document.getElementById('time-horizon').addEventListener('change', saveAnswers);
-  document.getElementById('experience').addEventListener('change', saveAnswers);
+  ['loss-comfort', 'growth-pref', 'time-horizon', 'experience'].forEach(function(id) {
+    document.getElementById(id).addEventListener('change', saveAnswers);
+  });
   document.getElementById('monthly-amount').addEventListener('input', saveAnswers);
 });
 </script>
