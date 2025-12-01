@@ -349,30 +349,30 @@ var rtLocked = false;
 var rInvestLocked = false;
 
 var defaults = {
-  income: 4000, expenses: 2200, minDebtPayment: 300,
+  income: 0, expenses: 0, minDebtPayment: 0,
   has401k: false, annualSalary: 50000, employerMatchPercent: 50, matchCapPercent: 6, current401kPercent: 0,
   prioritizeTaxAdvantaged: false, currentAutoInvest: 0, currentAutoSave: 0, currentExtraDebt: 0,
-  rInvest: 0.08, rDebt: 0.06, rSave: 0.015, RT: 0.5, DA: 0.5,
-  pInvest: 0.33, pDebt: 0.33, pSave: 0.33, years: 10,
-  initialInvest: 0, initialSavings: 0, initialDebt: 50000
+  rInvest: 0.08, rDebt: 0, rSave: 0.015, RT: 0.5, DA: 0,
+  pInvest: 0.50, pDebt: 0, pSave: 0.50, years: 10,
+  initialInvest: 0, initialSavings: 0, initialDebt: 0
 };
 
 var sliderDefs = [
-  ["income", "Monthly Take-Home Pay", defaults.income, 1000, 15000, 100, "What lands in your bank after taxes and any current retirement contributions."],
-  ["expenses", "Monthly Expenses", defaults.expenses, 500, 12000, 50, "Regular monthly expenses (rent, utilities, groceries, etc.)."],
-  ["minDebtPayment", "Minimum Debt Payment", defaults.minDebtPayment, 0, 2000, 10, "The minimum you must pay on debts each month."],
-  ["rInvest", "Expected Investment Return", defaults.rInvest, 0, 0.15, 0.005, "Expected annual return (8% = stock market average)."],
-  ["rDebt", "Debt Interest Rate", defaults.rDebt, 0, 0.15, 0.005, "Average annual interest rate on your debts."],
-  ["rSave", "Savings Interest Rate", defaults.rSave, 0, 0.05, 0.001, "Expected return on savings (1.5% = high-yield savings)."],
-  ["RT", "Risk Tolerance", defaults.RT, 0, 1, 0.01, "How comfortable are you with investment risk? Higher = more aggressive."],
-  ["DA", "Debt Aversion", defaults.DA, 0, 1, 0.01, "How strongly do you prefer paying down debt? Higher = faster repayment."],
-  ["pInvest", "Invest Priority", defaults.pInvest, 0, 1, 0.01, "Personal priority for investing (three must sum to 1.0)."],
-  ["pDebt", "Debt Priority", defaults.pDebt, 0, 1, 0.01, "Personal priority for debt repayment."],
-  ["pSave", "Save Priority", defaults.pSave, 0, 1, 0.01, "Personal priority for saving."],
+  ["income", "Monthly Take-Home Pay", 0, 0, 15000, 100, "What lands in your bank after taxes and any current retirement contributions."],
+  ["expenses", "Monthly Expenses", 0, 0, 12000, 50, "Regular monthly expenses (rent, utilities, groceries, etc.)."],
+  ["minDebtPayment", "Minimum Debt Payment", 0, 0, 2000, 10, "The minimum you must pay on debts each month."],
+  ["rInvest", "Expected Investment Return", 0.08, 0, 0.15, 0.005, "Expected annual return (8% = stock market average)."],
+  ["rDebt", "Debt Interest Rate", 0, 0, 0.30, 0.005, "Average annual interest rate on your debts."],
+  ["rSave", "Savings Interest Rate", 0.015, 0, 0.05, 0.001, "Expected return on savings (1.5% = high-yield savings)."],
+  ["RT", "Risk Tolerance", 0.5, 0, 1, 0.01, "How comfortable are you with investment risk? Higher = more aggressive."],
+  ["DA", "Debt Aversion", 0, 0, 1, 0.01, "How strongly do you prefer paying down debt? Higher = faster repayment."],
+  ["pInvest", "Invest Priority", 0.50, 0, 1, 0.01, "Personal priority for investing (must sum to 1.0 with others)."],
+  ["pDebt", "Debt Priority", 0, 0, 1, 0.01, "Personal priority for debt repayment."],
+  ["pSave", "Save Priority", 0.50, 0, 1, 0.01, "Personal priority for saving."],
   ["years", "Projection Years", defaults.years, 1, 50, 1, "How many years to project."],
-  ["initialInvest", "Existing Investments", defaults.initialInvest, 0, 200000, 1000, "Current investment account balances."],
-  ["initialSavings", "Existing Savings", defaults.initialSavings, 0, 200000, 1000, "Current savings account balances."],
-  ["initialDebt", "Total Debt", defaults.initialDebt, 0, 200000, 1000, "Total debt you currently have."]
+  ["initialInvest", "Existing Investments", 0, 0, 200000, 1000, "Current investment account balances."],
+  ["initialSavings", "Existing Savings", 0, 0, 200000, 1000, "Current savings account balances."],
+  ["initialDebt", "Total Debt", 0, 0, 200000, 1000, "Total debt you currently have (credit cards, loans, etc.)."]
 ];
 
 var sections = [
@@ -909,6 +909,23 @@ function showEmergencyFundNotice(res, disc) {
 
 function runProjection() {
   var p = getParams();
+  
+  if (p.income <= 0) {
+    alert('Please enter your monthly take-home pay before running the projection.');
+    goToStep(3);
+    return;
+  }
+  if (p.expenses <= 0) {
+    alert('Please enter your monthly expenses before running the projection.');
+    goToStep(3);
+    return;
+  }
+  if (p.expenses >= p.income) {
+    alert('Your expenses are equal to or greater than your income. Please adjust your numbers - you need some discretionary income to allocate.');
+    goToStep(3);
+    return;
+  }
+  
   var res = behavioralAllocation(p);
   goToStep(4);
   showEmergencyFundNotice(res, res.discretionary - res.match401k);
