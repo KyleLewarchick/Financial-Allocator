@@ -211,39 +211,80 @@
     <p class="small">Enter your current automated contributions. Leave at $0 if you don't have that type.</p>
     
     <div class="section-header">Workplace Retirement Plan</div>
-    <div class="match-toggle">
-      <input type="checkbox" id="has401k" onchange="toggle401kSection()">
-      <label for="has401k">I have access to a 401(k) or 403(b)</label>
+    <div class="slider-row">
+      <label>Does your employer offer a retirement plan?</label>
+      <select id="retirementPlanType" onchange="handleRetirementPlanChange()" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;">
+        <option value="none">No / I don't have access</option>
+        <option value="401k">Yes - 401(k) (Private sector)</option>
+        <option value="403b">Yes - 403(b) (Non-profit / Education / Healthcare)</option>
+        <option value="457b">Yes - 457(b) (State or local government)</option>
+        <option value="tsp">Yes - TSP (Federal employee / Military)</option>
+        <option value="simple">Yes - SIMPLE IRA (Small business)</option>
+        <option value="unsure">I'm not sure what I have</option>
+      </select>
     </div>
-    <div id="match-section" class="match-section collapsed">
-      <p class="small" style="margin-top:0;margin-bottom:12px;">Note: 403(b) plans often don't include employer matching—set match to 0% if your employer doesn't match.</p>
+    
+    <div id="unsure-help" class="hidden" style="padding:12px;background:#fff3cd;border-radius:8px;margin-bottom:12px;font-size:13px;color:#664d03;">
+      <strong>💡 How to find out:</strong> Check your pay stub for deductions like "401k" or "retirement", or ask your HR department. Most private companies offer 401(k), while schools and hospitals typically offer 403(b).
+    </div>
+    
+    <div id="retirement-plan-section" class="match-section collapsed">
       <div class="slider-row">
         <label>Annual Salary ($)</label>
-        <div class="small" id="annualSalary_val">50000</div>
-        <input type="range" id="annualSalary" min="20000" max="300000" step="1000" value="50000" oninput="updateSliderVal('annualSalary')">
+        <div class="small" id="annualSalary_val">0</div>
+        <input type="range" id="annualSalary" min="0" max="300000" step="1000" value="0" oninput="updateSliderVal('annualSalary')">
       </div>
       <div class="slider-row">
         <label>Your Current Contribution (% of salary)</label>
         <div class="small" id="current401kPercent_val">0</div>
         <input type="range" id="current401kPercent" min="0" max="100" step="0.5" value="0" oninput="updateSliderVal('current401kPercent')">
       </div>
-      <div class="slider-row">
-        <label>Employer Match Rate (%)</label>
-        <div class="slider-explanation">e.g., 50% = they add $0.50 for every $1 you contribute</div>
-        <div class="small" id="employerMatchPercent_val">50</div>
-        <input type="range" id="employerMatchPercent" min="0" max="100" step="5" value="50" oninput="updateSliderVal('employerMatchPercent')">
+      
+      <div id="tsp-auto-note" class="hidden" style="padding:10px;background:#d4edda;border-radius:6px;margin-bottom:12px;font-size:13px;color:#155724;">
+        <strong>TSP Auto-Enrollment:</strong> Federal employees receive an automatic 1% contribution from their agency, plus matching up to 4% of your contributions (5% total).
       </div>
-      <div class="slider-row">
-        <label>Match Cap (% of salary)</label>
-        <div class="slider-explanation">Employer matches up to this % of your salary</div>
-        <div class="small" id="matchCapPercent_val">6</div>
-        <input type="range" id="matchCapPercent" min="1" max="10" step="0.5" value="6" oninput="updateSliderVal('matchCapPercent')">
+      
+      <div id="match-fields">
+        <div id="optional-match-toggle" class="hidden" style="margin-bottom:12px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:500;">
+            <input type="checkbox" id="hasOptionalMatch" onchange="toggleOptionalMatch()" style="width:18px;height:18px;">
+            My employer offers matching contributions
+          </label>
+        </div>
+        
+        <div id="match-sliders">
+          <div class="slider-row">
+            <label>Employer Match Rate (%)</label>
+            <div class="slider-explanation">e.g., 50% = they add $0.50 for every $1 you contribute</div>
+            <div class="small" id="employerMatchPercent_val">50</div>
+            <input type="range" id="employerMatchPercent" min="0" max="100" step="5" value="50" oninput="updateSliderVal('employerMatchPercent')">
+          </div>
+          <div class="slider-row">
+            <label>Match Cap (% of salary)</label>
+            <div class="slider-explanation">Employer matches up to this % of your salary</div>
+            <div class="small" id="matchCapPercent_val">6</div>
+            <input type="range" id="matchCapPercent" min="0" max="10" step="0.5" value="6" oninput="updateSliderVal('matchCapPercent')">
+          </div>
+        </div>
+        
+        <div id="simple-match-type" class="hidden" style="margin-bottom:12px;">
+          <label style="font-weight:500;margin-bottom:8px;">SIMPLE IRA match type:</label>
+          <div style="display:flex;gap:12px;margin-top:8px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:normal;">
+              <input type="radio" name="simpleMatchType" value="3percent" checked onchange="handleSimpleMatchType()"> 3% dollar-for-dollar match
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:normal;">
+              <input type="radio" name="simpleMatchType" value="2percent" onchange="handleSimpleMatchType()"> 2% flat contribution
+            </label>
+          </div>
+        </div>
       </div>
+      
       <div class="tax-toggle">
         <input type="checkbox" id="prioritizeTaxAdvantaged" onchange="saveState()">
         <div class="tax-toggle-content">
           <label for="prioritizeTaxAdvantaged">Prioritize tax-advantaged retirement accounts</label>
-          <div class="tax-explanation">Max out 401(k)/403(b) contributions ($23,500/yr limit) before investing in taxable brokerage accounts. Recommended for most people due to tax benefits.</div>
+          <div class="tax-explanation">Max out contributions before investing in taxable brokerage accounts. Recommended for most people due to tax benefits.</div>
         </div>
       </div>
     </div>
@@ -350,7 +391,7 @@ var rInvestLocked = false;
 
 var defaults = {
   income: 0, expenses: 0, minDebtPayment: 0,
-  has401k: false, annualSalary: 50000, employerMatchPercent: 50, matchCapPercent: 6, current401kPercent: 0,
+  has401k: false, annualSalary: 0, employerMatchPercent: 0, matchCapPercent: 0, current401kPercent: 0,
   prioritizeTaxAdvantaged: false, currentAutoInvest: 0, currentAutoSave: 0, currentExtraDebt: 0,
   rInvest: 0.08, rDebt: 0, rSave: 0.015, RT: 0.5, DA: 0,
   pInvest: 0.50, pDebt: 0, pSave: 0.50, years: 10,
@@ -429,8 +470,112 @@ function updateSliderVal(id) {
 function toggle401kSection() {
   var cb = document.getElementById('has401k');
   var sec = document.getElementById('match-section');
-  if (cb.checked) sec.classList.remove('collapsed');
-  else sec.classList.add('collapsed');
+  if (cb && sec) {
+    if (cb.checked) sec.classList.remove('collapsed');
+    else sec.classList.add('collapsed');
+  }
+  saveState();
+}
+
+function handleRetirementPlanChange() {
+  var planType = document.getElementById('retirementPlanType').value;
+  var section = document.getElementById('retirement-plan-section');
+  var matchSliders = document.getElementById('match-sliders');
+  var optionalMatchToggle = document.getElementById('optional-match-toggle');
+  var tspNote = document.getElementById('tsp-auto-note');
+  var simpleMatchType = document.getElementById('simple-match-type');
+  var unsureHelp = document.getElementById('unsure-help');
+  var matchRateSlider = document.getElementById('employerMatchPercent');
+  var matchCapSlider = document.getElementById('matchCapPercent');
+  
+  // Hide all optional elements first
+  section.classList.add('collapsed');
+  matchSliders.classList.remove('hidden');
+  optionalMatchToggle.classList.add('hidden');
+  tspNote.classList.add('hidden');
+  simpleMatchType.classList.add('hidden');
+  unsureHelp.classList.add('hidden');
+  
+  if (planType === 'none') {
+    // No plan - hide everything
+    return;
+  }
+  
+  if (planType === 'unsure') {
+    unsureHelp.classList.remove('hidden');
+    return;
+  }
+  
+  // Show the section for all plan types
+  section.classList.remove('collapsed');
+  
+  if (planType === '401k') {
+    // 401k - show match fields with typical defaults
+    matchSliders.classList.remove('hidden');
+    matchRateSlider.value = 50;
+    matchCapSlider.value = 6;
+    document.getElementById('employerMatchPercent_val').innerText = '50';
+    document.getElementById('matchCapPercent_val').innerText = '6';
+  } else if (planType === '403b' || planType === '457b') {
+    // 403b/457b - hide match by default, show checkbox to enable
+    matchSliders.classList.add('hidden');
+    optionalMatchToggle.classList.remove('hidden');
+    document.getElementById('hasOptionalMatch').checked = false;
+    matchRateSlider.value = 0;
+    matchCapSlider.value = 0;
+    document.getElementById('employerMatchPercent_val').innerText = '0';
+    document.getElementById('matchCapPercent_val').innerText = '0';
+  } else if (planType === 'tsp') {
+    // TSP - show note and preset match values
+    tspNote.classList.remove('hidden');
+    matchSliders.classList.remove('hidden');
+    matchRateSlider.value = 100;
+    matchCapSlider.value = 5;
+    document.getElementById('employerMatchPercent_val').innerText = '100';
+    document.getElementById('matchCapPercent_val').innerText = '5';
+  } else if (planType === 'simple') {
+    // SIMPLE IRA - show match type selector
+    matchSliders.classList.add('hidden');
+    simpleMatchType.classList.remove('hidden');
+    handleSimpleMatchType();
+  }
+  
+  saveState();
+}
+
+function toggleOptionalMatch() {
+  var hasMatch = document.getElementById('hasOptionalMatch').checked;
+  var matchSliders = document.getElementById('match-sliders');
+  
+  if (hasMatch) {
+    matchSliders.classList.remove('hidden');
+  } else {
+    matchSliders.classList.add('hidden');
+    document.getElementById('employerMatchPercent').value = 0;
+    document.getElementById('matchCapPercent').value = 0;
+    document.getElementById('employerMatchPercent_val').innerText = '0';
+    document.getElementById('matchCapPercent_val').innerText = '0';
+  }
+  saveState();
+}
+
+function handleSimpleMatchType() {
+  var matchType = document.querySelector('input[name="simpleMatchType"]:checked').value;
+  var matchRateSlider = document.getElementById('employerMatchPercent');
+  var matchCapSlider = document.getElementById('matchCapPercent');
+  
+  if (matchType === '3percent') {
+    matchRateSlider.value = 100;
+    matchCapSlider.value = 3;
+    document.getElementById('employerMatchPercent_val').innerText = '100';
+    document.getElementById('matchCapPercent_val').innerText = '3';
+  } else {
+    // 2% flat - employer contributes 2% regardless
+    matchRateSlider.value = 200; // 200% because they give 2% even if you contribute 1%
+    matchCapSlider.value = 2;
+    document.getElementById('employerMatchPercent_val').innerText = '200';
+    document.getElementById('matchCapPercent_val').innerText = '2';
+  }
   saveState();
 }
 
@@ -723,12 +868,14 @@ function estimateTaxBracket(p) {
 function getParams() {
   var p = {};
   sliderDefs.forEach(function(def) { p[def[0]] = Number(document.getElementById(def[0]).value); });
-  p.has401k = document.getElementById('has401k') ? document.getElementById('has401k').checked : false;
+  var planType = document.getElementById('retirementPlanType') ? document.getElementById('retirementPlanType').value : 'none';
+  p.has401k = planType !== 'none' && planType !== 'unsure';
+  p.retirementPlanType = planType;
   p.prioritizeTaxAdvantaged = document.getElementById('prioritizeTaxAdvantaged') ? document.getElementById('prioritizeTaxAdvantaged').checked : false;
-  p.annualSalary = Number(document.getElementById('annualSalary') ? document.getElementById('annualSalary').value : 50000);
+  p.annualSalary = Number(document.getElementById('annualSalary') ? document.getElementById('annualSalary').value : 0);
   p.current401kPercent = Number(document.getElementById('current401kPercent') ? document.getElementById('current401kPercent').value : 0);
-  p.employerMatchPercent = Number(document.getElementById('employerMatchPercent') ? document.getElementById('employerMatchPercent').value : 50);
-  p.matchCapPercent = Number(document.getElementById('matchCapPercent') ? document.getElementById('matchCapPercent').value : 6);
+  p.employerMatchPercent = Number(document.getElementById('employerMatchPercent') ? document.getElementById('employerMatchPercent').value : 0);
+  p.matchCapPercent = Number(document.getElementById('matchCapPercent') ? document.getElementById('matchCapPercent').value : 0);
   p.currentAutoInvest = Number(document.getElementById('currentAutoInvest') ? document.getElementById('currentAutoInvest').value : 0);
   p.currentAutoSave = Number(document.getElementById('currentAutoSave') ? document.getElementById('currentAutoSave').value : 0);
   p.currentExtraDebt = Number(document.getElementById('currentExtraDebt') ? document.getElementById('currentExtraDebt').value : 0);
